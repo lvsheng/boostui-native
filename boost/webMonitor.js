@@ -9,15 +9,11 @@ define(function (require, exports, module) {
     var $ = require("boost/$");
     var assert = require("base/assert");
     var each = require("base/each");
+    var toCamelCase = require("base/toCamelCase");
     require("boost/webMap");
     require("boost/webDebugger");
     require("boost/boost");
     var INTERVAL = 30;
-    function toCamelCase(str) { //TODO: move to base/
-        return str.replace(/-+(.)?/g, function (match, chr) {
-            return chr ? chr.toUpperCase() : '';
-        });
-    }
 
     var WebMonitor = derive(Object, {
         _setIntervalHandle: null,
@@ -111,6 +107,7 @@ define(function (require, exports, module) {
                     }
                 });
             });
+            //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
             observer.observe(document.documentElement, {
                 childList: true,
                 attributes: true,

@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var Event = require("boost/Event");
     var nativeGlobal = require("boost/NativeObject").global;
+    var toCamelCase = require("base/toCamelCase");
     var webMap = require("boost/webMap");
     var webDebugger = require('./webDebugger');
 
@@ -96,13 +97,6 @@ define(function (require, exports, module) {
             processElement(child, nativeParentElement);
         }
     }
-
-    function toCamelCase(str) {
-        return str.replace(/-+(.)?/g, function (match, chr) {
-            return chr ? chr.toUpperCase() : '';
-        });
-    }
-
 
     var parser = null;
     var ruleList = [];

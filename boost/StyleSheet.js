@@ -12,7 +12,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var PropertyChangeEvent = require("boost/PropertyChangeEvent");
     var validator = require("boost/validator");
-
+    var toCamelCase = require("base/toCamelCase");
 
     var StyleSheet = derive(EventTarget, function () {
         //this._super();
@@ -50,13 +50,6 @@ define(function (require, exports, module) {
             // nothing
         }
     });
-
-    function toCamelCase(str) {
-        return str.replace(/-+(.)?/g, function (match, chr) {
-            return chr ? chr.toUpperCase() : '';
-        });
-    }
-
 
     StyleSheet.createPropTypes = function ( /*base..., */ config) {
         var proto = {};

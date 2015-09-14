@@ -27,6 +27,29 @@ define(function (require, exports, module) {
         return array.length > 0 ? concat.apply([], array) : array;
     }
 
+    function walkTree (node, handler) {
+        handler(node);
+        if (!node.firstChild) { return; }
+        for (var cur = node.firstChild; cur; cur = cur.nextSibling) {
+            walkTree(cur, handler);
+        }
+    }
+
+    function updateStyle (element) {
+        //TODO: change to update all children style
+        walkTree(element, function (curElement) {
+            var elementStyleRender = curElement.__styleRender__;
+            if (!elementStyleRender) {
+                //应对非xml-parser解析出的元素
+                console.warn("to auto update element's style when it's class changes, element.__styleRender(added in xml-parser.js) is required.");
+                return;
+            }
+
+            elementStyleRender.clearStyle(curElement);
+            elementStyleRender.applyOnOne(curElement);
+        });
+    }
+
     function $(selector, context) {
         var dom;
         if (!selector) {
@@ -125,6 +148,41 @@ define(function (require, exports, module) {
             }
         },
 
+        /**
+         * @param classStr {string} 可用空白分隔多个要添加的class
+         */
+        addClass: function (classStr) {
+            var classesToAdd = classStr.split(/\s+/);
+            return this.each(function (index, element) {
+                var classList = element.classList;
+                classesToAdd = classesToAdd.filter(function (item) { return classList.indexOf(item) === -1; });
+                element.className = classList.concat(classesToAdd).join(' ');
+                updateStyle(element);
+            });
+        },
+
+        /**
+         * @param classStr {string} 可用空白分隔多个要添加的class
+         */
+        removeClass: function (classStr) {
+            var classesToRemove = classStr.split(/\s+/);
+            return this.each(function (index, element) {
+                var classList = element.classList;
+                classList = classList.filter(function (item) { return classesToRemove.indexOf(item) === -1; });
+                element.className = classList.join(' ');
+                updateStyle(element);
+            });
+        },
+
+        hasClass: function (classStr) {
+            var has = false;
+            this.each(function (index, element) {
+                if (element.classList.indexOf(classStr) !== -1) {
+                    has = true;
+                }
+            });
+            return has;
+        },
 
         on: function (type, callback) {
             return this.each(function (idx, element) {
