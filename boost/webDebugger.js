@@ -2,8 +2,6 @@ define(function (require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
-    var $ = require("boost/$");
-    var boost = require("boost/boost");
     var assert = require("base/assert");
     var webMonitor = require("boost/webMonitor");
 

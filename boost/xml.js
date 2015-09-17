@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
     var webMap = require("boost/webMap");
-    var webDebugger = require("boost/webDebugger");
+    require("boost/webDebugger");
     var nativeGlobal = require("boost/NativeObject").global;
     var FROM_CUSTOM_HANDLER = "__from_custom_handler__";
 
@@ -120,6 +120,7 @@ define(function (require, exports, module) {
                                 var value = xmlElement.firstChild ? xmlElement.firstChild.nodeValue : '';
                                 nativeElement.value = value;
 
+                                var webDebugger = require('./webDebugger');
                                 if (webDebugger.isActive()) {
                                     webDebugger.ignoreWebChange = true;
                                     webMap.getWebElement(nativeElement).innerText = value;

@@ -2,10 +2,9 @@ define(function (require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
-    var $ = require("boost/$");
     var assert = require("base/assert");
     var each = require("base/each");
-    var webDebugger = require('./webDebugger');
+    require('./webDebugger');
     var ID_ATTR_NAME = "__web_map_id";
 
     var WebMap = derive(Object, {
@@ -13,17 +12,30 @@ define(function (require, exports, module) {
         _webMap: {},
 
         getBoostElement: function (webElement) {
+            var webDebugger = require('./webDebugger');
             assert(webDebugger.isActive(), "should not use webMap when inUse() === false");
 
-            return this._boostMap[this._getId(webElement)];
+            var id = this._getId(webElement);
+            assert(id !== undefined, "id of webElement should be added, please check whether you call webDebugger.active() before any other script");
+            var boostElement = this._boostMap[id];
+            assert(boostElement !== undefined, "no required boostElement, please check whether you call webDebugger.active() before any other script");
+
+            return boostElement;
         },
         getWebElement: function (boostElement) {
+            var webDebugger = require('./webDebugger');
             assert(webDebugger.isActive(), "should not use webMap when inUse() === false");
 
-            return this._webMap[this._getId(boostElement)];
+            var id = this._getId(boostElement);
+            assert(id !== undefined, "id of webElement should be added, please check whether you call webDebugger.active() before any other script");
+            var webElement = this._webMap[id];
+            assert(webElement !== undefined, "no required webElement, please check whether you call webDebugger.active() before any other script");
+
+            return webElement;
         },
 
         set: function (boostElement, webElement) {
+            var webDebugger = require('./webDebugger');
             assert(webDebugger.isActive(), "should not use webMap when inUse() === false");
 
             var id = boostElement.tag;
@@ -36,6 +48,7 @@ define(function (require, exports, module) {
         },
 
         getAllWebElements: function () {
+            var webDebugger = require('./webDebugger');
             assert(webDebugger.isActive(), "should not use webMap when inUse() === false");
 
             var result = [];

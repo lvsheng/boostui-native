@@ -6,7 +6,6 @@ define(function (require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
-    var $ = require("boost/$");
     var assert = require("base/assert");
     var each = require("base/each");
     var toCamelCase = require("base/toCamelCase");
@@ -63,6 +62,9 @@ define(function (require, exports, module) {
                             break;
                         case "childList":
                             webElement = record.target;
+                            if (webElement === document.body) {
+                                return; //忽略body..应对向页面插入script标签等状况。TODO: 改为只监听某个元素下内容
+                            }
                             boostElement = webMap.getBoostElement(webElement);
 
                             each(record.removedNodes, function (removedNode) {
