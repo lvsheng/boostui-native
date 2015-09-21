@@ -62,9 +62,6 @@ define(function (require, exports, module) {
                             break;
                         case "childList":
                             webElement = record.target;
-                            if (webElement === document.body) {
-                                return; //忽略body..应对向页面插入script标签等状况。TODO: 改为只监听某个元素下内容
-                            }
                             boostElement = webMap.getBoostElement(webElement);
 
                             each(record.removedNodes, function (removedNode) {
@@ -110,7 +107,7 @@ define(function (require, exports, module) {
                 });
             });
             //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
-            observer.observe(document.documentElement, {
+            observer.observe(webDebugger.containerElement, {
                 childList: true,
                 attributes: true,
                 characterData: true,

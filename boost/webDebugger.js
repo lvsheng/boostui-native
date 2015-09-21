@@ -5,7 +5,13 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var webMonitor = require("boost/webMonitor");
 
-    var WebDebugger = derive(Object, {
+    var WebDebugger = derive(Object, function () {
+        this.containerElement = document.createElement("div");
+
+        this.containerElement.id = "web-monitor-container";
+        this.containerElement.style.visibility = 'hidden';
+        document.documentElement.appendChild(this.containerElement);
+    }, {
         _active: false,
 
         /**
@@ -22,7 +28,6 @@ define(function (require, exports, module) {
             //TODO: assert no element was created before
 
             this._active = true;
-            document.documentElement.style.visibility = 'hidden';
             webMonitor.start();
         },
         //TODO: 有些样式没有更新至dom上，比如follow的颜色、测试按钮的背景色

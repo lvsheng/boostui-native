@@ -39,7 +39,7 @@ define(function (require, exports, module) {
 
                 var webDebugger = require('./webDebugger');
                 if (webDebugger.isActive()) {
-                    webMap.set(this.__docuemntElement__, document.documentElement);
+                    webMap.set(this.__docuemntElement__, webDebugger.containerElement);
                 }
             }
             return this.__docuemntElement__;
