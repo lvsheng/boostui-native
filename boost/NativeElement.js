@@ -54,20 +54,23 @@ define(function (require, exports, module) {
             return {};
             //return this.style.__getProps();
         },
-        __addChildAt: function (child, index) {
+        __addComposedChildAt: function (child, index) {
             //appendChild: function (child) {
             var tag = this.__native__.tag;
             assert(child instanceof NativeElement, "child must be a NativeElement");
+            if (tag === "SLOT") { //composedTree中的SLOT按VIEW来处理
+                tag = "VIEW";
+            }
             //var ret = this._super(child, index);
-            var ret = _super.__addChildAt.call(this, child, index);
+            var ret = _super.__addComposedChildAt.call(this, child, index);
             //这个地方一定要在 _super 调用之后,因为在之前有可能添加和删除的顺序会错
             nativeGlobal.addView(tag, child.__native__.tag, index);
             return ret;
         },
-        __removeChildAt: function (index) {
+        __removeComposedChildAt: function (index) {
             var tag = this.__native__.tag;
             //var ret = this._super(index);
-            var ret = _super.__removeChildAt.call(this, index);
+            var ret = _super.__removeComposedChildAt.call(this, index);
             //这个地方一定要在 _super 调用之后,因为在之前有可能添加和删除的顺序会错
             nativeGlobal.removeView(tag, index);
             return ret;

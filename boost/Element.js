@@ -7,6 +7,8 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
+    var ShadowRoot = require("boost/ShadowRoot");
+    var compareElementOrder = require("boost/compareElementOrder");
     var webMap = require("boost/webMap");
     var webDebugger = require('./webDebugger');
     var push = [].push;
@@ -22,7 +24,62 @@ define(function (require, exports, module) {
         this.__classList__ = [];
         this.__children__ = [];
         this.__parent__ = null;
+
+        this.__composedParent__ = null; //其计算依赖parent的shadowTree及其后代shadowTree中slot的assignedSlot
+        this.__composedChildren__ = [];
+        this.__shadowRoot__ = null;
+        this.__slot__ = ""; //slotName
+        this.__assignedSlot__ = null;
+        /**
+         * 只有根节点(未append到其他节点上，包括shadowRoot)才维护，非根节点不维护（创建时都是根节点）
+         * shadowRoot中对相同name的会以先根序排放
+         */
+        this.__descendantSlots__ = [];
+
+        if (this.tagName === "SLOT") {
+            this.__descendantSlots__.push(this);
+        }
     }, {
+        "get slot": function () {
+            return this.__slot__;
+        },
+        "set slot": function (slot) {
+            this.__slot__ = slot;
+            //TODO
+        },
+        "get shadowRoot": function () {
+            return this.__shadowRoot__;
+        },
+        "get assignedSlot": function () {
+            return this.__assignedSlot__;
+        },
+
+        /**
+         * 暂未实现shadowRootInitDict参数
+         */
+        "attachShadow": function () {
+            var self = this;
+            var NOT_SUPPORTED_TAGS = [
+                "TEXT",
+                "TEXTINPUT",
+                // ShadowRoot是规范里其并非继承Element而是继承自DocumentFragment，故没有此方法。本实现里只能在这儿排除之。
+                "SHADOWROOT"
+            ];
+            assert(NOT_SUPPORTED_TAGS.indexOf(self.tagName) === -1, "Failed to execute 'attachShadow' on 'Element': Author-created shadow roots are disabled for this element.");
+            assert(self.__shadowRoot__ === null, "Calling Element.attachShadow() for an element which already hosts a user-agent shadow root is deprecated.");
+
+            self.__shadowRoot__ = new ShadowRoot(self);
+            // 自己变成了shadowHost，并且shadowTree中没有slot。故child元素的assignedSlot与composedParent都为null
+            each(self.__children__, function (child) {
+                assert(child.__assignedSlot__ === null, "the assignedSlot of normal node's child should be null");
+                //TODO: child可能为有效slot，则其不会出现在composedTree上
+                assert(child.__composedParent__ === self, "the composedParent of normal node's child should be the normal node");
+                self.__removeComposedChild(child);
+            });
+
+            return self.__shadowRoot__;
+        },
+
         "set id": function (value) {
             this.__id__ = value;
 
@@ -146,18 +203,241 @@ define(function (require, exports, module) {
                 webMap.getWebElement(this).style[key] = webValue;
             }
         },
-        __addChildAt: function (child, index) {
-            var childParentNode = child.parentNode;
-            if (childParentNode !== null) {
-                childParentNode.removeChild(child);
+
+        /**
+         * @returns {Element} 可能是documentElement，也可能是不在documentTree里的普通Element，也可能是shadowRoot
+         */
+        __getRoot: function () {
+            var root;
+            for (root = this; root.parentNode !== null; root = root.parentNode) {
             }
-            this.__children__.splice(index, 0, child);
-            child.__parent__ = this;
+            return root;
         },
+        __addChildAt: function (addedChild, index) {
+            assert(addedChild.tagName !== "SHADOWROOT", "shadowRoot can't be child of other node");
+            var self = this;
+
+            var childParentNode = addedChild.parentNode;
+            if (childParentNode !== null) {
+                childParentNode.removeChild(addedChild);
+            }
+
+            self.__children__.splice(index, 0, addedChild);
+            addedChild.__parent__ = self;
+
+            //TODO: 改变appendChild的composedParent
+
+            // 下面为计算新增子树中的slot对host的子的assignedSlot的影响
+            var hasNewSlot = addedChild.__descendantSlots__.length > 0;
+            if (!hasNewSlot) {
+                return;
+            }
+
+            var root = self.__getRoot();
+            var oldSlots = root.__descendantSlots__.slice();
+            var newSlots = addedChild.__descendantSlots__.slice();
+
+            addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护__descendantSlots__
+
+            var inShadowTree = root.tagName === "SHADOWROOT";
+            if (!inShadowTree) {
+                root.__descendantSlots__ = oldSlots.concat(newSlots);
+                return;
+            }
+
+            var shadowHost = root.host;
+            var unAssignedChildren = shadowHost.__children__.filter(function (hostChild) {
+                return hostChild.__assignedSlot__ === null;
+            });
+
+            var newSlotNameMap = {};
+            each(newSlots, function (newSlot) {
+                if (!newSlotNameMap[newSlot.__name__]) { //若有同名，靠前者为树中先序，优先
+                    newSlotNameMap[newSlot.__name__] = newSlot;
+                }
+            });
+            each(newSlotNameMap, function (newSlot) {
+                var sameNameOldSlot;
+                var indexOld;
+                for (indexOld = 0; !sameNameOldSlot && indexOld < oldSlots.length; ++indexOld) {
+                    if (oldSlots[indexOld].__name__ === newSlot.__name__) {
+                        sameNameOldSlot = oldSlots[indexOld];
+                    }
+                }
+
+                // 旧树中没有同名
+                if (!sameNameOldSlot) {
+                    root.__descendantSlots__.push(newSlot);
+                    var matchedHostChildren = unAssignedChildren.filter(function (hostChild) {
+                        return hostChild.__slot__ === newSlot.__name__;
+                    });
+                    unAssignedChildren = unAssignedChildren.filter(function (hostChild) {
+                        return hostChild.__slot__ !== newSlot.__name__;
+                    });
+                    matchedHostChildren.forEach(function (hostChild) {
+                        newSlot.__assignNode(hostChild);
+                    });
+                    return;
+                }
+
+                var compareResult = compareElementOrder(newSlot, sameNameOldSlot);
+
+                // 旧树中有同名且先序于新slot
+                if(compareResult === 1) {
+                    // 新的只是替补，旧的先于新的，仍是旧的生效
+                    root.__descendantSlots__.splice(indexOld + 1, 0, newSlot);
+                    return;
+                }
+
+                // 旧树中有同名且后序于新slot
+                assert(compareResult === -1);
+                root.__descendantSlots__.splice(indexOld, 0, newSlot);
+                sameNameOldSlot.__assignNodes__.forEach(function (node) {
+                    assert(node.__assignedSlot__ === sameNameOldSlot);
+                    newSlot.__assignNode(node);
+                });
+            });
+            /**
+             * TODO: 重新计算一个host下的assignedSlot等（认为此shadowTree的descendant tree和ancestor tree都已计算过）
+             * 添加的子树中有slot，则shadowHost的children需重新assign到slot：
+             * 更新host每一个子的assignedSlot
+             * 对于非slot/非有效slot子，更新其composedParent
+             * 对于有效slot子，更新其distributedNodes的composedParent
+             * 更新shadowTree中每一个slot下内容的显隐
+             */
+            //shadowHost.__children__.forEach(function (hostChild, index) {
+            //    // assignedSlot
+            //    hostChild.__assignedSlot__ = self.__calculateAssignedSlot(hostChild);
+            //
+            //    // composedParent
+            //    if (hostChild.tagName !== "SLOT" || !hostChild.__isEffective()) {
+            //        var composedParent = self.__calculateComposedParent(hostChild);
+            //        if (composedParent !== hostChild.__composedParent__) {
+            //            if (hostChild.__composedParent__) {
+            //                hostChild.__composedParent__.__removeComposedChild(hostChild);
+            //            }
+            //
+            //            if (composedParent) {
+            //                var insertIndex = 0;
+            //                var recursivelyAssignedSlot = self.__getRecursivelyAssignedSlot(hostChild);
+            //                assert(!!recursivelyAssignedSlot, "if child.composedParent change, then should has assignedSlot");
+            //                var assignedSlotFound = false;
+            //                var children = (composedParent.__shadowRoot__ || composedParent).__children__;
+            //                for (var i = 0; i < composedParent.__children__.length; ++i) {
+            //                    var cur = composedParent.__children__[i];
+            //                    if (cur === recursivelyAssignedSlot) {
+            //                        assignedSlotFound = true;
+            //                        break;
+            //                    }
+            //
+            //                    if (cur.tagName !== "SLOT" || !cur.__isEffective()) {
+            //                        ++insertIndex;
+            //                    } else {
+            //                        insertIndex += cur.__distributedNodes__.length;
+            //                    }
+            //                }
+            //                assert(assignedSlotFound, "recursivelyAssignedSlot should be child of composedParent");
+            //                insertIndex += index; //TODO?
+            //                composedParent.__addComposedChildAt(hostChild, insertIndex);
+            //            }
+            //        }
+            //    }
+            //});
+        },
+
+        __calculateAssignedSlot: function (node) {
+            var shadowHost = node.parentNode;
+            if (!shadowHost) {
+                return null;
+            }
+
+            var shadowRoot = shadowHost.shadowRoot;
+            if (!shadowRoot) {
+                return null;
+            }
+
+            for (var i = 0; i < shadowRoot.__descendantSlots__.length; ++i) {
+                var slot = shadowRoot.__descendantSlots__[i];
+                //TODO: 改为按先根序优先
+                if (slot.__name__ === node.__slot__) { //含默认的""
+                    return slot;
+                }
+            }
+
+            return null;
+        },
+        __getRecursivelyAssignedSlot: function (node) {
+            var result = node;
+            while (result.__assignedSlot__) {
+                result = result.__assignedSlot__;
+            }
+            return result;
+        },
+        /**
+         * @pre
+         *  node.assignedSlot已经计算完毕
+         *  node.parentNode的shadowTree及其所有descendant tree中的slot的assignedSlot已经计算完毕
+         * @param node
+         */
+        __calculateComposedParent: function (node) {
+            var composedParent;
+            var nodeParent = node.parentNode;
+
+            if (!nodeParent) {
+                composedParent = null;
+            } else if (!nodeParent.__shadowRoot__) {
+                composedParent = nodeParent;
+            } else if (!node.__assignedSlot__) {
+                composedParent = null;
+            } else {
+                composedParent = this.__getRecursivelyAssignedSlot(node).parentNode;
+            }
+
+            if (composedParent && composedParent.tagName === "SHADOWROOT") {
+                composedParent = composedParent.parentNode; //目前不允许shadowRoot再attachShadow，故只取一层即可
+            }
+
+            return composedParent;
+        },
+
         __removeChildAt: function (index) {
             var child = this.childNodes[index];
             this.childNodes.splice(index, 1);
             child.__parent__ = null;
+
+            // __descendantSlots__中属于此child的，由其继续维护
+            child.__descendantSlots__ = [];
+            var root = this.__getRoot();
+            for (var i = 0; i < root.__descendantSlots__.length; ++i) {
+                var eachDescendantSlot = root.__descendantSlots__[i];
+                if (eachDescendantSlot.__getRoot() === child) {
+                    child.__descendantSlots__.push(eachDescendantSlot);
+                    root.__descendantSlots__.splice(i, 1);
+                    --i;
+                }
+            }
+            if (child.tagName === "SLOT") {
+                assert(child.__descendantSlots__.indexOf(child) > -1, "__descendantSlots__ of root SLOT should include itself");
+            }
+        },
+        __addComposedChildAt: function (child, index) {
+            var childParentNode = child.__composedParent__;
+            if (childParentNode !== null) {
+                childParentNode.__removeComposedChild(child);
+            }
+            this.__composedChildren__.splice(index, 0, child);
+            child.__composedParent__ = this;
+        },
+        __removeComposedChild: function (child) {
+            var index = this.__composedChildren__.indexOf(child);
+            if (index > -1) {
+                this.__removeComposedChildAt(index);
+            }
+        },
+        __removeComposedChildAt: function (index) {
+            var child = this.__composedChildren__[index];
+            this.__composedChildren__.splice(index, 1);
+            child.__composedParent__ = null;
         },
         appendChild: function (child) {
             this.__addChildAt(child, this.__children__.length);
@@ -389,53 +669,53 @@ define(function (require, exports, module) {
             return this.__select(selector);
         },
         /*
-        querySelector: function (selector) {
-            var func = getSelectorFunction(selector);
-            var ret = [];
-            func(this, ret, 1);
-            return ret;
-        },
-        querySelectorAll: function (selector, __results__) {
-            __results__ = __results__ || [];
-            var match = rquickExpr.exec(selector);
-            var m;
+         querySelector: function (selector) {
+         var func = getSelectorFunction(selector);
+         var ret = [];
+         func(this, ret, 1);
+         return ret;
+         },
+         querySelectorAll: function (selector, __results__) {
+         __results__ = __results__ || [];
+         var match = rquickExpr.exec(selector);
+         var m;
 
-            //assert(match !== null, "现在只支持简单的选择器: #id .class tag");
-            if (match !== null) {
-                if ((m = match[1])) {
-                    // ID selector
-                    push.apply(__results__, this.getElementById(m));
-                } else if (match[2]) {
-                    // Type selector
-                    push.apply(__results__, this.getElementsByTagName(selector));
-                } else if (m = match[3]) {
-                    // Class selector
-                    push.apply(__results__, this.getElementsByTagName(selector));
-                }
-            } else {
+         //assert(match !== null, "现在只支持简单的选择器: #id .class tag");
+         if (match !== null) {
+         if ((m = match[1])) {
+         // ID selector
+         push.apply(__results__, this.getElementById(m));
+         } else if (match[2]) {
+         // Type selector
+         push.apply(__results__, this.getElementsByTagName(selector));
+         } else if (m = match[3]) {
+         // Class selector
+         push.apply(__results__, this.getElementsByTagName(selector));
+         }
+         } else {
 
-            }
+         }
 
-            return __results__;
-        },
-       */
+         return __results__;
+         },
+         */
         setAttribute: function (name, value) {
             switch (name.toLowerCase()) {
-            case "class":
-                this.className = value;
-                break;
-            case "style":
-                this.style.cssText = value;
-                break;
-            default:
-                this[name] = value;
+                case "class":
+                    this.className = value;
+                    break;
+                case "style":
+                    this.style.cssText = value;
+                    break;
+                default:
+                    this[name] = value;
 
-                if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-                    var webElement = webMap.getWebElement(this);
-                    webDebugger.doNotUpdateBoostOnce = true;
-                    webElement.setAttribute(name, value);
-                }
-                break;
+                    if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
+                        var webElement = webMap.getWebElement(this);
+                        webDebugger.doNotUpdateBoostOnce = true;
+                        webElement.setAttribute(name, value);
+                    }
+                    break;
             }
         },
         getAttribute: function (name) {
