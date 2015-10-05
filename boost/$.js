@@ -155,12 +155,12 @@ define(function (require, exports, module) {
             var classesToAdd = classStr.split(/\s+/);
             return this.each(function (index, element) {
                 var classList = element.classList;
-                classesToAdd = classesToAdd.filter(function (item) { return classList.indexOf(item) === -1; });
-                if (classesToAdd.length === 0) {
+                var addedClassList = classesToAdd.filter(function (item) { return classList.indexOf(item) === -1; });
+                if (addedClassList.length === 0) {
                     return;
                 }
 
-                element.className = classList.concat(classesToAdd).join(' ');
+                element.className = classList.concat(addedClassList).join(' ');
                 updateStyle(element);
             });
         },
