@@ -6,7 +6,6 @@ define(function (require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
-    var $ = require("boost/$");
     var assert = require("base/assert");
     var each = require("base/each");
     var toCamelCase = require("base/toCamelCase");
@@ -108,7 +107,7 @@ define(function (require, exports, module) {
                 });
             });
             //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
-            observer.observe(document.documentElement, {
+            observer.observe(webDebugger.containerElement, {
                 childList: true,
                 attributes: true,
                 characterData: true,

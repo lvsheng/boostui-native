@@ -10,7 +10,7 @@ define(function (require, exports, module) {
     var ShadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/compareElementOrder");
     var webMap = require("boost/webMap");
-    var webDebugger = require('./webDebugger');
+    require('./webDebugger');
     var push = [].push;
 
     var _super = EventTarget.prototype;
@@ -83,6 +83,7 @@ define(function (require, exports, module) {
         "set id": function (value) {
             this.__id__ = value;
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 webDebugger.doNotUpdateBoostOnce = true;
                 webMap.getWebElement(this).id = value;
@@ -106,6 +107,7 @@ define(function (require, exports, module) {
             }
             this.__classList__ = classList;
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 webDebugger.doNotUpdateBoostOnce = true;
                 webMap.getWebElement(this).className = value;
@@ -189,6 +191,7 @@ define(function (require, exports, module) {
         __styleChange: function (key, value, origValue) {
             // do nothing
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 var webValue;
                 if (value === "UNDEFINED") {
@@ -442,6 +445,7 @@ define(function (require, exports, module) {
         appendChild: function (child) {
             this.__addChildAt(child, this.__children__.length);
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 var webElement = webMap.getWebElement(this);
                 var webChild = webMap.getWebElement(child);
@@ -462,6 +466,7 @@ define(function (require, exports, module) {
             }
             this.__addChildAt(newNode, index);
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 var webElement = webMap.getWebElement(this);
                 var newWebElement = webMap.getWebElement(newNode);
@@ -479,6 +484,7 @@ define(function (require, exports, module) {
             }
             this.__removeChildAt(index);
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 var webElement = webMap.getWebElement(this);
                 var childWebElement = webMap.getWebElement(child);
@@ -499,6 +505,7 @@ define(function (require, exports, module) {
             this.childNodes.splice(index, 1, newChild);
             oldChild.__parent__ = null;
 
+            var webDebugger = require('./webDebugger');
             if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                 var webElement = webMap.getWebElement(this);
                 var newChildWebElement = webMap.getWebElement(newChild);
@@ -669,36 +676,36 @@ define(function (require, exports, module) {
             return this.__select(selector);
         },
         /*
-         querySelector: function (selector) {
-         var func = getSelectorFunction(selector);
-         var ret = [];
-         func(this, ret, 1);
-         return ret;
-         },
-         querySelectorAll: function (selector, __results__) {
-         __results__ = __results__ || [];
-         var match = rquickExpr.exec(selector);
-         var m;
+        querySelector: function (selector) {
+            var func = getSelectorFunction(selector);
+            var ret = [];
+            func(this, ret, 1);
+            return ret;
+        },
+        querySelectorAll: function (selector, __results__) {
+            __results__ = __results__ || [];
+            var match = rquickExpr.exec(selector);
+            var m;
 
-         //assert(match !== null, "现在只支持简单的选择器: #id .class tag");
-         if (match !== null) {
-         if ((m = match[1])) {
-         // ID selector
-         push.apply(__results__, this.getElementById(m));
-         } else if (match[2]) {
-         // Type selector
-         push.apply(__results__, this.getElementsByTagName(selector));
-         } else if (m = match[3]) {
-         // Class selector
-         push.apply(__results__, this.getElementsByTagName(selector));
-         }
-         } else {
+            //assert(match !== null, "现在只支持简单的选择器: #id .class tag");
+            if (match !== null) {
+                if ((m = match[1])) {
+                    // ID selector
+                    push.apply(__results__, this.getElementById(m));
+                } else if (match[2]) {
+                    // Type selector
+                    push.apply(__results__, this.getElementsByTagName(selector));
+                } else if (m = match[3]) {
+                    // Class selector
+                    push.apply(__results__, this.getElementsByTagName(selector));
+                }
+            } else {
 
-         }
+            }
 
-         return __results__;
-         },
-         */
+            return __results__;
+        },
+       */
         setAttribute: function (name, value) {
             switch (name.toLowerCase()) {
                 case "class":
@@ -710,6 +717,7 @@ define(function (require, exports, module) {
                 default:
                     this[name] = value;
 
+                    var webDebugger = require('./webDebugger');
                     if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
                         var webElement = webMap.getWebElement(this);
                         webDebugger.doNotUpdateBoostOnce = true;

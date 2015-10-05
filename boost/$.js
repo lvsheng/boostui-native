@@ -155,8 +155,12 @@ define(function (require, exports, module) {
             var classesToAdd = classStr.split(/\s+/);
             return this.each(function (index, element) {
                 var classList = element.classList;
-                classesToAdd = classesToAdd.filter(function (item) { return classList.indexOf(item) === -1; });
-                element.className = classList.concat(classesToAdd).join(' ');
+                var addedClassList = classesToAdd.filter(function (item) { return classList.indexOf(item) === -1; });
+                if (addedClassList.length === 0) {
+                    return;
+                }
+
+                element.className = classList.concat(addedClassList).join(' ');
                 updateStyle(element);
             });
         },
@@ -168,8 +172,12 @@ define(function (require, exports, module) {
             var classesToRemove = classStr.split(/\s+/);
             return this.each(function (index, element) {
                 var classList = element.classList;
-                classList = classList.filter(function (item) { return classesToRemove.indexOf(item) === -1; });
-                element.className = classList.join(' ');
+                var newClassList = classList.filter(function (item) { return classesToRemove.indexOf(item) === -1; });
+                if (newClassList.length === classList.length) {
+                    return;
+                }
+
+                element.className = newClassList.join(' ');
                 updateStyle(element);
             });
         },

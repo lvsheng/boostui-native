@@ -79,11 +79,12 @@ define(function (require, exports, module) {
                 var origValue = this.__styleProps__[key];
                 var event;
 
-                if (value !== null) {
-                    value = curValidator(value);
-                } else {
-                    //清除样式
+                if (value === null //对应css中取消设置该值
+                    || value === "auto" //对应css中设置值为"auto"
+                ) {
                     value = defaultValue;
+                } else {
+                    value = curValidator(value);
                 }
 
                 if (value !== origValue) {

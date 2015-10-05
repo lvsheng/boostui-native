@@ -38,7 +38,7 @@ define(function (require, exports, module) {
         "justifyContent": [_enum("flex-start", "flex-end", "center", "space-between", "space-around"), "flex-start"],
         "alignItems": [_enum("flex-start", "flex-end", "center", "stretch"), "stretch"],
         "alignSelf": [_enum("auto", "flex-start", "flex-end", "center", "stretch"), "auto"],
-        "flex": [number, 1],
+        "flex": [number, "auto"],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],
         "position": [_enum("absolute", "relative"), "relative"],
     });
