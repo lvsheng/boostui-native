@@ -234,7 +234,7 @@ define(function (require, exports, module) {
                 var oldSlots = root.__descendantSlots__.slice();
                 var newSlots = addedChild.__descendantSlots__.slice();
 
-                addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护__descendantSlots__
+                addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护
 
                 //维持先序：找到第一个后序元素，插入其前
                 for (var i = 0; i < oldSlots.length && compareElementOrder(newSlots[0], oldSlots[i]) !== -1; ++i) {}
@@ -248,13 +248,13 @@ define(function (require, exports, module) {
                         return hostChild.__assignedSlot__ === null;
                     });
 
-                    var newSlotNameMap = {};
+                    var newSlotMap = {};
                     each(newSlots, function (newSlot) {
-                        if (!newSlotNameMap[newSlot.__name__]) { //若有同名，靠前者为树中先序，优先
-                            newSlotNameMap[newSlot.__name__] = newSlot;
+                        if (!newSlotMap[newSlot.__name__]) { //若有同名，靠前者在树中先序，优先
+                            newSlotMap[newSlot.__name__] = newSlot;
                         }
                     });
-                    each(newSlotNameMap, function (newSlot) {
+                    each(newSlotMap, function (newSlot) {
                         var sameNameOldSlot; //存放按先序第一个同名slot
                         var indexOld;
                         for (indexOld = 0; !sameNameOldSlot && indexOld < oldSlots.length; ++indexOld) {
@@ -265,23 +265,22 @@ define(function (require, exports, module) {
 
                         if (!sameNameOldSlot) { //旧树中没有同名
                             var matchedHostChildren = unAssignedChildren.filter(function (hostChild) {
-                                return hostChild.__slot__ === newSlot.__name__;
-                            });
-                            unAssignedChildren = unAssignedChildren.filter(function (hostChild) {
-                                return hostChild.__slot__ !== newSlot.__name__;
+                                return hostChild.__slot__ === newSlot.__name__; //含默认的""的比较
                             });
                             matchedHostChildren.forEach(function (hostChild) {
                                 newSlot.__assignNode(hostChild);
                             });
                         } else { //旧树中有同名
-                            var compareResult = compareElementOrder(newSlot, sameNameOldSlot);
-                            assert(compareResult === 1 || compareResult === -1);
-                            if(compareResult === -1) { // 旧树中有同名且后序于新slot
+                            var newSlotIndex = root.__descendantSlots__.indexOf(newSlot);
+                            var oldSlotIndex = root.__descendantSlots__.indexOf(sameNameOldSlot);
+                            //先序的生效。若newSlot生效，取代oldSlot；若newSlot不生效，其只作为替补
+                            var newSlotEffect = newSlotIndex < oldSlotIndex;
+                            if(newSlotEffect) {
                                 sameNameOldSlot.__assignNodes__.forEach(function (node) {
                                     assert(node.__assignedSlot__ === sameNameOldSlot);
                                     newSlot.__assignNode(node);
                                 });
-                            } //else: 旧树中有同名且先序于新slot时，新的只是替补，旧的先于新的，仍是旧的生效
+                            }
                         }
                     });
                 }
