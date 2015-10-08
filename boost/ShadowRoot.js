@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     var derive = require("base/derive");
-    var Element = require("boost/Element");
+    var Element = require("boost/Element"); //TODO: 解决循环依赖的问题~
 
     /**
      * shadowRoot不参与渲染，故只继承Element(w3c规范里是继承自DocumentFragment、又增加了innerHTML与styleSheets等属性)
