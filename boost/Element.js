@@ -367,7 +367,7 @@ define(function (require, exports, module) {
                 }
             }
             if (child.tagName === "SLOT") {
-                assert(child.__descendantSlots__.indexOf(child) > -1, "__descendantSlots__ of root SLOT should include itself");
+                assert(child.__descendantSlots__.indexOf(child) === 0, "__descendantSlots__ of root SLOT should include itself, and should be first");
             }
         },
         __addComposedChildAt: function (child, index) {
