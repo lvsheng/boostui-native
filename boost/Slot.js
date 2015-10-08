@@ -64,16 +64,18 @@ define(function (require, exports, module) {
                     composedParent.__addComposedChildAt(node, ??);
                 }
             } else {
-                //TODO
+                //TODO 改node下所有distributedNodes的cp
             }
-            //TODO: distributedNodes等
             //TODO: 实现所有“具体当个元素的assignedSlot变化时，影响有：”的部分
+            //TODO: 改其assignedSlot的assigningNodes、distributesNodes、及isEffective、composedParent
         },
 
         "__unAssignNode": function (node) {
             var assignNodeIndex = this.__assignNodes__.indexOf(node);
             assert(assignNodeIndex > -1, "can't unAssign node from slot which is not assign to the slot");
             this.__assignNodes__.splice(assignNodeIndex, 1);
+            //TODO: 改自己是否有效、改自己的渲染（composedParent）
+            //TODO: assigningNodes、distributedNodes、是否有效、composedParent
 
             assert(node.__assignedSlot__ === this);
             node.__assignedSlot__ = null;

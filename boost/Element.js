@@ -228,126 +228,75 @@ define(function (require, exports, module) {
             self.__children__.splice(index, 0, addedChild);
             addedChild.__parent__ = self;
 
-            //TODO: 改变appendChild的composedParent
-
             // 下面为计算新增子树中的slot对host的子的assignedSlot的影响
             var hasNewSlot = addedChild.__descendantSlots__.length > 0;
-            if (!hasNewSlot) {
-                return;
+            if (hasNewSlot) {
+                var root = self.__getRoot();
+                var oldSlots = root.__descendantSlots__.slice();
+                var newSlots = addedChild.__descendantSlots__.slice();
+
+                addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护__descendantSlots__
+
+                var inShadowTree = root.tagName === "SHADOWROOT";
+                if (!inShadowTree) {
+                    var firstNewSlot = newSlots[0];
+                    for (var i = 0; i < oldSlots.length && compareElementOrder(firstNewSlot, oldSlots[i]) !== -1; ++i) {}
+                    //i为第一个firstNewSlot的后序，插入其前
+                    root.__descendantSlots__ = oldSlots.slice(0, i).concat(newSlots).concat(oldSlots.slice(i));
+                } else {
+                    var shadowHost = root.host;
+                    var unAssignedChildren = shadowHost.__children__.filter(function (hostChild) {
+                        return hostChild.__assignedSlot__ === null;
+                    });
+
+                    var newSlotNameMap = {};
+                    each(newSlots, function (newSlot) {
+                        if (!newSlotNameMap[newSlot.__name__]) { //若有同名，靠前者为树中先序，优先
+                            newSlotNameMap[newSlot.__name__] = newSlot;
+                        }
+                    });
+                    each(newSlotNameMap, function (newSlot) {
+                        var sameNameOldSlot; //存放先根序第一个同名slot
+                        var indexOld;
+                        for (indexOld = 0; !sameNameOldSlot && indexOld < oldSlots.length; ++indexOld) {
+                            if (oldSlots[indexOld].__name__ === newSlot.__name__) {
+                                sameNameOldSlot = oldSlots[indexOld];
+                            }
+                        }
+
+                        if (!sameNameOldSlot) { //旧树中没有同名
+                            root.__descendantSlots__.push(newSlot);
+                            var matchedHostChildren = unAssignedChildren.filter(function (hostChild) {
+                                return hostChild.__slot__ === newSlot.__name__;
+                            });
+                            unAssignedChildren = unAssignedChildren.filter(function (hostChild) {
+                                return hostChild.__slot__ !== newSlot.__name__;
+                            });
+                            matchedHostChildren.forEach(function (hostChild) {
+                                newSlot.__assignNode(hostChild);
+                            });
+                        } else { //旧树中有同名
+                            var compareResult = compareElementOrder(newSlot, sameNameOldSlot);
+                            if(compareResult === 1) { //旧树中有同名且先序于新slot
+                                // 新的只是替补，旧的先于新的，仍是旧的生效
+                                root.__descendantSlots__.splice(indexOld + 1, 0, newSlot);
+                            } else { // 旧树中有同名且后序于新slot
+                                assert(compareResult === -1);
+                                root.__descendantSlots__.splice(indexOld, 0, newSlot);
+                                sameNameOldSlot.__assignNodes__.forEach(function (node) {
+                                    assert(node.__assignedSlot__ === sameNameOldSlot);
+                                    newSlot.__assignNode(node);
+                                });
+                            }
+                        }
+                    });
+                }
             }
 
-            var root = self.__getRoot();
-            var oldSlots = root.__descendantSlots__.slice();
-            var newSlots = addedChild.__descendantSlots__.slice();
-
-            addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护__descendantSlots__
-
-            var inShadowTree = root.tagName === "SHADOWROOT";
-            if (!inShadowTree) {
-                root.__descendantSlots__ = oldSlots.concat(newSlots);
-                return;
-            }
-
-            var shadowHost = root.host;
-            var unAssignedChildren = shadowHost.__children__.filter(function (hostChild) {
-                return hostChild.__assignedSlot__ === null;
-            });
-
-            var newSlotNameMap = {};
-            each(newSlots, function (newSlot) {
-                if (!newSlotNameMap[newSlot.__name__]) { //若有同名，靠前者为树中先序，优先
-                    newSlotNameMap[newSlot.__name__] = newSlot;
-                }
-            });
-            each(newSlotNameMap, function (newSlot) {
-                var sameNameOldSlot;
-                var indexOld;
-                for (indexOld = 0; !sameNameOldSlot && indexOld < oldSlots.length; ++indexOld) {
-                    if (oldSlots[indexOld].__name__ === newSlot.__name__) {
-                        sameNameOldSlot = oldSlots[indexOld];
-                    }
-                }
-
-                // 旧树中没有同名
-                if (!sameNameOldSlot) {
-                    root.__descendantSlots__.push(newSlot);
-                    var matchedHostChildren = unAssignedChildren.filter(function (hostChild) {
-                        return hostChild.__slot__ === newSlot.__name__;
-                    });
-                    unAssignedChildren = unAssignedChildren.filter(function (hostChild) {
-                        return hostChild.__slot__ !== newSlot.__name__;
-                    });
-                    matchedHostChildren.forEach(function (hostChild) {
-                        newSlot.__assignNode(hostChild);
-                    });
-                    return;
-                }
-
-                var compareResult = compareElementOrder(newSlot, sameNameOldSlot);
-
-                // 旧树中有同名且先序于新slot
-                if(compareResult === 1) {
-                    // 新的只是替补，旧的先于新的，仍是旧的生效
-                    root.__descendantSlots__.splice(indexOld + 1, 0, newSlot);
-                    return;
-                }
-
-                // 旧树中有同名且后序于新slot
-                assert(compareResult === -1);
-                root.__descendantSlots__.splice(indexOld, 0, newSlot);
-                sameNameOldSlot.__assignNodes__.forEach(function (node) {
-                    assert(node.__assignedSlot__ === sameNameOldSlot);
-                    newSlot.__assignNode(node);
-                });
-            });
-            /**
-             * TODO: 重新计算一个host下的assignedSlot等（认为此shadowTree的descendant tree和ancestor tree都已计算过）
-             * 添加的子树中有slot，则shadowHost的children需重新assign到slot：
-             * 更新host每一个子的assignedSlot
-             * 对于非slot/非有效slot子，更新其composedParent
-             * 对于有效slot子，更新其distributedNodes的composedParent
-             * 更新shadowTree中每一个slot下内容的显隐
-             */
-            //shadowHost.__children__.forEach(function (hostChild, index) {
-            //    // assignedSlot
-            //    hostChild.__assignedSlot__ = self.__calculateAssignedSlot(hostChild);
-            //
-            //    // composedParent
-            //    if (hostChild.tagName !== "SLOT" || !hostChild.__isEffective()) {
-            //        var composedParent = self.__calculateComposedParent(hostChild);
-            //        if (composedParent !== hostChild.__composedParent__) {
-            //            if (hostChild.__composedParent__) {
-            //                hostChild.__composedParent__.__removeComposedChild(hostChild);
-            //            }
-            //
-            //            if (composedParent) {
-            //                var insertIndex = 0;
-            //                var recursivelyAssignedSlot = self.__getRecursivelyAssignedSlot(hostChild);
-            //                assert(!!recursivelyAssignedSlot, "if child.composedParent change, then should has assignedSlot");
-            //                var assignedSlotFound = false;
-            //                var children = (composedParent.__shadowRoot__ || composedParent).__children__;
-            //                for (var i = 0; i < composedParent.__children__.length; ++i) {
-            //                    var cur = composedParent.__children__[i];
-            //                    if (cur === recursivelyAssignedSlot) {
-            //                        assignedSlotFound = true;
-            //                        break;
-            //                    }
-            //
-            //                    if (cur.tagName !== "SLOT" || !cur.__isEffective()) {
-            //                        ++insertIndex;
-            //                    } else {
-            //                        insertIndex += cur.__distributedNodes__.length;
-            //                    }
-            //                }
-            //                assert(assignedSlotFound, "recursivelyAssignedSlot should be child of composedParent");
-            //                insertIndex += index; //TODO?
-            //                composedParent.__addComposedChildAt(hostChild, insertIndex);
-            //            }
-            //        }
-            //    }
-            //});
+            //TODO: 改变appendChild的composedParent
         },
 
+        //TODO: 把工具方法移出至单独文件
         __calculateAssignedSlot: function (node) {
             var shadowHost = node.parentNode;
             if (!shadowHost) {
