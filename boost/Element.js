@@ -334,16 +334,16 @@ define(function (require, exports, module) {
 
             if (!nodeParent) {
                 composedParent = null;
-            } else if (!nodeParent.__shadowRoot__) {
+            } else if (!nodeParent.__shadowRoot__) { //node不是shadowHost的子元素
                 composedParent = nodeParent;
-            } else if (!node.__assignedSlot__) {
+            } else if (!node.__assignedSlot__) { //是shadowHost的子元素，但没有assignedSlot
                 composedParent = null;
-            } else {
+            } else { //是shadowHost的子元素，并且有assignedSlot
                 composedParent = this.__getRecursivelyAssignedSlot(node).parentNode;
             }
 
-            if (composedParent && composedParent.tagName === "SHADOWROOT") {
-                composedParent = composedParent.parentNode; //目前不允许shadowRoot再attachShadow，故只取一层即可
+            if (composedParent && composedParent.tagName === "SHADOWROOT") { //对于shadowRoot，取其host
+                composedParent = composedParent.host; //目前不允许shadowRoot再attachShadow，故只取一层即可
             }
 
             return composedParent;

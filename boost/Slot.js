@@ -39,62 +39,97 @@ define(function (require, exports, module) {
         "__assignNode": function (node) {
             var self = this;
             var root = self.__getRoot();
+            var unEffectiveBefore = !self.__isEffective();
             assert(root && root.host === node.parentNode, "only child node of shadowTree's host can be assign to the slot that in the shadowTree");
 
+            // 1. assignedSlot、assignNodes
             if (node.__assignedSlot__) {
                 node.__assignedSlot__.__unAssignNode(node);
             }
+            node.__assignedSlot__ = self;
+            for (var i = 0; i < self.__assignNodes__.length && compareElementOrder(node, self.__assignNodes__[i]) !== -1; ++i) {}
+            self.__assignNodes__.splice(i, 0, node); // 维持先序：找到第一个后序元素，插入其前
 
-            var unEffectiveBefore = self.__assignNodes__.length === 0;
-            var insertIndex = self.__assignNodes__.length; //默认值，都先序于node时插到最后
-            each(self.__assignNodes__, function (existedNode, index) {
-                if (compareElementOrder(existedNode, node) === 1) { //插在第一个后序于自己的节点前面
-                    insertIndex = index;
-                    return false;
-                }
-            });
-            self.__assignNodes__.splice(insertIndex, 0, node);
-
-            node.__assignedSlot__ = this;
-
-            if (node.tagName !== "SLOT" || !node.__isEffective()) {
-                var composedParent = self.__calculateComposedParent(node);
-                if (composedParent) {
-                    //TODO: index
-                    composedParent.__addComposedChildAt(node, ??);
-                }
+            // 2. distributedNodes
+            var nodeIsEffectiveSlot = node.tagName === "SLOT" && node.__isEffective();
+            if (!nodeIsEffectiveSlot) {
+                self.__distributedNodes__.push(node);
             } else {
-                //TODO 改node下所有distributedNodes的cp
+                self.__distributedNodes__ = self.__distributedNodes__.concat(node.__distributedNodes__);
             }
-            //TODO: 实现所有“具体当个元素的assignedSlot变化时，影响有：”的部分
-            //TODO: 改其assignedSlot的assigningNodes、distributesNodes、及isEffective、composedParent
+
+            // 3. node.composedParent
+            if (!nodeIsEffectiveSlot) {
+                assert(node.__composedParent__ === null, "should remove from old composedParent when unAssign");
+                var composedParent = self.__calculateComposedParent(node);
+                assert(!!composedParent);
+                composedParent.__addComposedChildAt(node, ??);
+            } else { //有效slot的assignedSlot改变，其distributedNodes的composedParent都要变
+                node.__distributedNodes__.forEach(function (distributedNode) {
+                    assert(distributedNode.__composedParent__ === null, "should remove from old composedParent when unAssign");
+                    var composedParent = self.__calculateComposedParent(distributedNode);
+                    assert(!!composedParent);
+                    composedParent.__addComposedChildAt(distributedNode, ??);
+                });
+            }
+
+            // 4. self.composedParent
+            if (unEffectiveBefore) { //自己从无效变为有效，不再参与渲染
+                self.__composedParent__.__removeComposedChild(self);
+            }
         },
-
-        "__unAssignNode": function (node) {
-            var assignNodeIndex = this.__assignNodes__.indexOf(node);
+        /**
+         * @param node
+         * @param [willAssignAnother=false] {boolean} 若为true，表示马上会为node分配另一个assignedSlot，则此时不计算其composedParent
+         */
+        "__unAssignNode": function (node, willAssignAnother) {
+            var self = this;
+            var assignNodeIndex = self.__assignNodes__.indexOf(node);
             assert(assignNodeIndex > -1, "can't unAssign node from slot which is not assign to the slot");
-            this.__assignNodes__.splice(assignNodeIndex, 1);
-            //TODO: 改自己是否有效、改自己的渲染（composedParent）
-            //TODO: assigningNodes、distributedNodes、是否有效、composedParent
 
-            assert(node.__assignedSlot__ === this);
+            // 1. assignedSlot、assignNodes
+            assert(node.__assignedSlot__ === self);
             node.__assignedSlot__ = null;
+            self.__assignNodes__.splice(assignNodeIndex, 1);
 
-            if (node.__composedParent__) {
-                node.__composedParent__.__removeComposedChild(node);
-            }
-
-            if (node.tagName !== "SLOT" || !node.__isEffective()) {
-                var distributedNodeIndex = this.__distributedNodes__.indexOf(node);
+            // 2. distributedNodes
+            var nodeIsEffectiveSlot = node.tagName === "SLOT" && node.__isEffective();
+            if (!nodeIsEffectiveSlot) {
+                var distributedNodeIndex = self.__distributedNodes__.indexOf(node);
                 assert(distributedNodeIndex > -1);
-                this.__distributedNodes__.splice(distributedNodeIndex, 1);
+                self.__distributedNodes__.splice(distributedNodeIndex, 1);
             } else {
                 assert(node.__distributedNodes__.length > 0);
-                var oldDistributedNodes = this.__distributedNodes__;
-                this.__distributedNodes__ = oldDistributedNodes.filter(function (distributedNode) {
+                var oldDistributedNodes = self.__distributedNodes__;
+                self.__distributedNodes__ = oldDistributedNodes.filter(function (distributedNode) {
                     return node.__distributedNodes__.indexOf(distributedNode) === -1;
                 });
-                assert(oldDistributedNodes.length - this.__distributedNodes__.length === node.__distributedNodes__.length);
+                assert(oldDistributedNodes.length - self.__distributedNodes__.length === node.__distributedNodes__.length);
+            }
+
+            // 3. node.composedParent
+            if (!nodeIsEffectiveSlot) {
+                node.__composedParent__.__removeComposedChild(node);
+            } else {
+                node.__distributedNodes__.forEach(function (distributedNode) {
+                    distributedNode.__composedParent__.__removeComposedChild(distributedNode);
+                });
+
+                if (!willAssignAnother) {
+                    node.__distributedNodes__.forEach(function (distributedNode) {
+                        var composedParent = self.__calculateComposedParent(distributedNode);
+                        assert(!!composedParent);
+                        composedParent.__addComposedChildAt(distributedNode, ??);
+                    });
+                }
+            }
+
+            // 4. self.composedParent
+            if (!self.__isEffective()) { //从有效变为无效，作为普通元素渲染
+                var composedParent = self.__calculateComposedParent(self);
+                if (composedParent) { //自己有可能没有composedParent(没有assignedSlot)
+                    composedParent.__addComposedChildAt(self, ??);
+                }
             }
         }
     });
