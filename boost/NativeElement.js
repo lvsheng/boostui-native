@@ -72,14 +72,9 @@ define(function (require, exports, module) {
         __update: function (key, value) {
             var config = this.__config__;
             var oldValue = config[key];
-            var tag;
-            var obj;
             if (value !== oldValue) {
-                obj = {};
                 config[key] = value;
-                obj[key] = value;
-                tag = this.__native__.tag;
-                nativeGlobal.updateView(tag, this.__type__, obj);
+                this.__native__.updateView(key, value);
             }
         },
         //__styleChange

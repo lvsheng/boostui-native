@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var tagMap = require("boost/tagMap");
     var bridge = require("boost/bridge");
+    var toCamelCase = require("base/toCamelCase");
 
     var NativeObject = derive(
         EventTarget,
@@ -37,6 +38,10 @@ define(function (require, exports, module) {
                 bridge.invoke(this.__tag__, "addView", [child.__native__.__tag__, index]);
             },
 
+            updateView: function (key, value) {
+                bridge.invoke(this.__tag__, "set" + toCamelCase(key, true), [value]);
+            },
+
             __callNative: function (method, args) { //TODO: remove
                 bridge.call(this.__tag__, method, args);
             },
@@ -63,7 +68,6 @@ define(function (require, exports, module) {
         //this._super(GLOBAL_TAG);
          NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
-        updateView: NativeObject.bindNative("updateView"),
         removeView: NativeObject.bindNative("removeView"),
         removeAllViews: NativeObject.bindNative("removeAllViews"),
         createAnimation: NativeObject.bindNative("createAnimation"),

@@ -105,13 +105,7 @@ define(function (require, exports, module) {
 
         //对应native的PageEntityBase
         create: function (typeId, objId) {
-            queue.push(["create", [typeId, objId, { //TODO: remove this, just for test
-                "value": "hello, boost",
-                "color": "#ffff6600",
-                "fontSize": 22,
-                "fontStyle": "italic",
-                "alignSelf": "center"
-            }]]);
+            queue.push(["create", [typeId, objId, {}]]);
         },
         invoke: function (objId, methodId, params) {
             queue.push(["invoke", [objId, methodId, params]]);
