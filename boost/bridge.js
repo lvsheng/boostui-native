@@ -18,11 +18,9 @@ define(function (require, exports, module) {
     ];
 
     var queue = genQueue(function (list) {
-        var cmdStr;
-        cmdStr = JSON.stringify(list);
         //for test
         console.log(JSON.stringify(list, null, 2));
-        lc_bridge.callQueue(cmdStr);
+        lc_bridge.callQueue(list);
         clearHeap();
     });
     queue.run();
@@ -103,6 +101,31 @@ define(function (require, exports, module) {
         },
         flush: function () {
             queue.flush();
+        },
+
+        //对应native的PageEntityBase
+        create: function (typeId, objId) {
+            queue.push(["create", [typeId, objId, { //TODO: remove this, just for test
+                "value": "hello, boost",
+                "color": "#ffff6600",
+                "fontSize": 22,
+                "fontStyle": "italic",
+                "alignSelf": "center"
+            }]]);
+
+            //TODO: for test. add to root
+            queue.push(["invoke", [0, "addView", [
+                    objId,
+                    0
+                ]]]
+            );
+
+        },
+        invoke: function (objId, methodId, params) {
+            queue.push(["invoke", [objId, methodId, params]]);
+        },
+        destroy: function () {
+            //TODO
         }
     };
 

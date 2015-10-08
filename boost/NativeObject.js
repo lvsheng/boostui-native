@@ -2,44 +2,50 @@ define(function (require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
+    var assert = require("base/assert");
     var slice = require("base/slice");
     var EventTarget = require("boost/EventTarget");
     var tagMap = require("boost/tagMap");
     var bridge = require("boost/bridge");
 
-    var NativeObject = derive(EventTarget, function (tag) {
-        var origObj;
+    var NativeObject = derive(
+        EventTarget,
+        /**
+         * @param typeId
+         * @param [objId]
+         */
+        function (typeId, objId) {
+            assert(tagMap.get(objId) === null, objId + " already exist");
+            EventTarget.call(this);
+            if (objId === undefined) {
+                objId = tagMap.genTag();
+            }
 
-        //this._super();
-        EventTarget.call(this);
-        if (tag === undefined) {
-            tag = tagMap.genTag();
-        }
+            tagMap.set(objId, this);
+            this.__tag__ = objId;
 
-        origObj = tagMap.get(tag);
-        if (origObj !== null && origObj instanceof NativeObject) {
-            origObj.destroy();
-        }
-
-        tagMap.set(tag, this);
-        this.__tag__ = tag;
-    }, {
-        "get tag": function () {
-            return this.__tag__;
+            if (objId > 1) { //TODO: 要这样来过滤吗？0为rootElement、1为nativeGlobal、负数为已有对象
+                bridge.create(typeId, this.__tag__);
+            }
         },
+        {
+            "get tag": function () {
+                return this.__tag__;
+            },
 
-        __callNative: function (method, args) {
-            bridge.call(this.__tag__, method, args);
-        },
+            __callNative: function (method, args) {
+                bridge.call(this.__tag__, method, args);
+            },
 
-        __onEvent: function (type, event) {
-            //do nothing
-        },
+            __onEvent: function (type, event) {
+                //do nothing
+            },
 
-        destroy: function () {
-            nativeGlobal.destroyObject(this.__tag__);
+            destroy: function () {
+                nativeGlobal.destroyObject(this.__tag__);
+            }
         }
-    });
+    );
 
     NativeObject.bindNative = function (method) {
         return function () {
@@ -48,9 +54,10 @@ define(function (require, exports, module) {
     };
 
     var GLOBAL_TAG = null;
+    var GLOBAL_OBJ_ID = 1;
     var NativeGlobalObject = derive(NativeObject, function () {
         //this._super(GLOBAL_TAG);
-        NativeObject.call(this, GLOBAL_TAG);
+         NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
         createView: NativeObject.bindNative("createView"),
         updateView: NativeObject.bindNative("updateView"),
@@ -69,6 +76,7 @@ define(function (require, exports, module) {
         }
     });
 
+    //TODO: remove this?
     var nativeGlobal = new NativeGlobalObject();
     NativeObject.global = nativeGlobal;
 
@@ -98,13 +106,14 @@ define(function (require, exports, module) {
     }, false);
 
     // 页面卸载时,删除所有的 NativeView
-    window.addEventListener("unload", function (e) {
-        nativeGlobal.removeAllViews();
-        bridge.flush();
-    });
+    //TODO
+    //window.addEventListener("unload", function (e) {
+    //    nativeGlobal.removeAllViews();
+    //    bridge.flush();
+    //});
 
     // 页面加载时，先尝试删除所有 NativeView
-    nativeGlobal.removeAllViews();
+    //nativeGlobal.removeAllViews();
 
     module.exports = NativeObject;
 });
