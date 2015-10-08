@@ -2,7 +2,7 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
 
     /**
-     * 比较两个元素在树中的顺序（深度优先先根序）
+     * 比较两个元素在树中的顺序（深度优先先根前序）
      * 若a先于b，返回-1
      * 若b先于a，返回1
      * 否则(a与是同一个节点或两者不在同一棵树上)返回0
