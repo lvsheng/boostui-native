@@ -112,20 +112,13 @@ define(function (require, exports, module) {
                 "fontStyle": "italic",
                 "alignSelf": "center"
             }]]);
-
-            //TODO: for test. add to root
-            queue.push(["invoke", [0, "addView", [
-                    objId,
-                    0
-                ]]]
-            );
-
         },
         invoke: function (objId, methodId, params) {
             queue.push(["invoke", [objId, methodId, params]]);
         },
-        destroy: function () {
+        destroy: function (objId) {
             //TODO
+            queue.push(["destroy", [objId]])
         }
     };
 

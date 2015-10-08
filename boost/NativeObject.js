@@ -33,7 +33,11 @@ define(function (require, exports, module) {
                 return this.__tag__;
             },
 
-            __callNative: function (method, args) {
+            addView: function (child, index) {
+                bridge.invoke(this.__tag__, "addView", [child.__native__.__tag__, index]);
+            },
+
+            __callNative: function (method, args) { //TODO: remove
                 bridge.call(this.__tag__, method, args);
             },
 
@@ -42,7 +46,7 @@ define(function (require, exports, module) {
             },
 
             destroy: function () {
-                nativeGlobal.destroyObject(this.__tag__);
+                bridge.destroy(this.__tag__); //TODO: 待验证
             }
         }
     );

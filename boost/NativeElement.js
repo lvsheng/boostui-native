@@ -9,8 +9,8 @@ define(function (require, exports, module) {
 
     var nativeGlobal = NativeObject.global;
 
-    //var ROOT_ELEMENT_TAG = "tag_nativeview";
-    var ROOT_ELEMENT_TAG = 0;
+    //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
+    var ROOT_ELEMENT_OBJ_ID = 0;
     var ROOT_ELEMENT_TYPE_ID = 0;
 
     var _super = Element.prototype;
@@ -54,13 +54,11 @@ define(function (require, exports, module) {
             //return this.style.__getProps();
         },
         __addChildAt: function (child, index) {
-            //appendChild: function (child) {
-            var tag = this.__native__.tag;
             assert(child instanceof NativeElement, "child must be a NativeElement");
             //var ret = this._super(child, index);
             var ret = _super.__addChildAt.call(this, child, index);
             //这个地方一定要在 _super 调用之后,因为在之前有可能添加和删除的顺序会错
-            nativeGlobal.addView(tag, child.__native__.tag, index);
+            this.__native__.addView(child, index);
             return ret;
         },
         __removeChildAt: function (index) {
@@ -97,7 +95,7 @@ define(function (require, exports, module) {
         NativeElement.call(this, null, "NATIVE_ROOT");
     }, {
         __createView: function () {
-            this.__native__ = new NativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_TAG);
+            this.__native__ = new NativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
         }
     });
 
