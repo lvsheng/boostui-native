@@ -228,6 +228,7 @@ define(function (require, exports, module) {
             self.__children__.splice(index, 0, addedChild);
             addedChild.__parent__ = self;
 
+            // 1. 先计算添加的子树中slot接收的节点
             var hasNewSlot = addedChild.__descendantSlots__.length > 0;
             if (hasNewSlot) {
                 var root = self.__getRoot();
@@ -286,7 +287,15 @@ define(function (require, exports, module) {
                 }
             }
 
-            //TODO: 改变appendChild的composedParent
+            // 2. 再计算添加的子树被添加到的composedTree中的位置
+            var childAssignedSlot = self.__calculateAssignedSlot(addedChild);
+            if (childAssignedSlot) {
+                childAssignedSlot.__assignNode(addedChild);
+            }
+            var composedParent = self.__calculateComposedParent(addedChild);
+            if (composedParent) {
+                composedParent.__addComposedChildAt(addedChild, ??);
+            }
         },
 
         //TODO: 把工具方法移出至单独文件
