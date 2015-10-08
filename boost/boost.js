@@ -13,6 +13,7 @@ define(function (require, exports, module) {
     var Image = require("boost/Image");
     var ScrollView = require("boost/ScrollView");
     var Slider = require("boost/Slider");
+    var Slot = require("boost/Slot");
     //var webMap = require("boost/webMap");
     //require('./webDebugger'); //有循环依赖，使用的地方再require获取对象
 
@@ -24,6 +25,7 @@ define(function (require, exports, module) {
         "Image": Image,
         "ScrollView": ScrollView,
         "Slider": Slider,
+        "Slot": Slot,
     };
 
     var documentProto = {

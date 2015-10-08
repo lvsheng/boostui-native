@@ -5,11 +5,16 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var each = require("base/each");
     var View = require("boost/View");
+    var NativeElement = require("boost/NativeElement");
     var compareElementOrder = require("boost/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
 
+    //FIXME: 与View中耦合了~
+    var NATIVE_VIEW_TYPE = 0; //与WebNativeMapping.TypeMapping.TYPES中序号对应
     module.exports = derive(View, function () {
-        this._super();
+        //this._super();
+        //TODO: 如果直接调用View，则这里初始化的tagName就成View了，故直接跨级调NativeElement
+        NativeElement.call(this, NATIVE_VIEW_TYPE, "Slot");
 
         this.__name__ = ""; //slotName
         this.__distributedNodes__ = [];
@@ -76,7 +81,9 @@ define(function (require, exports, module) {
 
             // 4. self.composedParent
             if (unEffectiveBefore) { //自己从无效变为有效，不再参与渲染
-                self.__composedParent__.__removeComposedChild(self);
+                if (self.__composedParent__) {
+                    self.__composedParent__.__removeComposedChild(self);
+                } // else: 孤立的slot刚被添加到shadowHost上，添加中还没计算其composedParent就向其assign node了，故之前没有composedParent
             }
         },
         /**

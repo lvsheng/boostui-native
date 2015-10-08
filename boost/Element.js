@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
-    var ShadowRoot = require("boost/ShadowRoot");
+    var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     //var webMap = require("boost/webMap");
@@ -69,6 +69,7 @@ define(function (require, exports, module) {
             assert(NOT_SUPPORTED_TAGS.indexOf(self.tagName) === -1, "Failed to execute 'attachShadow' on 'Element': Author-created shadow roots are disabled for this element.");
             assert(self.__shadowRoot__ === null, "Calling Element.attachShadow() for an element which already hosts a user-agent shadow root is deprecated.");
 
+            var ShadowRoot = shadowRoot.getShadowRoot();
             self.__shadowRoot__ = new ShadowRoot(self);
             // 自己变成了shadowHost，并且shadowTree中没有slot。故child元素的assignedSlot与composedParent都为null
             each(self.__children__, function (child) {

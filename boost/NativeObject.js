@@ -42,6 +42,11 @@ define(function (require, exports, module) {
                 bridge.invoke(this.__tag__, "set" + toCamelCase(key, true), [value]);
             },
 
+            removeViewAt: function (index) {
+                //bridge.invoke(this.__tag__, "removeView", [child.__native__.__tag__]);
+                bridge.invoke(this.__tag__, "removeViewAt", [index]);
+            },
+
             __callNative: function (method, args) { //TODO: remove
                 bridge.call(this.__tag__, method, args);
             },
@@ -68,7 +73,6 @@ define(function (require, exports, module) {
         //this._super(GLOBAL_TAG);
          NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
-        removeView: NativeObject.bindNative("removeView"),
         removeAllViews: NativeObject.bindNative("removeAllViews"),
         createAnimation: NativeObject.bindNative("createAnimation"),
         startAnimation: NativeObject.bindNative("startAnimation"),
