@@ -9,6 +9,7 @@ define(function (require, exports, module) {
     var each = require("base/each");
     var ShadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/compareElementOrder");
+    var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var webMap = require("boost/webMap");
     require('./webDebugger');
     var push = [].push;
@@ -294,7 +295,7 @@ define(function (require, exports, module) {
             }
             var composedParent = self.__calculateComposedParent(addedChild);
             if (composedParent) {
-                composedParent.__addComposedChildAt(addedChild, ??);
+                composedParent.__addComposedChildAt(addedChild, getIndexInComposedParent(addedChild));
             }
         },
 
