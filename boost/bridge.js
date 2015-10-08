@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var assert = require("base/assert");
 
-    var methodList = [
+    var methodList = [ //TODO: remove
         "createView",
         "updateView",
         "addView",
@@ -18,11 +18,9 @@ define(function (require, exports, module) {
     ];
 
     var queue = genQueue(function (list) {
-        var cmdStr;
-        cmdStr = JSON.stringify(list);
         //for test
         console.log(JSON.stringify(list, null, 2));
-        lc_bridge.callQueue(cmdStr);
+        lc_bridge.callQueue(list);
         clearHeap();
     });
     queue.run();
@@ -43,7 +41,7 @@ define(function (require, exports, module) {
     var ARGS_IDX = 2;
 
     var bridge = {
-        call: function (tag, method, args) {
+        call: function (tag, method, args) { //TODO: remove
             var cmd = [];
             var viewTag;
             var config;
@@ -103,6 +101,18 @@ define(function (require, exports, module) {
         },
         flush: function () {
             queue.flush();
+        },
+
+        //对应native的PageEntityBase
+        create: function (typeId, objId) {
+            queue.push(["create", [typeId, objId, {}]]);
+        },
+        invoke: function (objId, methodId, params) {
+            queue.push(["invoke", [objId, methodId, params]]);
+        },
+        destroy: function (objId) {
+            //TODO
+            queue.push(["destroy", [objId]])
         }
     };
 

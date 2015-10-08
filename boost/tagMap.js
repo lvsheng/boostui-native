@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var hasOwnProperty = require("base/hasOwnProperty");
 
     var tagMap = {};
-    var tagId = 1; // tag id 从1开始,防止可能的冲突
+    var tagId = 2; // tag id 从1开始,防止可能的冲突 TODO: 1被nativeObject占据~
 
     function get(tag) {
         if (hasOwnProperty(tagMap, tag)) {

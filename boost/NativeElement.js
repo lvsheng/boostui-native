@@ -9,17 +9,18 @@ define(function (require, exports, module) {
 
     var nativeGlobal = NativeObject.global;
 
-    //var ROOT_ELEMENT_TAG = "tag_nativeview";
-    var ROOT_ELEMENT_TAG = 0;
+    //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
+    var ROOT_ELEMENT_OBJ_ID = 0;
+    var ROOT_ELEMENT_TYPE_ID = 0;
 
     var _super = Element.prototype;
-    var NativeElement = derive(Element, function (type, tag) {
-        //this._super(tag);
-        Element.call(this, tag);
+    var NativeElement = derive(Element, function (type, tagName) {
+        //this._super(tagName);
+        Element.call(this, tagName);
         this.__type__ = type;
         this.__native__ = null;
         this.__config__ = this.__getDefaultConfig();
-        this.__createView(this.__type__, this.__config__);
+        this.__createView(this.__type__);
     }, {
         "get nativeObject": function () {
             return this.__native__;
@@ -27,14 +28,12 @@ define(function (require, exports, module) {
         "get tag": function () {
             return this.__native__.tag;
         },
-        __createView: function (type, config) {
+        __createView: function (type) {
             var self = this;
-            var nativeObj = this.__native__ = new NativeObject();
-            var tag = nativeObj.tag;
+            var nativeObj = self.__native__ = new NativeObject(type);
             nativeObj.__onEvent = function (type, e) {
                 self.__onEvent(type, e);
             };
-            nativeGlobal.createView(tag, type, config);
         },
         __onEvent: function (type, e) {
             //console.log("tag:" + this.__native__.tag, "type:" + this.__type__, "event:" + type);
@@ -64,7 +63,7 @@ define(function (require, exports, module) {
             //var ret = this._super(child, index);
             var ret = _super.__addComposedChildAt.call(this, child, index);
             //这个地方一定要在 _super 调用之后,因为在之前有可能添加和删除的顺序会错
-            nativeGlobal.addView(tag, child.__native__.tag, index);
+            this.__native__.addView(child, index);
             return ret;
         },
         __removeComposedChildAt: function (index) {
@@ -78,14 +77,9 @@ define(function (require, exports, module) {
         __update: function (key, value) {
             var config = this.__config__;
             var oldValue = config[key];
-            var tag;
-            var obj;
             if (value !== oldValue) {
-                obj = {};
                 config[key] = value;
-                obj[key] = value;
-                tag = this.__native__.tag;
-                nativeGlobal.updateView(tag, this.__type__, obj);
+                this.__native__.updateView(key, value);
             }
         },
         //__styleChange
@@ -101,7 +95,7 @@ define(function (require, exports, module) {
         NativeElement.call(this, null, "NATIVE_ROOT");
     }, {
         __createView: function () {
-            this.__native__ = new NativeObject(ROOT_ELEMENT_TAG);
+            this.__native__ = new NativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
         }
     });
 
