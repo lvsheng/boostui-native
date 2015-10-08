@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var assert = require("base/assert");
 
-    var methodList = [
+    var methodList = [ //TODO: remove
         "createView",
         "updateView",
         "addView",
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
     var ARGS_IDX = 2;
 
     var bridge = {
-        call: function (tag, method, args) {
+        call: function (tag, method, args) { //TODO: remove
             var cmd = [];
             var viewTag;
             var config;

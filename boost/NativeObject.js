@@ -63,9 +63,7 @@ define(function (require, exports, module) {
         //this._super(GLOBAL_TAG);
          NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
-        createView: NativeObject.bindNative("createView"),
         updateView: NativeObject.bindNative("updateView"),
-        addView: NativeObject.bindNative("addView"),
         removeView: NativeObject.bindNative("removeView"),
         removeAllViews: NativeObject.bindNative("removeAllViews"),
         createAnimation: NativeObject.bindNative("createAnimation"),
