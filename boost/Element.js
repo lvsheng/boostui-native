@@ -8,7 +8,7 @@ define(function (require, exports, module) {
     var trim = require("base/trim");
     var each = require("base/each");
     var shadowRoot = require("boost/ShadowRoot");
-    var compareElementOrder = require("boost/compareElementOrder");
+    var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     //var webMap = require("boost/webMap");
     //require('./webDebugger');
@@ -343,7 +343,11 @@ define(function (require, exports, module) {
             var composedParent;
             var nodeParent = node.parentNode;
 
-            if (!nodeParent) {
+            if (node.tagName === "SHADOWROOT") {
+                composedParent = null; //shadowRoot不展示
+            } else if (node.tagName === "SLOT" && node.__isEffective()) {
+                composedParent = null; //有效的slot也不展示
+            } else if (!nodeParent) {
                 composedParent = null;
             } else if (!nodeParent.__shadowRoot__) { //node不是shadowHost的子元素
                 composedParent = nodeParent;

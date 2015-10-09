@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var each = require("base/each");
     var View = require("boost/View");
     var NativeElement = require("boost/NativeElement");
-    var compareElementOrder = require("boost/compareElementOrder");
+    var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
 
     //FIXME: 与View中耦合了~
