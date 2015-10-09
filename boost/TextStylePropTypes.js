@@ -31,5 +31,19 @@ define(function (require, exports, module) {
         "textDecoration": [_enum("none", "underline", "line-through"), "none"]
     });
 
+    var unsupportedLayoutStyles = [
+        "padding",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "paddingHorizontal",
+        "paddingVertical"
+    ];
+    unsupportedLayoutStyles.forEach(function (name) {
+        delete TextStylePropTypes["set " + name];
+        delete TextStylePropTypes["get " + name];
+    });
+
     module.exports = TextStylePropTypes;
 });
