@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/NativeObject");
     var TouchEvent = require("boost/TouchEvent");
     var Element = require("boost/Element");
+    var fontSetter = require("boost/fontSetter");
 
     var nativeGlobal = NativeObject.global;
 
@@ -73,7 +74,12 @@ define(function (require, exports, module) {
             var oldValue = config[key];
             if (value !== oldValue) {
                 config[key] = value;
-                this.__native__.updateView(key, value);
+
+                if (key === "fontFamily") { //font需要先加载再应用，在此对其拦截做特殊处理
+                    fontSetter.setFont(this.__native__, value);
+                } else {
+                    this.__native__.updateView(key, value);
+                }
             }
         },
         //__styleChange

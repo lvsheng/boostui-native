@@ -9,6 +9,7 @@ define(function (require, exports, module) {
     var boost = require("boost/boost");
     var copyProperties = require("base/copyProperties");
     var toCamelCase = require("base/toCamelCase");
+    var fontSetter = require("boost/fontSetter");
 
     var StyleParser = derive(Object, function () {
         this._code = null;
@@ -34,6 +35,19 @@ define(function (require, exports, module) {
                 this.ignoreWhiteSpace();
                 selector = this.getSelector();
                 rule = this.getRule();
+
+                //TODO: 抽离出对@的统一处理
+                if (selector === "@font-face") {
+                    assert(!!rule.src, "@font-face should declare src");
+                    assert(!!rule.fontFamily, "@font-face should declare font-family");
+                    var fontUrlReg = /^\s*url\(['"](.+)['"]\)/;
+                    var fontUrlMatchResult = fontUrlReg.exec(rule.src);
+                    var fontUrl = fontUrlMatchResult && fontUrlMatchResult[1];
+                    assert(!!fontUrl, "src of @font-face should match " + fontUrlReg.toString());
+                    fontSetter.createFont(rule.fontFamily, fontUrl);
+                    continue;
+                }
+
                 if (selector && rule) {
                     ret.push({
                         selector: selector,
@@ -108,8 +122,8 @@ define(function (require, exports, module) {
                 item = list[index];
                 parts = item.split(":");
                 if (parts.length > 1) {
-                    key = toCamelCase(trim(parts[0]));
-                    ret[key] = trim(parts[1]);
+                    key = toCamelCase(trim(parts.shift()));
+                    ret[key] = trim(parts.join(':'));
                 }
             }
             return ret;

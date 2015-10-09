@@ -104,8 +104,8 @@ define(function (require, exports, module) {
         },
 
         //对应native的PageEntityBase
-        create: function (typeId, objId) {
-            queue.push(["create", [typeId, objId, {}]]);
+        create: function (typeId, objId, conf) {
+            queue.push(["create", [typeId, objId, conf || {}]]);
         },
         invoke: function (objId, methodId, params) {
             queue.push(["invoke", [objId, methodId, params]]);
