@@ -369,6 +369,7 @@ define(function (require, exports, module) {
             this.childNodes.splice(index, 1);
             child.__parent__ = null;
 
+            child.__composedParent__ && child.__composedParent__.__removeComposedChild(child);
             // __descendantSlots__中属于此child的，由其继续维护
             child.__descendantSlots__ = [];
             var root = this.__getRoot();
