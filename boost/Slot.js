@@ -136,7 +136,9 @@ define(function (require, exports, module) {
             if (!self.__isEffective()) { //从有效变为无效，作为普通元素渲染
                 var composedParent = self.__calculateComposedParent(self);
                 if (composedParent) { //自己有可能没有composedParent(没有assignedSlot)
-                    composedParent.__addComposedChildAt(self, getIndexInComposedParent(self));
+                    var index = getIndexInComposedParent(self);
+                    assert(index <= composedParent.__composedChildren__.length);
+                    composedParent.__addComposedChildAt(self, index);
                 }
             }
         }
