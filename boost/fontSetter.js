@@ -5,41 +5,38 @@ define(function (require, exports, module) {
     var tagMap = require("boost/tagMap");
     var each = require("base/each");
     var assert = require("base/assert");
-    var bridge = require("boost/bridge");
+    var FontNativeObject = require("boost/nativeObject/Font");
 
-    var TYPE_FONT = 7;
     //TODO: 是否有默认已加载的font？
-    var fontIdMap = {}; //key为fontName 值fontId
-    var createdFont = {}; //key为fontId 值为url
-    var fontToApply = {}; //key为nativeObject.tag，值为fontId
+    var createdFont = {}; //key为fontName 值为FontNativeObject
+    var fontToApply = {}; //key为nativeObject.tag，值为fontName
 
     //TODO: 单独抽离出一个font对应的NativeObject，将现有的NativeObject分离出基类与ElementNativeObject
     module.exports = {
         setFont: function (nativeObject, fontName) {
-            var fontId = fontIdMap[fontName] = fontIdMap[fontName] || tagMap.genTag();
-
-            if (createdFont[fontId]) { //load过的，直接应用即可
-                nativeObject.updateView("font", fontId);
+            if (createdFont[fontName]) { //load过的，直接应用即可
+                nativeObject.updateView("font", createdFont[fontName].tag);
                 delete fontToApply[nativeObject.tag]; //之前待load的字体已失效
             } else { //未load的，先加入缓存，待load完再应用
-                fontToApply[nativeObject.tag] = fontId;
+                fontToApply[nativeObject.tag] = fontName;
             }
         },
-        createFont: function (fontName, url) {
-            var fontId = fontIdMap[fontName] = fontIdMap[fontName] || tagMap.genTag();
-            assert(!createdFont[fontId] || createdFont[fontId] === url, "同一个font名不能加载两个不同字体！");
-            if (createdFont[fontId]) {
+        createFont: function (fontName, src) {
+            if (createdFont[fontName] && createdFont[fontName].src !== src) {
+                console.warn("正常尝试对同一个fontFamily从两个url加载字体，不予生效！");
+                return;
+            }
+            if (createdFont[fontName]) {
                 return; //已创建，不再重复创建
             }
 
-            bridge.create(TYPE_FONT, fontId, { url: url });
-            createdFont[fontId] = url;
+            createdFont[fontName] = new FontNativeObject(fontName, src);
             //创建后即可使用，应用之
-            each(fontToApply, function (fontIdToApply, nativeObjectTag) {
-                if (fontIdToApply === fontId) {
+            each(fontToApply, function (applyFontName, nativeObjectTag) {
+                if (applyFontName === fontName) {
                     var nativeObject = tagMap.get(nativeObjectTag);
                     assert(!!nativeObject);
-                    nativeObject.updateView("font", fontId);
+                    nativeObject.updateView("font", createdFont[fontName].tag);
                     delete fontToApply[nativeObjectTag];
                 }
             });

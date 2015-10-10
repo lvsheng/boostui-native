@@ -7,6 +7,9 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
 
     var BACKGROUND_PAGE_TYPE_ID = -3; //TODO: 是这个吗？
+    /**
+     * 供前景页用作与背景页通信的中介（向背景页发送消息，监听背景页发来的消息）
+     */
     var BackgroundPageNativeObject = derive(NativeObject, function () {
         NativeObject.call(this, null, BACKGROUND_PAGE_TYPE_ID);
     }, {

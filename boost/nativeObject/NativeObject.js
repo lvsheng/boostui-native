@@ -14,8 +14,9 @@ define(function (require, exports, module) {
         /**
          * @param typeId
          * @param [objId]
+         * @param [conf]
          */
-        function (typeId, objId) {
+        function (typeId, objId, conf) {
             assert(tagMap.get(objId) === null, objId + " already exist");
             EventTarget.call(this);
             if (objId === undefined) {
@@ -26,7 +27,7 @@ define(function (require, exports, module) {
             this.__tag__ = objId;
 
             if (objId > 1) { //TODO: 要这样来过滤吗？0为rootElement、1为nativeGlobal、负数为已有对象
-                bridge.create(typeId, this.__tag__);
+                bridge.create(typeId, this.__tag__, conf);
             }
         },
         {
@@ -34,8 +35,13 @@ define(function (require, exports, module) {
                 return this.__tag__;
             },
 
-            __callNative: function (method, args) { //TODO: remove
-                bridge.call(this.__tag__, method, args);
+            /**
+             * @param method {string}
+             * @param args {Array}
+             * @private
+             */
+            __callNative: function (method, args) {
+                bridge.invoke(this.__tag__, method, args);
             },
 
             __onEvent: function (type, event) {
@@ -56,11 +62,11 @@ define(function (require, exports, module) {
         //this._super(GLOBAL_TAG);
         NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
-        createAnimation: NativeObject.bindNative("createAnimation"),
-        startAnimation: NativeObject.bindNative("startAnimation"),
-        cancelAnimation: NativeObject.bindNative("cancelAnimation"),
+        createAnimation: NativeObject.bindNative("createAnimation"), //TODO: remove
+        startAnimation: NativeObject.bindNative("startAnimation"), //TODO: remove
+        cancelAnimation: NativeObject.bindNative("cancelAnimation"), //TODO: remove
         //FOR TEST
-        test: NativeObject.bindNative("test"),
+        test: NativeObject.bindNative("test"), //TODO: remove
 
         //__destroy: NativeObject.bindNative("destroy"),
         destroyObject: function (tag) {
