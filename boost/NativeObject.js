@@ -73,7 +73,6 @@ define(function (require, exports, module) {
         //this._super(GLOBAL_TAG);
         NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
-        removeAllViews: NativeObject.bindNative("removeAllViews"),
         createAnimation: NativeObject.bindNative("createAnimation"),
         startAnimation: NativeObject.bindNative("startAnimation"),
         cancelAnimation: NativeObject.bindNative("cancelAnimation"),
@@ -116,14 +115,12 @@ define(function (require, exports, module) {
     }, false);
 
     // 页面卸载时,删除所有的 NativeView
-    //TODO
-    //window.addEventListener("unload", function (e) {
-    //    nativeGlobal.removeAllViews();
-    //    bridge.flush();
-    //});
+    window.addEventListener("unload", function (e) {
+        bridge.destroy();
+    });
 
     // 页面加载时，先尝试删除所有 NativeView
-    //nativeGlobal.removeAllViews();
+    bridge.destroy();
 
     module.exports = NativeObject;
 });

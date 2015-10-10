@@ -13,8 +13,7 @@ define(function (require, exports, module) {
         "removeView",
         "createAnimation",
         "startAnimation",
-        "cancelAnimation",
-        "removeAllViews"
+        "cancelAnimation"
     ];
 
     var queue = genQueue(function (list) {
@@ -110,9 +109,9 @@ define(function (require, exports, module) {
         invoke: function (objId, methodId, params) {
             queue.push(["invoke", [objId, methodId, params]]);
         },
-        destroy: function (objId) {
-            //TODO
-            queue.push(["destroy", [objId]])
+        destroy: function () {
+            queue.push(["destroy", []]);
+            queue.flush();
         }
     };
 
