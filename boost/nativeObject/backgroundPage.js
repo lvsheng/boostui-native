@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    //TODO: 怎样限制只有背景页里我们自己的代码才能使用？
+    //TODO: 限制只有特定代码才能使用
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeObject = require("boost/nativeObject/NativeObject");

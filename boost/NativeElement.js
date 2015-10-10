@@ -3,7 +3,7 @@ define(function (require, exports, module) {
 
     var derive = require("base/derive");
     var assert = require("base/assert");
-    var NativeObject = require("boost/nativeObject/NativeObject");
+    var ElementNativeObject = require("boost/nativeObject/Element");
     var TouchEvent = require("boost/TouchEvent");
     var Element = require("boost/Element");
     var fontSetter = require("boost/fontSetter");
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
         },
         __createView: function (type) {
             var self = this;
-            var nativeObj = self.__native__ = new NativeObject(type);
+            var nativeObj = self.__native__ = new ElementNativeObject(type);
             nativeObj.__onEvent = function (type, e) {
                 self.__onEvent(type, e);
             };
@@ -93,7 +93,7 @@ define(function (require, exports, module) {
         NativeElement.call(this, null, "NATIVE_ROOT");
     }, {
         __createView: function () {
-            this.__native__ = new NativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
+            this.__native__ = new ElementNativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
         }
     });
 
