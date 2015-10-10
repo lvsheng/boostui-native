@@ -43,7 +43,6 @@ define(function (require, exports, module) {
             },
 
             removeViewAt: function (index) {
-                //bridge.invoke(this.__tag__, "removeView", [child.__native__.__tag__]);
                 bridge.invoke(this.__tag__, "removeViewAt", [index]);
             },
 
@@ -53,10 +52,6 @@ define(function (require, exports, module) {
 
             __onEvent: function (type, event) {
                 //do nothing
-            },
-
-            destroy: function () {
-                bridge.destroy(this.__tag__); //TODO: 待验证
             }
         }
     );

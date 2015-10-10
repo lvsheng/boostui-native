@@ -6,9 +6,9 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var NativeObject = require("boost/nativeObject/NativeObject");
 
-    var BACKGROUNDPAGETPAGE_ID = -3; //TODO: 是这个吗？
-    var FrontPageNativeObject = derive(NativeObject, function () {
-        NativeObject.call(this, null, BACKGROUNDPAGETPAGE_ID);
+    var BACKGROUND_PAGE_TYPE_ID = -3; //TODO: 是这个吗？
+    var BackgroundPageNativeObject = derive(NativeObject, function () {
+        NativeObject.call(this, null, BACKGROUND_PAGE_TYPE_ID);
     }, {
         postMessage: function (action, data) {
             //console.info("---------- to background page ----------", action, data);
@@ -21,5 +21,5 @@ define(function (require, exports, module) {
         }
     });
 
-    module.exports = new FrontPageNativeObject();
+    module.exports = new BackgroundPageNativeObject();
 });
