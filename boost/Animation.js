@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var EventTarget = require("boost/EventTarget");
-    var NativeObject = require("boost/NativeObject");
+    var NativeObject = require("boost/nativeObject/NativeObject");
     var NativeElement = require("boost/NativeElement");
     var AnimationEvent = require("boost/AnimationEvent");
 

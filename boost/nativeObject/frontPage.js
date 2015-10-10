@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     //TODO: 怎样限制只有背景页里我们自己的代码才能使用？
     var derive = require("base/derive");
     var assert = require("base/assert");
-    var NativeObject = require("boost/NativeObject");
+    var NativeObject = require("boost/nativeObject/NativeObject");
 
     var FRONTPAGE_ID = -2;
     var FrontPageNativeObject = derive(

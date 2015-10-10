@@ -3,12 +3,10 @@ define(function (require, exports, module) {
 
     var derive = require("base/derive");
     var assert = require("base/assert");
-    var NativeObject = require("boost/NativeObject");
+    var NativeObject = require("boost/nativeObject/NativeObject");
     var TouchEvent = require("boost/TouchEvent");
     var Element = require("boost/Element");
     var fontSetter = require("boost/fontSetter");
-
-    var nativeGlobal = NativeObject.global;
 
     //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
     var ROOT_ELEMENT_OBJ_ID = 0;

@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     //var webMap = require("boost/webMap");
     //require("boost/webDebugger");
-    var nativeGlobal = require("boost/NativeObject").global;
+    var nativeGlobal = require("boost/nativeObject/NativeObject").global;
     var FROM_CUSTOM_HANDLER = "__from_custom_handler__";
 
     /**
