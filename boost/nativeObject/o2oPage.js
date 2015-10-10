@@ -15,6 +15,9 @@ define(function (require, exports, module) {
     }, {
         exit: function () {
             this.__callNative("exit", []);
+        },
+        attachToPopWindow: function (menuNativeObjectId) {
+            this.__callNative("attachToPopWindow", [menuNativeObjectId]);
         }
     });
 
