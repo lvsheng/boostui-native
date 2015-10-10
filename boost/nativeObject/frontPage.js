@@ -27,8 +27,11 @@ define(function (require, exports, module) {
                 });
             }
         },
-        refresh: function () {
-            //TODO
+        reload: function () {
+            this.__callNative("reload", []);
+        },
+        loadUrl: function (url) {
+            this.__callNative("loadUrl", [url]);
         }
     });
 
