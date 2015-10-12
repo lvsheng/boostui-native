@@ -85,7 +85,6 @@ define(function (require, exports, module) {
         return null;
     };
 
-
     // 监听统一的 boost 事件
     document.addEventListener("boost", function (e) {
         var origin = e.origin;
@@ -104,11 +103,11 @@ define(function (require, exports, module) {
 
     // 页面卸载时,删除所有的 NativeView
     window.addEventListener("unload", function (e) {
-        bridge.destroy();
+        bridge.destroyAll();
     });
 
     // 页面加载时，先尝试删除所有 NativeView
-    bridge.destroy();
+    bridge.destroyAll();
 
     module.exports = NativeObject;
 });

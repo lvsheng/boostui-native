@@ -109,8 +109,8 @@ define(function (require, exports, module) {
         invoke: function (objId, methodId, params) {
             queue.push(["invoke", [objId, methodId, params]]);
         },
-        destroy: function () {
-            queue.push(["destroy", []]);
+        destroyAll: function () {
+            queue.push(["destroyAll", []]);
             queue.flush();
         }
     };
