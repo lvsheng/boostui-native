@@ -11,7 +11,7 @@ define(function (require, exports, module) {
         this.__src = src;
         NativeObject.call(this, TYPE_FONT, undefined, { url: this.__src });
     }, {
-        "get url": function () {
+        "get src": function () {
             return this.__src;
         },
         "get fontName": function () {
