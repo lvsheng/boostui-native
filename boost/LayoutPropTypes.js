@@ -9,12 +9,12 @@ define(function (require, exports, module) {
     var _enum = validator.oneOf;
 
     var LayoutPropTypes = StyleSheet.createPropTypes({
-        "width": [dp, "auto"],
-        "height": [dp, "auto"],
-        "left": [dp, "auto"],
-        "right": [dp, "auto"],
-        "top": [dp, "auto"],
-        "bottom": [dp, "auto"],
+        "width": [dp, null],
+        "height": [dp, null],
+        "left": [dp, null],
+        "right": [dp, null],
+        "top": [dp, null],
+        "bottom": [dp, null],
         "margin": [dp, 0],
         "marginLeft": [dp, 0],
         "marginRight": [dp, 0],
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
         "justifyContent": [_enum("flex-start", "flex-end", "center", "space-between", "space-around"), "flex-start"],
         "alignItems": [_enum("flex-start", "flex-end", "center", "stretch"), "stretch"],
         "alignSelf": [_enum("auto", "flex-start", "flex-end", "center", "stretch"), "auto"],
-        "flex": [number, "auto"],
+        "flex": [number, 0],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],
         "position": [_enum("absolute", "relative"), "relative"],
     });
