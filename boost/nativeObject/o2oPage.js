@@ -13,6 +13,18 @@ define(function (require, exports, module) {
     var O2OPageNativeObject = derive(NativeObject, function () {
         NativeObject.call(this, null, O2OPage_TYPE_ID);
     }, {
+        __onEvent: function (type, event) {
+            switch (type) {
+                case "subscribeLight".toLowerCase():
+                case "unsubscribeLight".toLowerCase():
+                case "isSubscribeLight".toLowerCase():
+                    this.dispatchEvent({
+                        type: type,
+                        data: event.data
+                    });
+                    break;
+            }
+        },
         exit: function () {
             this.__callNative("exit", []);
         },
@@ -20,10 +32,10 @@ define(function (require, exports, module) {
             this.__callNative("attachToPopWindow", [menuNativeObjectId]);
         },
         follow: function (conf) {
-            this.__callNative("subscribeLight", [conf.appid, 'clouda', false]); //TODO: conf.is_silence参数的支持？
+            this.__callNative("subscribeLight", [conf.appid, false]); //TODO: conf.is_silence参数的支持？
         },
         unfollow: function (conf) {
-            this.__callNative("unsubscribeLight", [conf.appid, 'clouda']);
+            this.__callNative("unsubscribeLight", [conf.appid]);
         },
         checkFollow: function (conf) {
             this.__callNative("isSubscribeLight", [conf.appid]);
