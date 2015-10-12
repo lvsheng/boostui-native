@@ -101,6 +101,10 @@ define(function (require, exports, module) {
         }
     }, false);
 
+    document.addEventListener("boosterror", function (e) {
+        console.error(e.message + "\n" + e.stack);
+    }, false);
+
     // 页面卸载时,删除所有的 NativeView
     window.addEventListener("unload", function (e) {
         bridge.destroyAll();
