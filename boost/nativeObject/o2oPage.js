@@ -29,15 +29,19 @@ define(function (require, exports, module) {
             this.__callNative("isSubscribeLight", [conf.appid]);
         },
         share: function (conf) {
-            //options = {
-            //    appid: appId,
-            //    mediaType: 'all',
-            //    title: title,
-            //    content: content,
-            //    linkUrl: url,
-            //    imageUrl: iconUrl
-            //}
-            this.__callNative("shareApp", [conf]); //TODO: 参数怎么传？
+            this.__callNative("shareApp", [{
+                title: conf.title,
+                url: conf.linkUrl,
+                content: conf.content,
+                weixin_send_url: true,
+                share_type: 0, //mediaType不生效，全为0
+                weibo_title: conf.title,
+                weixin_title: conf.title,
+                weixin_timeline_title: conf.title,
+                weixin_description: conf.content,
+                thumb_img_url: conf.imageUrl,
+                img_url: conf.imageUrl
+            }]);
         }
     });
 
