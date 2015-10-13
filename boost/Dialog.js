@@ -5,15 +5,12 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
 
-    //var NATIVE_VIEW_TYPE = "WrappedToastViewGroup";
-    var NATIVE_VIEW_TYPE = 8;
-    var Toast = derive(NativeElement, function (conf) {
+    //var NATIVE_VIEW_TYPE = "WrappedDialogViewGroup";
+    var NATIVE_VIEW_TYPE = 9;
+    var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
-        //this._super(NATIVE_VIEW_TYPE, "Toast");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Toast");
-        if (conf.duration) {
-            this.duration = conf.duration;
-        }
+        //this._super(NATIVE_VIEW_TYPE, "Dialog");
+        NativeElement.call(this, NATIVE_VIEW_TYPE, "Dialog");
         if (conf.gravityVertical) {
             this.gravityVertical = conf.gravityVertical;
         }
@@ -24,18 +21,14 @@ define(function (require, exports, module) {
         show: function (view) {
             this.nativeObject.__callNative("show", [view.nativeObject.tag]);
         },
-        "get duration": function () {
-            return this.__config__.duration;
+        close: function () {
+            this.nativeObject.__callNative("dismiss", []);
         },
         "get gravityVertical": function () {
             return this.__config__.gravityVertical;
         },
         "get gravityHorizontal": function () {
             return this.__config__.gravityHorizontal;
-        },
-        "set duration": function (value) {
-            assert(value === "long" || value === "short", "duration只能为long|short");
-            this.__update("duration", value);
         },
         "set gravityVertical": function (value) {
             assert(value === "top" || value === "center" || value === "bottom", "gravityVertical只能为top|center|bottom");
@@ -46,5 +39,5 @@ define(function (require, exports, module) {
             this.__update("gravityHorizontal", value);
         }
     });
-    module.exports = Toast;
+    module.exports = Dialog;
 });
