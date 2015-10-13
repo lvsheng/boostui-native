@@ -35,6 +35,10 @@ define(function (require, exports, module) {
                 return this.__tag__;
             },
 
+            destroy: function () {
+                bridge.destroy(this.__tag__);
+            },
+
             /**
              * @param method {string}
              * @param args {Array}
