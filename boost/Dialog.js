@@ -18,8 +18,8 @@ define(function (require, exports, module) {
             this.gravityHorizontal = conf.gravityHorizontal;
         }
     }, {
-        show: function (view) {
-            this.nativeObject.__callNative("show", [view.nativeObject.tag]);
+        show: function () {
+            this.nativeObject.__callNative("show", []);
         },
         close: function () {
             this.nativeObject.__callNative("dismiss", []);

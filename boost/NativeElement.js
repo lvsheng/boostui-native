@@ -27,6 +27,9 @@ define(function (require, exports, module) {
         "get tag": function () {
             return this.__native__.tag;
         },
+        setSelectorBackgroundColor: function (color) { //TODO: ajdust
+            this.__native__.__callNative('setSelectorBackgroundColor', [color]);
+        },
         __createView: function (type) {
             var self = this;
             var nativeObj = self.__native__ = new ElementNativeObject(type);
