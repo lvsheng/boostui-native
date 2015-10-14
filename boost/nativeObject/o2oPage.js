@@ -31,6 +31,9 @@ define(function (require, exports, module) {
         attachToPopWindow: function (menuNativeObjectId) {
             this.__callNative("attachToPopWindow", [menuNativeObjectId]);
         },
+        dismissPopWindow: function () {
+            this.__callNative("dismissPopWindow", []);
+        },
         follow: function (conf) {
             this.__callNative("subscribeLight", [conf.appid, false]); //TODO: conf.is_silence参数的支持？
         },
