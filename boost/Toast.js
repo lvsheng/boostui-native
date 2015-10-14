@@ -24,6 +24,9 @@ define(function (require, exports, module) {
         show: function () {
             this.nativeObject.__callNative("show", []);
         },
+        cancel: function () {
+            this.nativeObject.__callNative("cancel", []);
+        },
         "get duration": function () {
             return this.__config__.duration;
         },
