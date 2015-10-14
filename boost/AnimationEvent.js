@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var Event = require("boost/Event");
 
     var AnimationEvent = derive(Event, function (target, type) {
-        assert(type === "animationstart" || type === "animationend", "unknow animation event type:\"" + type + "\"")
+        assert(type === "start" || type === "end" || type === "cancel", "unknow animation event type:\"" + type + "\"")
         Event.call(this, target, type);
     });
 

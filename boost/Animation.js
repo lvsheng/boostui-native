@@ -7,38 +7,53 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var NativeElement = require("boost/NativeElement");
     var AnimationEvent = require("boost/AnimationEvent");
+    var AnimationCancelEvent = require("boost/AnimationCancelEvent");
+    var copyProperties = require("base/copyProperties");
 
-    var nativeGlobal = NativeObject.global;
-
-    var Animation = derive(EventTarget, function (type, config) {
+    var TYPE_ANIMATION = 11;
+    /**
+     * @param typeId {int}
+     * @param config {Object}
+     * @param config.element {NativeElement}
+     * @param config.* {*} 其他子Animation的配置
+     */
+    var Animation = derive(EventTarget, function (typeId, config) {
         EventTarget.call(this);
-        this.__type__ = type;
         this.__native__ = null;
-        //this.__config__ = config;
-        this.__create(this.__type__, config);
+        this.__create(typeId, config);
     }, {
-        __create: function (type, config) {
+        __create: function (typeId, config) {
+            assert(config.element instanceof NativeElement, "Animation must apply on NativeElement");
             var self = this;
-            var nativeObj = this.__native__ = new NativeObject();
-            var tag = nativeObj.tag;
+            var nativeConfig = copyProperties({}, config);
+            delete nativeConfig.element;
+            nativeConfig.target = config.element.tag;
+
+            var nativeObj = this.__native__ = new NativeObject(typeId, undefined, nativeConfig);
             nativeObj.__onEvent = function (type, e) {
                 self.__onEvent(type, e);
             };
-            nativeGlobal.createAnimation(tag, type, config);
         },
-        start: function (element) {
-            assert(element instanceof NativeElement, "Animation must apply on NativeElement");
-            nativeGlobal.startAnimation(element.nativeObject.tag, this.__native__.tag);
+        start: function () {
+            this.__native__.__callNative("start", []);
         },
         cancel: function () {
-            nativeGlobal.cancelAnimation(this.__native__.tag);
+            this.__native__.__callNative("cancel", []);
         },
         __onEvent: function (type, e) {
             var event;
             switch (type) {
-            case "animationstart":
-            case "animationend":
+            case "start":
+            case "end":
                 event = new AnimationEvent(this, type);
+                this.dispatchEvent(event);
+                break;
+            case "cancel":
+                var nowValue; //cancel时会将当前值传入
+                for (var key in e.data) { //只会传入一个值（动画处理的属性的值） TODO: 放在ProPAnimation里处理更合适？
+                    nowValue = e.data[key];
+                }
+                event = new AnimationCancelEvent(this, type, nowValue);
                 this.dispatchEvent(event);
                 break;
             default:

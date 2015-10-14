@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>test</title>
+
+    <script src="../bridge.js"></script>
+    <script src="../require.js" data-main="main"></script>
+    <script>
+        require.config({
+            baseUrl: "../../",
+            paths: {
+                main: "test/animation/main"
+            },
+            urlArgs: "t=" + +new Date
+        });
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
