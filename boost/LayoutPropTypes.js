@@ -41,6 +41,10 @@ define(function (require, exports, module) {
         "flex": [number, 0],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],
         "position": [_enum("absolute", "relative"), "relative"],
+
+        //TODO: 改为transform
+        "scaleX": [number, 1],
+        "scaleY": [number, 1]
     });
 
     module.exports = LayoutPropTypes;
