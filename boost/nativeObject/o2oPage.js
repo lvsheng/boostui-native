@@ -13,18 +13,6 @@ define(function (require, exports, module) {
     var O2OPageNativeObject = derive(NativeObject, function () {
         NativeObject.call(this, null, O2OPage_TYPE_ID);
     }, {
-        __onEvent: function (type, event) {
-            switch (type) {
-                case "subscribeLight".toLowerCase():
-                case "unsubscribeLight".toLowerCase():
-                case "isSubscribeLight".toLowerCase():
-                    this.dispatchEvent({
-                        type: type,
-                        data: event.data
-                    });
-                    break;
-            }
-        },
         exit: function () {
             this.__callNative("exit", []);
         },
@@ -33,30 +21,6 @@ define(function (require, exports, module) {
         },
         dismissPopWindow: function () {
             this.__callNative("dismissPopWindow", []);
-        },
-        follow: function (conf) {
-            this.__callNative("subscribeLight", [conf.appid, false]); //TODO: conf.is_silence参数的支持？
-        },
-        unfollow: function (conf) {
-            this.__callNative("unsubscribeLight", [conf.appid]);
-        },
-        checkFollow: function (conf) {
-            this.__callNative("isSubscribeLight", [conf.appid]);
-        },
-        share: function (conf) {
-            this.__callNative("shareApp", [{
-                title: conf.title,
-                url: conf.linkUrl,
-                content: conf.content,
-                weixin_send_url: true,
-                share_type: 0, //mediaType不生效，全为0
-                weibo_title: conf.title,
-                weixin_title: conf.title,
-                weixin_timeline_title: conf.title,
-                weixin_description: conf.content,
-                thumb_img_url: conf.imageUrl,
-                img_url: conf.imageUrl
-            }]);
         }
     });
 
