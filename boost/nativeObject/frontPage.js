@@ -33,16 +33,17 @@ define(function (require, exports, module) {
         loadUrl: function (url) {
             this.__callNative("loadUrl", [url]);
         },
-        dispatchDocumentEvent: function (type, data) {
+        dispatchWindowEvent: function (type, data) {
             var javascriptUrl = [
                 "javascript:  (function(){",
                 "   var data = " + JSON.stringify(data) + ";",
                 "   var event = document.createEvent('Event');",
                 "   event.initEvent(\"" + type + "\" , false, false);",
                 "   event.data = data;",
-                "   document.dispatchEvent(event);" +
+                "   window.dispatchEvent(event);" +
                 "})();"
             ].join('');
+            //console.info(javascriptUrl);
             this.loadUrl(javascriptUrl);
         }
     });
