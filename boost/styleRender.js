@@ -40,10 +40,18 @@ define(function (require, exports, module) {
                 if (selector === "@font-face") {
                     assert(!!rule.src, "@font-face should declare src");
                     assert(!!rule.fontFamily, "@font-face should declare font-family");
-                    var fontUrlReg = /^\s*url\(['"](.+)['"]\)/;
-                    var fontUrlMatchResult = fontUrlReg.exec(rule.src);
-                    var fontUrl = fontUrlMatchResult && fontUrlMatchResult[1];
-                    assert(!!fontUrl, "src of @font-face should match " + fontUrlReg.toString());
+                    var fontUrl;
+
+                    var assetsRegResult = /^\s*['"](assets!.*)['"]/.exec(rule.src);
+                    if (assetsRegResult && assetsRegResult[1]) { //TODO: 统一使用url，不增加特殊处理。现在是跳不过fis的替换。。。
+                        fontUrl = assetsRegResult[1];
+                    } else { //url
+                        var fontUrlReg = /^\s*url\(['"](.+)['"]\)/;
+                        var fontUrlMatchResult = fontUrlReg.exec(rule.src);
+                        fontUrl = fontUrlMatchResult && fontUrlMatchResult[1];
+                        assert(!!fontUrl, "src of @font-face should match " + fontUrlReg.toString());
+                    }
+
                     fontSetter.createFont(rule.fontFamily, fontUrl);
                     continue;
                 }
