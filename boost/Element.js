@@ -199,7 +199,7 @@ define(function (require, exports, module) {
             //    if (value === "UNDEFINED") {
             //        webValue = "auto";
             //    } else if (typeof value === "number") {
-            //        webValue = value / window.devicePixelRatio + "px"; //TODO: dump with dp
+            //        webValue = value / window.devicePixelRatio + "px";
             //    } else {
             //        webValue = value;
             //    }

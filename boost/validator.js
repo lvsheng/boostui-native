@@ -37,12 +37,6 @@ define(function (require, exports, module) {
             return String(value);
         },
 
-        dp: function (value) {
-            assert(!isNaN(value) && isFinite(value), "must be number");
-            value = parseFloat(value);
-            return value * DEVICE_PIXEL_RATIO;
-        },
-
         number: function (value) {
             assert(!isNaN(value) && isFinite(value), "must be number");
             value = parseFloat(value);

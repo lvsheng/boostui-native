@@ -69,9 +69,6 @@ define(function (require, exports, module) {
             //为了性能，直接从 __styleProps__ 获取值
             proto["get " + key] = function () {
                 var value = hasOwnProperty(this.__styleProps__, key) ? this.__styleProps__[key] : "";
-                if (curValidator === validator.dp && value) {
-                    return value / window.devicePixelRatio; //TODO: dump with dp validator
-                }
                 return value;
             };
 
