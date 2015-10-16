@@ -19,7 +19,18 @@ define(function (require, exports, module) {
             return this.__config__.source || "";
         },
         "set src": function (value) {
-            this.__update("source", value);
+            var url;
+            if (/^https?:\/\//.test(value)) {
+                url = value;
+            } else {
+                var host = location.protocol + "//" + location.hostname;
+                if (value[0] === '/') {
+                    url = host + value;
+                } else {
+                    url = host + location.pathname.slice(0, location.pathname.lastIndexOf('/')) + '/' + value;
+                }
+            }
+            this.__update("source", url);
         }
     });
     module.exports = Image;
