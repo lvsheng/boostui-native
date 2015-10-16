@@ -35,7 +35,7 @@ define(function (require, exports, module) {
         },
 
         px: function (value) {
-            var regResult = /^(\-?\d+(?:\.\d+)?)(?:px)?$/.match(value); //TODO: 目前阶段为了容错，暂时仍支持不加px单位，后续考虑不允许不写单位
+            var regResult = /^(\-?\d+(?:\.\d+)?)(?:px)?$/.exec(value); //TODO: 目前阶段为了容错，暂时仍支持不加px单位，后续考虑不允许不写单位
             assert(!!regResult, "value must be number, unit must be px");
             return parseFloat(regResult[1]);
         },
