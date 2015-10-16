@@ -3,6 +3,7 @@ define(function (require, exports, module) {
 
     var boost = require("boost/boost");
     var StyleRender = require("boost/styleRender");
+    var Event = require("boost/Event");
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
     //var webMap = require("boost/webMap");
