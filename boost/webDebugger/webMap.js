@@ -12,17 +12,13 @@ define(function (require, exports, module) {
 
         getBoostElement: function (webElement) {
             var id = this._getId(webElement);
-            assert(id !== undefined, "id of webElement should be added, please check whether you call webDebugger.start() before any other script");
             var boostElement = this._boostMap[id];
-            assert(boostElement !== undefined, "no required boostElement, please check whether you call webDebugger.start() before any other script");
 
             return boostElement;
         },
         getWebElement: function (boostElement) {
             var id = this._getId(boostElement);
-            assert(id !== undefined, "id of webElement should be added, please check whether you call webDebugger.start() before any other script");
             var webElement = this._webMap[id];
-            assert(webElement !== undefined, "no required webElement, please check whether you call webDebugger.start() before any other script");
 
             return webElement;
         },

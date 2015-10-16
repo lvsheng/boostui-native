@@ -11,6 +11,7 @@ define(function (require, exports, module) {
     var toCamelCase = require("base/toCamelCase");
     var lock = require("boost/webDebugger/lock");
     var webContainer = require("boost/webDebugger/webContainer");
+    var xml = require("boost/xml");
     require("boost/webDebugger/webMap");
     require("boost/webDebugger/webDebugger");
     require("boost/boost");
@@ -78,19 +79,9 @@ define(function (require, exports, module) {
                                 }
                                 var addedBoostNode = webMap.getBoostElement(addedNode);
                                 if (!addedBoostNode) {
-                                    //TODO: 改为直接从xml解析一个html片断（含子元素、value、样式应用的处理等）
                                     lock.doNotUpdateWeb = true;
-                                    addedBoostNode = boost.createElement(addedNode.tagName);
+                                    addedBoostNode = xml.parse(addedNode.outerHTML);
                                     webMap.set(addedBoostNode, addedNode);
-                                    //TODO: 使用与上面相同的逻辑来处理
-                                    each(addedNode.attributes, function (attr) {
-                                        if (attr.name === 'style') {
-                                            //TODO
-                                        } else {
-                                            addedBoostNode[attr.name] = attr.value;
-                                        }
-                                    });
-                                    addedBoostNode.value = addedNode.innerHTML;
                                     lock.doNotUpdateWeb = false;
                                 }
                                 if (record.nextSibling) {
