@@ -109,13 +109,26 @@ define(function (require, exports, module) {
 
         _handleStyle: function(boostElement, styleText) {
             var self = this;
+            styleText = styleText.replace(/\/\*.*?\*\//g, "");
             var styleList = styleText.split(";");
             styleList = styleList.filter(function (styleItem) { return styleItem.trim().length > 0; });
-            //TODO: 注释、删除样式的处理（对比oldValue?）
+            self._clearOldStyle(boostElement);
             styleList.forEach(function (styleItem) {
                 var tempArray = styleItem.split(":");
-                self._handleStyleItem(boostElement,  tempArray[0].trim(), tempArray[1].trim());
+                try {
+                    self._handleStyleItem(boostElement,  tempArray[0].trim(), tempArray[1].trim());
+                } catch (e) {
+                    console.error(e); //打印error、但还继续解析下一个
+                }
             });
+        },
+
+        _clearOldStyle: function (boostElement) {
+            lock.doNotUpdateWeb = true;
+            each(boostElement.style.__styleProps__, function (value, key) {
+                boostElement.style[key] = null;
+            });
+            lock.doNotUpdateWeb = false;
         },
 
         _handleStyleItem: function (boostElement, styleName, styleValue) {
