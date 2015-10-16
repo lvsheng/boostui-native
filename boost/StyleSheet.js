@@ -76,11 +76,8 @@ define(function (require, exports, module) {
                 var origValue = this.__styleProps__[key];
                 var event;
 
-                //TODO: font-family -> font
-
-                if (value === null //对应css中取消设置该值
-                    || value === "auto" //对应css中设置值为"auto"
-                ) {
+                //null对应css中取消设置该值, "auto"对应css中设置值为"auto"
+                if (value === null || value === "auto") {
                     value = defaultValue;
                 } else {
                     value = curValidator(value);

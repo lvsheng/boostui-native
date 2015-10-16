@@ -7,17 +7,18 @@ define(function (require, exports, module) {
     var validator = require("boost/validator");
 
     var number = validator.number;
+    var px = validator.px;
     var string = validator.string;
     var color = validator.color;
     var _enum = validator.oneOf;
 
     var ViewStylePropTypes = StyleSheet.createPropTypes(LayoutPropTypes, {
         "backgroundColor": [color, "transparent"],
-        "borderRadius": [number, 0],
-        "borderTopLeftRadius": [number, 0],
-        "borderTopRightRadius": [number, 0],
-        "borderBottomRightRadius": [number, 0],
-        "borderBottomLeftRadius": [number, 0],
+        "borderRadius": [px, 0],
+        "borderTopLeftRadius": [px, 0],
+        "borderTopRightRadius": [px, 0],
+        "borderBottomRightRadius": [px, 0],
+        "borderBottomLeftRadius": [px, 0],
         "borderColor": [color, "black"],
         "borderLeftColor": [color, "black"],
         "borderTopColor": [color, "black"],
@@ -27,11 +28,11 @@ define(function (require, exports, module) {
         //"overflow": [_enum('visible', 'hidden'), 'hidden'],
         //"shadowColor": color, //
         //"shadowOffset": { //
-        //    "width": number,
-        //    "height": number
+        //    "width": px,
+        //    "height": px
         //},
         //"shadowOpacity": number, //
-        //"shadowRadius": number, //}
+        //"shadowRadius": px, //}
     });
 
     module.exports = ViewStylePropTypes;
