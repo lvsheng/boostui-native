@@ -23,6 +23,7 @@ define(function (require, exports, module) {
         "Text": Text,
         "TextInput": TextInput,
         "Image": Image,
+        "Img": Image,
         "ScrollView": ScrollView,
         "Slider": Slider,
         "Slot": Slot,
