@@ -1,13 +1,13 @@
 define(function (require, exports, module) {
-    var Text = require("boost/Text");
     var boost = require("boost/boost");
+    require("boost/webDebugger/webDebugger").start();
 
-    var text = new Text();
+    var text = boost.createElement("text");
     boost.documentElement.appendChild(text);
     text.value = "remove me";
     text.style.alignSelf = "center";
 
-    var anotherText = new Text();
+    var anotherText = boost.createElement("text");
     boost.documentElement.appendChild(anotherText);
     anotherText.value = "hello, boost";
     anotherText.style.color = "rgba(0, 0, 0, 1)";

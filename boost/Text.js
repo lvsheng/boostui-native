@@ -24,6 +24,12 @@ define(function (require, exports, module) {
         },
         "set value": function (value) {
             this.__update("value", value);
+
+            this.dispatchEvent({
+                type: "attributeChange",
+                attributeName: "value",
+                attributeValue: value
+            })
         },
         "set numberOfLines": function (value) {
             this.__update("numberOfLines", validator.number(value));

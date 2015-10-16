@@ -14,8 +14,6 @@ define(function (require, exports, module) {
     var ScrollView = require("boost/ScrollView");
     var Slider = require("boost/Slider");
     var Slot = require("boost/Slot");
-    //var webMap = require("boost/webMap");
-    //require('./webDebugger'); //有循环依赖，使用的地方再require获取对象
 
     var ROOT_ELEMENT_TAG = "tag_nativeview";
     var TAG_MAP = {
@@ -40,10 +38,9 @@ define(function (require, exports, module) {
             if (this.__docuemntElement__ === null) {
                 this.__docuemntElement__ = NativeElement.__rootElement;
 
-                //var webDebugger = require('./webDebugger');
-                //if (webDebugger.isActive()) {
-                //    webMap.set(this.__docuemntElement__, webDebugger.containerElement);
-                //}
+                this.dispatchEvent({
+                    type: "documentElementCreated"
+                });
             }
             return this.__docuemntElement__;
         },
@@ -52,12 +49,10 @@ define(function (require, exports, module) {
             assert(hasOwnProperty(this.__tagMap__, tagName), "unknow tag \"" + tagName + "\"");
             var element = new this.__tagMap__[tagName]();
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webElement = document.createElement(tagName);
-            //    webMap.set(element, webElement);
-            //}
-
+            this.dispatchEvent({
+                type: "createElement",
+                element: element
+            });
             return element;
         },
         registerElement: function (tagName, options) {

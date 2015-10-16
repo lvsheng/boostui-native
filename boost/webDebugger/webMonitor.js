@@ -9,8 +9,10 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var each = require("base/each");
     var toCamelCase = require("base/toCamelCase");
-    require("boost/webMap");
-    require("boost/webDebugger");
+    var lock = require("boost/webDebugger/lock");
+    var webContainer = require("boost/webDebugger/webContainer");
+    require("boost/webDebugger/webMap");
+    require("boost/webDebugger/webDebugger");
     require("boost/boost");
     var INTERVAL = 30;
 
@@ -22,16 +24,15 @@ define(function (require, exports, module) {
 
             var self = this;
 
-            var webDebugger = require("boost/webDebugger");
             var boost = require("boost/boost");
             var observer = new MutationObserver(function (records) {
-                if (webDebugger.doNotUpdateBoostOnce) {
-                    webDebugger.doNotUpdateBoostOnce = false;
+                if (lock.doNotUpdateBoostOnce) {
+                    lock.doNotUpdateBoostOnce = false;
                     return; //avoid dead loop
                 }
 
                 records.forEach(function (record) {
-                    var webMap = require("boost/webMap"); //因为有循环依赖，需在此使用时重新require
+                    var webMap = require("boost/webDebugger/webMap"); //因为有循环依赖，需在此使用时重新require
                     var webElement;
                     var boostElement;
                     switch (record.type) {
@@ -41,13 +42,13 @@ define(function (require, exports, module) {
                             if (record.attributeName === 'style') {
                                 self._handleStyle(boostElement, webElement.getAttribute("style"));
                             } else if (record.attributeName === "class") {
-                                webDebugger.doNotUpdateWeb = true;
+                                lock.doNotUpdateWeb = true;
                                 boostElement.className = webElement.className; //FIXME: can't trigger style update by className
-                                webDebugger.doNotUpdateWeb = false;
+                                lock.doNotUpdateWeb = false;
                             } else {
-                                webDebugger.doNotUpdateWeb = true;
+                                lock.doNotUpdateWeb = true;
                                 boostElement.setAttribute(record.attributeName, webElement.getAttribute(record.attributeName));
-                                webDebugger.doNotUpdateWeb = false;
+                                lock.doNotUpdateWeb = false;
                             }
                             break;
                         case "characterData":
@@ -55,9 +56,9 @@ define(function (require, exports, module) {
                             boostElement = webMap.getBoostElement(webElement);
                             var tagName = webElement.tagName.toUpperCase();
                             if (tagName === "TEXT" || tagName === "TEXTINPUT") {
-                                webDebugger.doNotUpdateWeb = true;
+                                lock.doNotUpdateWeb = true;
                                 boostElement.value = webElement.innerHTML; //innerText can't get value~
-                                webDebugger.doNotUpdateWeb = false;
+                                lock.doNotUpdateWeb = false;
                             }
                             break;
                         case "childList":
@@ -66,9 +67,9 @@ define(function (require, exports, module) {
 
                             each(record.removedNodes, function (removedNode) {
                                 var removedBoostElement = webMap.getBoostElement(removedNode);
-                                webDebugger.doNotUpdateWeb = true;
+                                lock.doNotUpdateWeb = true;
                                 boostElement.removeChild(removedBoostElement); //but do not destroy, for maybe is move/cut
-                                webDebugger.doNotUpdateWeb = false;
+                                lock.doNotUpdateWeb = false;
                             });
 
                             each(record.addedNodes, function (addedNode) {
@@ -78,7 +79,7 @@ define(function (require, exports, module) {
                                 var addedBoostNode = webMap.getBoostElement(addedNode);
                                 if (!addedBoostNode) {
                                     //TODO: 改为直接从xml解析一个html片断（含子元素、value、样式应用的处理等）
-                                    webDebugger.doNotUpdateWeb = true;
+                                    lock.doNotUpdateWeb = true;
                                     addedBoostNode = boost.createElement(addedNode.tagName);
                                     webMap.set(addedBoostNode, addedNode);
                                     //TODO: 使用与上面相同的逻辑来处理
@@ -90,16 +91,16 @@ define(function (require, exports, module) {
                                         }
                                     });
                                     addedBoostNode.value = addedNode.innerHTML;
-                                    webDebugger.doNotUpdateWeb = false;
+                                    lock.doNotUpdateWeb = false;
                                 }
                                 if (record.nextSibling) {
-                                    webDebugger.doNotUpdateWeb = true;
+                                    lock.doNotUpdateWeb = true;
                                     boostElement.insertBefore(addedBoostNode, webMap.getBoostElement(record.nextSibling));
-                                    webDebugger.doNotUpdateWeb = false;
+                                    lock.doNotUpdateWeb = false;
                                 } else {
-                                    webDebugger.doNotUpdateWeb = true;
+                                    lock.doNotUpdateWeb = true;
                                     boostElement.appendChild(addedBoostNode);
-                                    webDebugger.doNotUpdateWeb = false;
+                                    lock.doNotUpdateWeb = false;
                                 }
                             });
                             break;
@@ -107,7 +108,7 @@ define(function (require, exports, module) {
                 });
             });
             //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
-            observer.observe(webDebugger.containerElement, {
+            observer.observe(webContainer.getContainerElement(), {
                 childList: true,
                 attributes: true,
                 characterData: true,
@@ -153,7 +154,7 @@ define(function (require, exports, module) {
                     'border-left-color'
                 ]
             };
-            var webDebugger = require("boost/webDebugger");
+            var webDebugger = require("boost/webDebugger/webDebugger");
             switch (styleName) {
                 case "margin":
                 case "padding":
@@ -170,24 +171,22 @@ define(function (require, exports, module) {
                     } else if (subStyleValues.length === 3) {
                         subStyleValues.push(subStyleValues[1]); //left
                     }
-                    webDebugger.doNotUpdateWeb = true;
+                    lock.doNotUpdateWeb = true;
                     keyMap[styleName].forEach(function (subStyleKey, index) {
                         boostElement.style[webKeyToBoostKey(subStyleKey)] = webValueToBoostValue(subStyleValues[index]);
                     });
-                    webDebugger.doNotUpdateWeb = false;
+                    lock.doNotUpdateWeb = false;
                     break;
                 default :
-                    webDebugger.doNotUpdateWeb = true;
+                    lock.doNotUpdateWeb = true;
                     boostElement.style[webKeyToBoostKey(styleName)] = webValueToBoostValue(styleValue);
-                    webDebugger.doNotUpdateWeb = false;
+                    lock.doNotUpdateWeb = false;
                     break;
             }
 
             function webValueToBoostValue (webValue) {
                 if (/^(?:\-)?[\d\.]+px$/.test(webValue)) {
                     return parseFloat(webValue);
-                } else if (webValue === "auto") {
-                    return null;
                 } else {
                     return webValue;
                 }

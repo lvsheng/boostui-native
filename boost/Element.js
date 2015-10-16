@@ -10,8 +10,6 @@ define(function (require, exports, module) {
     var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
-    //var webMap = require("boost/webMap");
-    //require('./webDebugger');
     var push = [].push;
 
     var _super = EventTarget.prototype;
@@ -85,11 +83,11 @@ define(function (require, exports, module) {
         "set id": function (value) {
             this.__id__ = value;
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webMap.getWebElement(this).id = value;
-            //}
+            this.dispatchEvent({
+                type: "attributeChange",
+                attributeName: "id",
+                attributeValue: value
+            });
         },
         "get id": function () {
             return this.__id__;
@@ -109,11 +107,11 @@ define(function (require, exports, module) {
             }
             this.__classList__ = classList;
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webMap.getWebElement(this).className = value;
-            //}
+            this.dispatchEvent({
+                type: "attributeChange",
+                attributeName: "id",
+                attributeValue: value
+            });
         },
         "get className": function () {
             return this.__className__;
@@ -193,20 +191,11 @@ define(function (require, exports, module) {
         __styleChange: function (key, value, origValue) {
             // do nothing
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webValue;
-            //    if (value === "UNDEFINED") {
-            //        webValue = "auto";
-            //    } else if (typeof value === "number") {
-            //        webValue = value / window.devicePixelRatio + "px";
-            //    } else {
-            //        webValue = value;
-            //    }
-            //
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webMap.getWebElement(this).style[key] = webValue;
-            //}
+            this.dispatchEvent({
+                type: "styleChange",
+                key: key,
+                value: value
+            });
         },
 
         /**
@@ -407,13 +396,10 @@ define(function (require, exports, module) {
         appendChild: function (child) {
             this.__addChildAt(child, this.__children__.length);
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webElement = webMap.getWebElement(this);
-            //    var webChild = webMap.getWebElement(child);
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webElement.appendChild(webChild);
-            //}
+            this.dispatchEvent({
+                type: "appendChild",
+                child: child
+            });
             return child;
         },
         hasChildNodes: function () {
@@ -428,14 +414,11 @@ define(function (require, exports, module) {
             }
             this.__addChildAt(newNode, index);
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webElement = webMap.getWebElement(this);
-            //    var newWebElement = webMap.getWebElement(newNode);
-            //    var referenceWebElement = webMap.getWebElement(referenceNode);
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webElement.insertBefore(newWebElement, referenceWebElement);
-            //}
+            this.dispatchEvent({
+                type: "insertBefore",
+                child: newNode,
+                reference: referenceNode
+            });
             return newNode;
         },
         removeChild: function (child) {
@@ -446,13 +429,10 @@ define(function (require, exports, module) {
             }
             this.__removeChildAt(index);
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webElement = webMap.getWebElement(this);
-            //    var childWebElement = webMap.getWebElement(child);
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webElement.removeChild(childWebElement);
-            //}
+            this.dispatchEvent({
+                type: "removeChild",
+                child: child
+            });
             return child;
         },
         replaceChild: function (newChild, oldChild) {
@@ -467,14 +447,11 @@ define(function (require, exports, module) {
             this.childNodes.splice(index, 1, newChild);
             oldChild.__parent__ = null;
 
-            //var webDebugger = require('./webDebugger');
-            //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-            //    var webElement = webMap.getWebElement(this);
-            //    var newChildWebElement = webMap.getWebElement(newChild);
-            //    var oldChildWebElement = webMap.getWebElement(oldChild);
-            //    webDebugger.doNotUpdateBoostOnce = true;
-            //    webElement.replaceChild(newChildWebElement, oldChildWebElement);
-            //}
+            this.dispatchEvent({
+                type: "replaceChild",
+                newChild: newChild,
+                oldChild: oldChild
+            });
             return oldChild;
         },
         __findChild: function (callback) {
@@ -679,12 +656,11 @@ define(function (require, exports, module) {
                 default:
                     this[name] = value;
 
-                //var webDebugger = require('./webDebugger');
-                //if (webDebugger.isActive() && !webDebugger.doNotUpdateWeb) {
-                //    var webElement = webMap.getWebElement(this);
-                //    webDebugger.doNotUpdateBoostOnce = true;
-                //    webElement.setAttribute(name, value);
-                //}
+                    this.dispatchEvent({
+                        type: "attributeChange",
+                        attributeName: name,
+                        attributeValue: value
+                    });
                 break;
             }
         },
