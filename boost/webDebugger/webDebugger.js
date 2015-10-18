@@ -10,6 +10,6 @@ define(function (require, exports, module) {
     exports.start = function () {
         webMonitor.start();
         boostMonitor.start();
-        document.documentElement.appendChild(webContainer.getContainerElement());
+        document.documentElement.insertBefore(webContainer.getContainerElement(), document.body);
     };
 });
