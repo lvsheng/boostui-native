@@ -28,7 +28,8 @@ define(function (require, exports, module) {
             this.dispatchEvent({
                 type: "attributeChange",
                 attributeName: "value",
-                attributeValue: value
+                attributeValue: value,
+                propagationStoped: true
             })
         },
         "set numberOfLines": function (value) {

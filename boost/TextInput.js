@@ -40,6 +40,13 @@ define(function (require, exports, module) {
         },
         "set value": function (value) {
             this.__update("value", value);
+
+            this.dispatchEvent({
+                type: "attributeChange",
+                attributeName: "value",
+                attributeValue: value,
+                propagationStoped: true
+            })
         },
         "get editable": function () {
             return this.__config__.editable || true;

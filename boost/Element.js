@@ -86,7 +86,8 @@ define(function (require, exports, module) {
             this.dispatchEvent({
                 type: "attributeChange",
                 attributeName: "id",
-                attributeValue: value
+                attributeValue: value,
+                propagationStoped: true
             });
         },
         "get id": function () {
@@ -109,8 +110,9 @@ define(function (require, exports, module) {
 
             this.dispatchEvent({
                 type: "attributeChange",
-                attributeName: "id",
-                attributeValue: value
+                attributeName: "className",
+                attributeValue: value,
+                propagationStoped: true
             });
         },
         "get className": function () {
@@ -194,7 +196,8 @@ define(function (require, exports, module) {
             this.dispatchEvent({
                 type: "styleChange",
                 key: key,
-                value: value
+                value: value,
+                propagationStoped: true
             });
         },
 
@@ -398,7 +401,8 @@ define(function (require, exports, module) {
 
             this.dispatchEvent({
                 type: "appendChild",
-                child: child
+                child: child,
+                propagationStoped: true
             });
             return child;
         },
@@ -417,7 +421,8 @@ define(function (require, exports, module) {
             this.dispatchEvent({
                 type: "insertBefore",
                 child: newNode,
-                reference: referenceNode
+                reference: referenceNode,
+                propagationStoped: true
             });
             return newNode;
         },
@@ -431,7 +436,8 @@ define(function (require, exports, module) {
 
             this.dispatchEvent({
                 type: "removeChild",
-                child: child
+                child: child,
+                propagationStoped: true
             });
             return child;
         },
@@ -450,7 +456,8 @@ define(function (require, exports, module) {
             this.dispatchEvent({
                 type: "replaceChild",
                 newChild: newChild,
-                oldChild: oldChild
+                oldChild: oldChild,
+                propagationStoped: true
             });
             return oldChild;
         },
@@ -659,7 +666,8 @@ define(function (require, exports, module) {
                     this.dispatchEvent({
                         type: "attributeChange",
                         attributeName: name,
-                        attributeValue: value
+                        attributeValue: value,
+                        propagationStoped: true
                     });
                 break;
             }

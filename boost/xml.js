@@ -68,6 +68,7 @@ define(function (require, exports, module) {
             console.log("process:", xmlDocument);
             if (xmlDocument.querySelector('parsererror div')) {
                 console.error("xml parse error: " + xmlDocument.querySelector('parsererror div').innerText);
+                console.error(xmlDocument);
             }
 
             var rootNativeElement = this._processElement(xmlDocument.documentElement);
