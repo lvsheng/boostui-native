@@ -159,12 +159,13 @@ define(function (require, exports, module) {
                 ]
             };
             var webDebugger = require("boost/webDebugger/webDebugger");
+            var subStyleValues;
             switch (styleName) {
                 case "margin":
                 case "padding":
                 case "border-width":
                 case "border-color":
-                    var subStyleValues = styleValue.split(/\s+/);
+                    subStyleValues = styleValue.split(/\s+/);
                     if (subStyleValues.length === 1) {
                         subStyleValues.push(subStyleValues[0]); //right
                         subStyleValues.push(subStyleValues[0]); //bottom
@@ -181,6 +182,11 @@ define(function (require, exports, module) {
                     });
                     lock.doNotUpdateWeb = false;
                     break;
+                case "flex":
+                    subStyleValues = styleValue.split(/\s+/);
+                    var flexValue = subStyleValues.length === 1 ? subStyleValues[0] : parseFloat(subStyleValues[2]);
+                    boostElement.style[webKeyToBoostKey(styleName)] = webValueToBoostValue(flexValue);
+                    break;
                 default :
                     lock.doNotUpdateWeb = true;
                     boostElement.style[webKeyToBoostKey(styleName)] = webValueToBoostValue(styleValue);
@@ -189,11 +195,7 @@ define(function (require, exports, module) {
             }
 
             function webValueToBoostValue (webValue) {
-                if (/^(?:\-)?[\d\.]+px$/.test(webValue)) {
-                    return parseFloat(webValue);
-                } else {
-                    return webValue;
-                }
+                return webValue; //目前没有特殊处理了
             }
             function webKeyToBoostKey (webKey) {
                 return toCamelCase(webKey);
