@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var ElementNativeObject = require("boost/nativeObject/Element");
+    var Event = require("boost/Event");
     var TouchEvent = require("boost/TouchEvent");
     var Element = require("boost/Element");
     var fontSetter = require("boost/fontSetter");
@@ -45,6 +46,9 @@ define(function (require, exports, module) {
             case "touchend":
                 event = new TouchEvent(this, type, e.x, e.y);
                 this.dispatchEvent(event);
+                break;
+            case "dialogdismiss":
+                this.dispatchEvent(new Event(this, "dialogdismiss"));
                 break;
             default:
                 console.log("unknow event:" + type, e);
