@@ -78,6 +78,8 @@ define(function (require, exports, module) {
 
                 if (key === "fontFamily") { //font需要先加载再应用，在此对其拦截做特殊处理
                     fontSetter.setFont(this.__native__, value);
+                } else if (key === "tapHighlightColor") {
+                    this.setSelectorBackgroundColor(value);
                 } else {
                     this.__native__.updateView(key, value);
                 }

@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var number = validator.number;
     var px = validator.px;
     var _enum = validator.oneOf;
+    var color = validator.color;
 
     var LayoutPropTypes = StyleSheet.createPropTypes({
         "width": [px, null],
@@ -44,7 +45,9 @@ define(function (require, exports, module) {
 
         //TODO: 改为transform
         "scaleX": [number, 1],
-        "scaleY": [number, 1]
+        "scaleY": [number, 1],
+
+        "tapHighlightColor": [color, "transparent"]
     });
 
     module.exports = LayoutPropTypes;
