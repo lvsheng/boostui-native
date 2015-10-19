@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var each = require("base/each");
-    var ID_ATTR_NAME = "__ntag__";
+    var ID_ATTR_NAME = "_id";
 
     var WebMap = derive(Object, {
         _boostMap: {},
