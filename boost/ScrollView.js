@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
+    var Couple = require("boost/nativeObject/Couple");
 
     //var NATIVE_VIEW_TYPE = "WrappedScrollView";
     var NATIVE_VIEW_TYPE = 3;
@@ -17,6 +18,13 @@ define(function (require, exports, module) {
         __getStyle: function () {
             //assert(false, "ScrollView 不支持 style 属性");
             return new ViewStyle();
+        },
+        scrollTo: function (location) {
+            this.nativeObject.__callNative("scrollTo", [location]);
+        },
+        setLinkage: function (couple) {
+            assert(couple instanceof Couple);
+            this.nativeObject.__callNative("setLinkage", [couple.tag]);
         }
     });
     module.exports = ScrollView;

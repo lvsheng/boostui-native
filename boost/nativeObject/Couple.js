@@ -3,26 +3,36 @@ define(function (require, exports, module) {
 
     var derive = require("base/derive");
     var assert = require("base/assert");
+    var each = require("base/each");
+    var copyProperties = require("base/copyProperties");
     var NativeElement = require("boost/NativeElement");
     var NativeObject = require("boost/nativeObject/NativeObject");
 
     var COUPLE_TYPE_ID = 16;
     /**
      * 联动器
-     * @param conf.target {NativeElement}
      * @param conf.prop {string}
      * @param conf.from {number}
      * @param conf.to {number}
+     * @param conf.target {NativeElement}
+     * @param conf.duration {number}
+     * @param conf.type {"together"|"sequentially"}
      */
     var CoupleNativeObject = derive(NativeObject, function (conf) {
-        assert(conf.target instanceof NativeElement);
-        NativeObject.call(this, COUPLE_TYPE_ID, undefined, {
-            target: conf.target.nativeObject.tag,
-            prop: conf.prop,
-            from: conf.from,
-            to: conf.to
-        });
-    }, {});
+        conf = copyProperties({}, conf);
+        if (conf.target) {
+            assert(conf.target instanceof NativeElement);
+            conf.target = conf.target.nativeObject.tag;
+        }
+        NativeObject.call(this, COUPLE_TYPE_ID, undefined, conf);
+
+        this._curIndex = 0;
+    }, {
+        addCouple: function (couple) {
+            assert(couple instanceof  CoupleNativeObject);
+            this.__callNative("add", [couple.tag, this._curIndex++]);
+        }
+    });
 
     module.exports = CoupleNativeObject;
 });
