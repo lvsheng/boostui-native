@@ -24,6 +24,13 @@ define(function (require, exports, module) {
         setLinkage: function (couple) {
             assert(couple instanceof Couple);
             this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        },
+        /**
+         * @param index {int}
+         * @param [smooth] {boolean}
+         */
+        setCurrentItem: function (index, smooth) {
+            this.nativeObject.__callNative("setCurrentItem", [index, smooth || false]);
         }
     });
     module.exports = ViewPager;
