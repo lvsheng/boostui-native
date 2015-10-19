@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var each = require("base/each");
-    var ID_ATTR_NAME = "__web_map_id";
+    var ID_ATTR_NAME = "__ntag__";
 
     var WebMap = derive(Object, {
         _boostMap: {},
@@ -42,12 +42,10 @@ define(function (require, exports, module) {
         },
 
         _getId: function (element) {
-            return element[ID_ATTR_NAME];
+            return element.getAttribute(ID_ATTR_NAME);
         },
         _markId: function (element, id, type) {
-            //TODO 在web上显示id
-            //为了方便，暂时就直接赋值属性了~（为了不在dom上显示以防用户复制元素时一起复制下来，没有setAttribute）
-            element[ID_ATTR_NAME] = id;
+            element.setAttribute(ID_ATTR_NAME, id);
         }
     });
 
