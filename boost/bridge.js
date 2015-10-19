@@ -18,7 +18,7 @@ define(function (require, exports, module) {
 
     var queue = genQueue(function (list) {
         //for test
-        console.log(JSON.stringify(list, null, 2));
+        //console.log(JSON.stringify(list, null, 2));
         lc_bridge.callQueue(list);
         clearHeap();
     });
