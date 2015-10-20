@@ -56,24 +56,24 @@ define(function (require, exports, module) {
 
         color: (function () {
             var NAMEED_COLORS = {
-                "transparent": "#00000000",
-                "black": "#ff000000",
-                "silver": "#ffc0c0c0",
-                "gray": "#ff808080",
-                "white": "#ffffffff",
-                "maroon": "#ff800000",
-                "red": "#ffff0000",
-                "purple": "#ff800080",
-                "fuchsia": "#ffff00ff",
-                "green": "#ff008000",
-                "lime": "#ff00ff00",
-                "olive": "#ff808000",
-                "yellow": "#ffffff00",
-                "navy": "#ff000080",
-                "blue": "#ff0000ff",
-                "teal": "#ff008080",
-                "aqua": "#ff00ffff",
-                "orange": "#ffffa500"
+                "transparent" : 0x00000000|0,
+                "black"       : 0xff000000|0,
+                "silver"      : 0xffc0c0c0|0,
+                "gray"        : 0xff808080|0,
+                "white"       : 0xffffffff|0,
+                "maroon"      : 0xff800000|0,
+                "red"         : 0xffff0000|0,
+                "purple"      : 0xff800080|0,
+                "fuchsia"     : 0xffff00ff|0,
+                "green"       : 0xff008000|0,
+                "lime"        : 0xff00ff00|0,
+                "olive"       : 0xff808000|0,
+                "yellow"      : 0xffffff00|0,
+                "navy"        : 0xff000080|0,
+                "blue"        : 0xff0000ff|0,
+                "teal"        : 0xff008080|0,
+                "aqua"        : 0xff00ffff|0,
+                "orange"      : 0xffffa500|0
             };
             var REG_HEX_RGB = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/;
             var REG_HEX_RRGGBB = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/;
@@ -82,8 +82,9 @@ define(function (require, exports, module) {
             //^[1-9]/d*/./d*|0/./d*[1-9]/d*$
 
             function getHexValue(value, maxValue) {
-                value = Math.round(value * 0xFF / maxValue);
-                return value < 0x10 ? "0" + value.toString(16) : value.toString(16);
+                return Math.round(value * 0xFF / maxValue) | 0;
+                //value = Math.round(value * 0xFF / maxValue);
+                //return value < 0x10 ? "0" + value.toString(16) : value.toString(16);
             }
 
             return function (value) {
@@ -94,29 +95,30 @@ define(function (require, exports, module) {
                     return NAMEED_COLORS[value];
                 }
                 if (REG_HEX_RGB.test(value)) {
-                    return "#ff" +
+                    return parseInt("0xff" +
                         RegExp.$1 + RegExp.$1 +
                         RegExp.$2 + RegExp.$2 +
-                        RegExp.$3 + RegExp.$3;
+                        RegExp.$3 + RegExp.$3) | 0;
                 }
                 if (REG_HEX_RRGGBB.test(value)) {
-                    return "#ff" +
+                    return parseInt("0xff" +
                         RegExp.$1 +
                         RegExp.$2 +
-                        RegExp.$3;
+                        RegExp.$3) | 0;
                 }
                 if (REG_RGB.test(value)) {
-                    return "#ff" +
-                        getHexValue(parseFloat(RegExp.$1), 0xFF) + // r
-                        getHexValue(parseFloat(RegExp.$2), 0xFF) + // g
-                        getHexValue(parseFloat(RegExp.$3), 0xFF); // b
+                    return
+                        0xFF << 24 |
+                        (getHexValue(parseFloat(RegExp.$1), 0xFF) << 16) | // r
+                        (getHexValue(parseFloat(RegExp.$2), 0xFF) << 8 ) | // g
+                        (getHexValue(parseFloat(RegExp.$3), 0xFF) << 0 ); // b
                 }
                 if (REG_RGBA.test(value)) {
-                    return "#" +
-                        getHexValue(parseFloat(RegExp.$4), 1) + // a
-                        getHexValue(parseFloat(RegExp.$1), 0xFF) + // r
-                        getHexValue(parseFloat(RegExp.$2), 0xFF) + // g
-                        getHexValue(parseFloat(RegExp.$3), 0xFF); // b
+                    return
+                        (getHexValue(parseFloat(RegExp.$4), 1)    << 24) | // a
+                        (getHexValue(parseFloat(RegExp.$1), 0xFF) << 16) | // r
+                        (getHexValue(parseFloat(RegExp.$2), 0xFF) << 8 ) | // g
+                        (getHexValue(parseFloat(RegExp.$3), 0xFF) << 0 ); // b
                 }
                 assert(false, "unknow color: \"" + value + "\"");
             };
