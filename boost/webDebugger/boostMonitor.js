@@ -26,6 +26,11 @@ define(function (require, exports, module) {
         var webValue;
         var key = e.key;
         var value = e.value;
+
+        if (key === "flex") {
+            webValue = "1 1 " + value + "px";
+        }
+
         if (value === null) {
             webValue = "auto";
         } else if (typeof value === "number") {
@@ -46,7 +51,7 @@ define(function (require, exports, module) {
         lock.doNotUpdateBoostOnce = true;
         webElement.appendChild(webChild);
     }
-    function onInsertBefore () {
+    function onInsertBefore (e) {
         if (lock.doNotUpdateWeb) {
             return;
         }

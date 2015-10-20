@@ -6,6 +6,8 @@ define(function (require, exports, module) {
     var TextStylePropTypes = require("boost/TextStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var validator = require("boost/validator");
+    var Event = require("boost/Event");
+    var TouchEvent = require("boost/TouchEvent");
     var FocusEvent = require("boost/FocusEvent");
 
     //var NATIVE_VIEW_TYPE = "WrappedEditText";
@@ -29,7 +31,14 @@ define(function (require, exports, module) {
                 this.dispatchEvent(event);
                 break;
             case "change":
-                this.__config__.value = e.text;
+                this.__config__.value = e.data.text;
+                event = new Event(this, "change");
+                this.dispatchEvent(event);
+                break;
+            case "touchstart":
+            case "touchend":
+                event = new TouchEvent(this, type, e.x, e.y);
+                this.dispatchEvent(event);
                 break;
             default:
                 console.log("unknow event:" + type, e);
@@ -74,6 +83,9 @@ define(function (require, exports, module) {
         },
         "set placeholder": function (value) {
             this.__update("placeholder", validator.string(value));
+        },
+        "get placeholder": function (value) {
+            return this.__config__.placeholder || "";
         },
         "set placeholderTextColor": function (value) {
             this.__update("placeholderTextColor", validator.color(value));

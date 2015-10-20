@@ -31,6 +31,9 @@ define(function (require, exports, module) {
         setSelectorBackgroundColor: function (color) { //TODO: ajdust
             this.__native__.__callNative('setSelectorBackgroundColor', [color]);
         },
+        destroy: function () {
+            this.__native__.destroy();
+        },
         __createView: function (type) {
             var self = this;
             var nativeObj = self.__native__ = new ElementNativeObject(type);

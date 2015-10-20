@@ -96,26 +96,24 @@ define(function (require, exports, module) {
                 }
                 if (REG_HEX_RGB.test(value)) {
                     return parseInt("0xff" +
-                        RegExp.$1 + RegExp.$1 +
-                        RegExp.$2 + RegExp.$2 +
-                        RegExp.$3 + RegExp.$3) | 0;
+                            RegExp.$1 + RegExp.$1 +
+                            RegExp.$2 + RegExp.$2 +
+                            RegExp.$3 + RegExp.$3) | 0;
                 }
                 if (REG_HEX_RRGGBB.test(value)) {
                     return parseInt("0xff" +
-                        RegExp.$1 +
-                        RegExp.$2 +
-                        RegExp.$3) | 0;
+                            RegExp.$1 +
+                            RegExp.$2 +
+                            RegExp.$3) | 0;
                 }
                 if (REG_RGB.test(value)) {
-                    return
-                        0xFF << 24 |
+                    return 0xFF << 24 |
                         (getHexValue(parseFloat(RegExp.$1), 0xFF) << 16) | // r
                         (getHexValue(parseFloat(RegExp.$2), 0xFF) << 8 ) | // g
                         (getHexValue(parseFloat(RegExp.$3), 0xFF) << 0 ); // b
                 }
                 if (REG_RGBA.test(value)) {
-                    return
-                        (getHexValue(parseFloat(RegExp.$4), 1)    << 24) | // a
+                    return (getHexValue(parseFloat(RegExp.$4), 1)    << 24) | // a
                         (getHexValue(parseFloat(RegExp.$1), 0xFF) << 16) | // r
                         (getHexValue(parseFloat(RegExp.$2), 0xFF) << 8 ) | // g
                         (getHexValue(parseFloat(RegExp.$3), 0xFF) << 0 ); // b
