@@ -12,6 +12,10 @@ define(function (require, exports, module) {
     var LayoutPropTypes = StyleSheet.createPropTypes({
         "width": [px, null],
         "height": [px, null],
+        "minWidth": [px, null],
+        "minHeight": [px, null],
+        "maxWidth": [px, null],
+        "maxHeight": [px, null],
         "left": [px, null],
         "right": [px, null],
         "top": [px, null],

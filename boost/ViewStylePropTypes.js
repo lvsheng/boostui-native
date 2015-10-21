@@ -24,7 +24,7 @@ define(function (require, exports, module) {
         "borderTopColor": [color, "black"],
         "borderRightColor": [color, "black"],
         "borderBottomColor": [color, "black"],
-        //"opacity": [number, 1],
+        "alpha": [number, 1],
         //"overflow": [_enum('visible', 'hidden'), 'hidden'],
         //"shadowColor": color, //
         //"shadowOffset": { //

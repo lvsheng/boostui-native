@@ -25,23 +25,27 @@ define(function (require, exports, module) {
         __onEvent: function (type, e) {
             var event;
             switch (type) {
-            case "focus":
-            case "blur":
-                event = new FocusEvent(this, type);
-                this.dispatchEvent(event);
-                break;
-            case "change":
-                this.__config__.value = e.data.text;
-                event = new Event(this, "change");
-                this.dispatchEvent(event);
-                break;
-            case "touchstart":
-            case "touchend":
-                event = new TouchEvent(this, type, e.x, e.y);
-                this.dispatchEvent(event);
-                break;
-            default:
-                console.log("unknow event:" + type, e);
+                case "focus":
+                case "blur":
+                    event = new FocusEvent(this, type);
+                    this.dispatchEvent(event);
+                    break;
+                case "change":
+                    this.__config__.value = e.data.text;
+                    event = new Event(this, "change");
+                    this.dispatchEvent(event);
+                    break;
+                case "search":
+                    event = new Event(this, "search");
+                    this.dispatchEvent(event);
+                    break;
+                case "touchstart":
+                case "touchend":
+                    event = new TouchEvent(this, type, e.x, e.y);
+                    this.dispatchEvent(event);
+                    break;
+                default:
+                    console.log("unknow event:" + type, e);
             }
         },
         "get value": function () {
@@ -89,6 +93,12 @@ define(function (require, exports, module) {
         },
         "set placeholderTextColor": function (value) {
             this.__update("placeholderTextColor", validator.color(value));
+        },
+        blur: function () {
+            this.__native__.__callNative("blur", []);
+        },
+        focus: function () {
+            this.__native__.__callNative("focus", []);
         }
     });
     module.exports = TextInput;

@@ -10,7 +10,7 @@ define(function (require, exports, module) {
     var fontSetter = require("boost/fontSetter");
 
     //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
-    var ROOT_ELEMENT_OBJ_ID = 0;
+    var ROOT_ELEMENT_OBJ_ID = -8;
     var ROOT_ELEMENT_TYPE_ID = 0;
 
     var _super = Element.prototype;

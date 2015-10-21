@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var hasOwnProperty = require("base/hasOwnProperty");
     var copyProperties = require("base/copyProperties");
     var assert = require("base/assert");
+    var methodMap = require("boost/methodMap");
 
     var methodList = [ //TODO: remove
         "createView",
@@ -104,16 +105,16 @@ define(function (require, exports, module) {
 
         //对应native的PageEntityBase
         create: function (typeId, objId, conf) {
-            queue.push(["create", [typeId, objId, conf || {}]]);
+            queue.push([0, methodMap.tryGetMethodId("create"), [objId, typeId, conf || {}]]);
         },
-        invoke: function (objId, methodId, params) {
-            queue.push(["invoke", [objId, methodId, params]]);
+        invoke: function (objId, methodName, params) {
+            queue.push([objId, methodMap.tryGetMethodId(methodName), params]);
         },
         destroy: function (objId) {
-            queue.push(["destroy", [objId]]);
+            queue.push([0, methodMap.tryGetMethodId("destroy"), [objId]]);
         },
         destroyAll: function () {
-            queue.push(["destroyAll", []]);
+            queue.push([0, methodMap.tryGetMethodId("destroyAll"), []]);
             queue.flush();
         }
     };

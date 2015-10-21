@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
     var LIGHT_API_TYPE_ID = -7;
     /**
-     * 只能在背景页中使用，前景页无法使用
      * 供背景页用作与前景页通信的中介（向前景页发送消息，监听前景页发来的消息）
      */
     var LightApiNativeObject = derive(NativeObject, function () {
@@ -48,6 +47,13 @@ define(function (require, exports, module) {
                 thumb_img_url: conf.imageUrl,
                 img_url: conf.imageUrl
             }]);
+        },
+
+        showInputMethod: function () {
+            this.__callNative("showInputMethod", []);
+        },
+        hideInputMethod: function () {
+            this.__callNative("hideInputMethod", []);
         }
     });
 

@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var boolean = require("boost/validator").boolean;
+    var number = require("boost/validator").number;
     var Couple = require("boost/nativeObject/Couple");
 
     //var NATIVE_VIEW_PAGER_TYPE = "WrappedToastViewGroup";
@@ -20,6 +21,9 @@ define(function (require, exports, module) {
         },
         "set loop": function (value) {
             this.__update("loop", boolean(value));
+        },
+        "set duration": function (value) {
+            this.__update("duration", number(value));
         },
         setLinkage: function (couple) {
             assert(couple instanceof Couple);
