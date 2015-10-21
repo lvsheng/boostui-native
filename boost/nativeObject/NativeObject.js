@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
@@ -16,7 +16,7 @@ define(function (require, exports, module) {
          * @param [objId]
          * @param [conf]
          */
-        function (typeId, objId, conf) {
+        function(typeId, objId, conf) {
             assert(tagMap.get(objId) === null, objId + " already exist");
             EventTarget.call(this);
             if (objId === undefined) {
@@ -29,13 +29,12 @@ define(function (require, exports, module) {
             if (objId > 1) { //TODO: 要这样来过滤吗？0为rootElement、1为nativeGlobal、负数为已有对象
                 bridge.create(typeId, this.__tag__, conf);
             }
-        },
-        {
-            "get tag": function () {
+        }, {
+            "get tag": function() {
                 return this.__tag__;
             },
 
-            destroy: function () {
+            destroy: function() {
                 bridge.destroy(this.__tag__);
             },
 
@@ -44,25 +43,25 @@ define(function (require, exports, module) {
              * @param args {Array}
              * @private
              */
-            __callNative: function (method, args) {
+            __callNative: function(method, args) {
                 bridge.invoke(this.__tag__, method, args);
             },
 
-            __onEvent: function (type, event) {
+            __onEvent: function(type, event) {
                 //do nothing
             }
         }
     );
 
-    NativeObject.bindNative = function (method) {
-        return function () {
+    NativeObject.bindNative = function(method) {
+        return function() {
             this.__callNative(method, slice(arguments));
         };
     };
 
     var GLOBAL_TAG = null;
     var GLOBAL_OBJ_ID = 1;
-    var NativeGlobalObject = derive(NativeObject, function () {
+    var NativeGlobalObject = derive(NativeObject, function() {
         //this._super(GLOBAL_TAG);
         NativeObject.call(this, GLOBAL_TAG, GLOBAL_OBJ_ID);
     }, {
@@ -73,7 +72,7 @@ define(function (require, exports, module) {
         test: NativeObject.bindNative("test"), //TODO: remove
 
         //__destroy: NativeObject.bindNative("destroy"),
-        destroyObject: function (tag) {
+        destroyObject: function(tag) {
             this.__destroy(tag);
         }
     });
@@ -81,7 +80,7 @@ define(function (require, exports, module) {
     var nativeGlobal = new NativeGlobalObject();
     NativeObject.global = nativeGlobal;
 
-    NativeObject.getByTag = function (tag) {
+    NativeObject.getByTag = function(tag) {
         var obj = tagMap.get(tag);
         if (obj !== null && obj instanceof NativeObject) {
             return obj;
@@ -89,11 +88,18 @@ define(function (require, exports, module) {
         return null;
     };
 
+
+    var lastTouchStartX = null;
+    var lastTouchStartY = null;
+    var lastTouchTarget = null;
     // 监听统一的 boost 事件
-    document.addEventListener("boost", function (e) {
+    document.addEventListener("boost", function(e) {
         var origin = e.origin;
         var target = NativeObject.getByTag(origin);
         var type = e.boostEventType.toLowerCase();
+        var data = e.data;
+        var tx;
+        var ty;
 
         //if (type == "touchend") return; //TODO:
 
@@ -101,15 +107,36 @@ define(function (require, exports, module) {
         if (target) {
             // 这里为了提高效率，就不用 dispatchEvent 那一套了。
             target.__onEvent(type, e);
+
+            switch (type) {
+                case "touchstart":
+                    lastTouchStartX = data.x;
+                    lastTouchStartY = data.y;
+                    lastTouchTarget = target;
+                    break;
+
+                case "touchend":
+                    if (lastTouchTarget === target) {
+                        // 判断距离，触发点击事件
+                        tx = lastTouchStartX - data.x;
+                        ty = lastTouchStartY - data.y;
+                        if (Math.pow(tx, 2) + Math.pow(ty, 2) < Math.pow(8, 2)) {
+                            target.__onEvent("click", e);
+                        }
+                    }
+                    lastTouchStartX = 0;
+                    lastTouchStartY = 0;
+                    lastTouchTarget = null;
+            }
         }
     }, false);
 
-    document.addEventListener("boosterror", function (e) {
+    document.addEventListener("boosterror", function(e) {
         console.error(e.message + "\n" + e.stack);
     }, false);
 
     // 页面卸载时,删除所有的 NativeView
-    window.addEventListener("unload", function (e) {
+    window.addEventListener("unload", function(e) {
         bridge.destroyAll();
     });
 
