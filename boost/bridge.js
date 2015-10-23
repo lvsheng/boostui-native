@@ -116,6 +116,9 @@ define(function (require, exports, module) {
         destroyAll: function () {
             queue.push([0, methodMap.tryGetMethodId("destroyAll"), []]);
             queue.flush();
+        },
+        postMessage: function (message) {
+            queue.push([0, methodMap.tryGetMethodId("postMessage"), [message]]);
         }
     };
 

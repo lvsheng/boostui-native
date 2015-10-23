@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     //TODO: 限制只有特定代码才能使用
     var derive = require("base/derive");
     var assert = require("base/assert");
+    var bridge = require("boost/bridge");
     var NativeObject = require("boost/nativeObject/NativeObject");
 
     var BACKGROUND_PAGE_TYPE_ID = -1;
@@ -14,13 +15,10 @@ define(function (require, exports, module) {
         NativeObject.call(this, null, BACKGROUND_PAGE_TYPE_ID);
     }, {
         postMessage: function (action, data) {
-            //console.info("---------- to background page ----------", action, data);
-            lc_bridge.callQueue([
-                ["postMessage", [{
-                    action: action,
-                    data: data
-                }]]
-            ]);
+            bridge.postMessage({
+                action: action,
+                data: data
+            });
         }
     });
 
