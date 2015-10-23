@@ -24,8 +24,16 @@ define(function (require, exports, module) {
          */
         parse: function (xmlStr) {
             var domParser = new DOMParser();
+            console.log("parse");
             var XML_DECLARE_STR = "<?xml version='1.0' encoding='UTF-8' ?>";
             var xmlDoc = domParser.parseFromString(XML_DECLARE_STR + xmlStr, "text/xml");
+
+            if (xmlDoc.querySelector('parsererror div')) {
+                console.error("xml parse error: " + xmlDoc.querySelector('parsererror div').innerText);
+                console.error(xmlStr);
+                console.error(xmlDoc);
+            }
+
             return this._process(xmlDoc);
         },
 
@@ -66,11 +74,6 @@ define(function (require, exports, module) {
          */
         _process: function (xmlDocument) {
             console.log("process:", xmlDocument);
-            if (xmlDocument.querySelector('parsererror div')) {
-                console.error("xml parse error: " + xmlDocument.querySelector('parsererror div').innerText);
-                console.error(xmlDocument);
-            }
-
             var rootNativeElement = this._processElement(xmlDocument.documentElement);
             this._styleRender.apply(rootNativeElement);
             return rootNativeElement;

@@ -14,16 +14,6 @@ define(function (require, exports, module) {
 
     var ViewStylePropTypes = StyleSheet.createPropTypes(LayoutPropTypes, {
         "backgroundColor": [color, "transparent"],
-        "borderRadius": [px, 0],
-        "borderTopLeftRadius": [px, 0],
-        "borderTopRightRadius": [px, 0],
-        "borderBottomRightRadius": [px, 0],
-        "borderBottomLeftRadius": [px, 0],
-        "borderColor": [color, "black"],
-        "borderLeftColor": [color, "black"],
-        "borderTopColor": [color, "black"],
-        "borderRightColor": [color, "black"],
-        "borderBottomColor": [color, "black"],
         "alpha": [number, 1],
         //"overflow": [_enum('visible', 'hidden'), 'hidden'],
         //"shadowColor": color, //

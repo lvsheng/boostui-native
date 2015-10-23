@@ -120,7 +120,7 @@ define(function(require, exports, module) {
                         // 判断距离，触发点击事件
                         tx = lastTouchStartX - data.x;
                         ty = lastTouchStartY - data.y;
-                        if (Math.pow(tx, 2) + Math.pow(ty, 2) < Math.pow(8, 2)) {
+                        if (Math.pow(tx, 2) + Math.pow(ty, 2) < Math.pow(2, 2)) {
                             target.__onEvent("click", e);
                         }
                     }

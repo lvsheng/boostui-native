@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
+    var Event = require("boost/Event");
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
@@ -16,6 +17,17 @@ define(function (require, exports, module) {
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, NATIVE_VIEW_PAGER_TYPE, "ViewPager");
     }, {
+        __onEvent: function (type, e) {
+            switch (type) {
+                case "selected":
+                    var event = new Event(this, "selected");
+                    event.data = { position: e.data.position };
+                    this.dispatchEvent(event);
+                    break;
+                default:
+                    NativeElement.call(this, type, e);
+            }
+        },
         __getStyle: function () {
             return new ViewStyle();
         },

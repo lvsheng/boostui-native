@@ -34,6 +34,12 @@ define(function (require, exports, module) {
         },
         "set numberOfLines": function (value) {
             this.__update("numberOfLines", validator.number(value));
+        },
+        "set multiline": function (value) {
+            this.__update("multiline", validator.boolean(value));
+        },
+        "set ellipsize": function (value) {
+            this.__update("ellipsize", validator.string(value));
         }
     });
     module.exports = Text;

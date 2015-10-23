@@ -31,6 +31,9 @@ define(function (require, exports, module) {
                 }
             }
             this.__update("source", url);
+        },
+        "set resizeMode": function (value) {
+            this.__update("resizeMode", value);
         }
     });
     module.exports = Image;

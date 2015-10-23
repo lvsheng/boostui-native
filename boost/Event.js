@@ -3,7 +3,7 @@ define(function (require, exports, module) {
 
     var derive = require("base/derive");
 
-    var Event = derive(Object, function (target, type) {
+    var Event = derive(Object, function (target, type, data) {
         this.__target__ = target;
         this.__type__ = type;
         this.__defaultPrevented__ = false;

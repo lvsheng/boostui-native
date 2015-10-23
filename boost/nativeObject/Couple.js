@@ -17,6 +17,9 @@ define(function (require, exports, module) {
      * @param conf.target {NativeElement}
      * @param conf.duration {number}
      * @param conf.type {"together"|"sequentially"}
+     * @param conf.fromColor {int} 应为validator.color返回值 TODO: 本方法内做color的转换
+     * @param conf.toColor {int}
+     * @param conf.updateColor {boolean}
      */
     var CoupleNativeObject = derive(NativeObject, function (conf) {
         conf = copyProperties({}, conf);
