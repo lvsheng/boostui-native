@@ -13,7 +13,7 @@ define(function (require, exports, module) {
     var _enum = validator.oneOf;
 
     var ViewStylePropTypes = StyleSheet.createPropTypes(LayoutPropTypes, {
-        "backgroundColor": [color, "transparent"],
+        "backgroundColor": [color, 0x00000000|0],
         "alpha": [number, 1],
         //"overflow": [_enum('visible', 'hidden'), 'hidden'],
         //"shadowColor": color, //

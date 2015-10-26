@@ -44,11 +44,11 @@ define(function (require, exports, module) {
         "borderTopRightRadius": [px, 0],
         "borderBottomRightRadius": [px, 0],
         "borderBottomLeftRadius": [px, 0],
-        "borderColor": [color, "black"],
-        "borderLeftColor": [color, "black"],
-        "borderTopColor": [color, "black"],
-        "borderRightColor": [color, "black"],
-        "borderBottomColor": [color, "black"],
+        "borderColor": [color, 0xff000000|0],
+        "borderLeftColor": [color, 0xff000000|0],
+        "borderTopColor": [color, 0xff000000|0],
+        "borderRightColor": [color, 0xff000000|0],
+        "borderBottomColor": [color, 0xff000000|0],
         "flexDirection": [_enum("row", "column"), "column"],
         "justifyContent": [_enum("flex-start", "flex-end", "center", "space-between", "space-around"), "flex-start"],
         "alignItems": [_enum("flex-start", "flex-end", "center", "stretch"), "stretch"],
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
         "scaleX": [number, 1],
         "scaleY": [number, 1],
 
-        "tapHighlightColor": [color, "transparent"]
+        "tapHighlightColor": [color, 0x00000000|0]
     });
 
     module.exports = LayoutPropTypes;

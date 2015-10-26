@@ -14,9 +14,9 @@ define(function (require, exports, module) {
     var _enum = validator.oneOf;
 
     var TextStylePropTypes = StyleSheet.createPropTypes(LayoutPropTypes, {
-        "color": [color, "black"],
+        "color": [color, 0xff000000|0],
         //"fontFamily": string,
-        "backgroundColor": [color, "transparent"],
+        "backgroundColor": [color, 0x00000000|0],
         "fontFamily": [font, "sans-serif"],
         "fontSize": [px, 14],
         "fontStyle": [_enum('normal', 'italic'), "normal"],
