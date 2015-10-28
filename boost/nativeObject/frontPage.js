@@ -23,7 +23,8 @@ define(function (require, exports, module) {
                 });
             } else if (type === "pagestarted") {
                 this.dispatchEvent({
-                    type: "pagestarted"
+                    type: "pagestarted",
+                    data: event.data
                 });
             }
         },
