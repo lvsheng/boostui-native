@@ -20,6 +20,18 @@ define(function (require, exports, module) {
     image.src = "http://fedev.baidu.com/~lvsheng/o2o/lvsheng/mainPage/bg.jpg";
     view.appendChild(image);
     image.style.borderWidth = 100; //web下不会覆盖内容区。但boost会
-    image.style.padding = 20; //web下生效，但boost不生效并native报错
+    //image.style.padding = 20; //web下生效，但boost不生效并native报错
+
+    var scrollView = boost.createElement("scrollview");
+    view.appendChild(scrollView);
+    scrollView.style.backgroundColor = "blue";
+    scrollView.style.height = 100;
+
+    var scrollContentView = boost.createElement("view");
+    scrollView.appendChild(scrollContentView);
+    scrollContentView.style.height = 800;
+    scrollContentView.style.width = 800;
+    scrollContentView.style.backgroundColor = "red";
+
 });
 
