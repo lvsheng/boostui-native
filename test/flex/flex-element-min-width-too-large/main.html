@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <style type="text/css" id="boost-style">
+        .span,
+        .span text {
+            color: red;
+            font-size: 16px;
+            font-family: sans-serif;
+        }
+        #flex div,
+        #flex view {
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            flex-shrink: 0;
+            align-content: flex-start;
+            border: 0 solid black;
+            margin: 0;
+            padding: 0;
+        }
+        #flex .container {
+            flex-direction: row;
+            background-color: blue;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-top: 10px;
+            height: 100px;
+            justify-content: flex-end;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+        #flex .container .span {
+            background-color: orange;
+            padding: 10px;
+        }
+        #flex .container .span2 {
+            background-color: #C33434;
+            margin-left: 100px;
+            max-height: 50px;
+        }
+        #flex .container .span2,
+        #flex .container .span2 text {
+            color: white;
+        }
+        #flex .fix-container .span {
+            flex: 1;
+        }
+        #flex .fix-container .fix-width {
+            width: 100px;
+            background-color: #FFF;
+        }
+        #flex .fix-container .span2 {
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="flex">
+    <div class="container">
+        <div class="span">span1</div>
+        <div class="span span2">span2</div>
+        <div class="span">span3</div>
+    </div>
+
+    <div class="container fix-container">
+        <div class="fix-width">fix-width</div>
+        <div class="span">span1</div>
+        <div class="span span2">span2</div>
+        <div class="span">span3</div>
+    </div>
+</div>
+</body>
+
+<script src="../../bridge.js"></script>
+<script src="../../require.js" data-main="main"></script>
+<script>
+    require.config({
+        baseUrl: "../../../",
+        paths: {
+            main: "test/flex/flex-element-min-width-too-large/main"
+        },
+        urlArgs: "t=" + +new Date
+    });
+</script>
+</html>
