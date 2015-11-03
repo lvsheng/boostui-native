@@ -14,7 +14,7 @@ define(function (require, exports, module) {
         "</View>";
     xml.loadFromString(xmlStr);
 
-    alert("上面两条为native, 下面两条为webView的\n与mac chrome模拟相比，第二个蓝条css layout渲染有bug(没有向左而是向右溢出)");
+    alert("上面两条为native, 下面两条为webView的\n与mac chrome模拟相比，第二个蓝条css layout渲染有bug(使用max-width为最终限，而chrome使用padding值为最终限)");
 
     function divToView (str) {
         var reg = /(<\/?)div(\s+[^>]*)?/g;
