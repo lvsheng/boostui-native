@@ -28,7 +28,12 @@ define(function(require, exports, module) {
         "get tag": function() {
             return this.__native__.tag;
         },
-        setSelectorBackgroundColor: function(color) { //TODO: ajdust
+        /**
+         * 用户应通过style.tapHighlightColor来修改而非直接调用本方法
+         * @param color
+         * @private
+         */
+        __setSelectorBackgroundColor: function(color) {
             this.__native__.__callNative('setSelectorBackgroundColor', [color]);
         },
         destroy: function() {
@@ -87,7 +92,7 @@ define(function(require, exports, module) {
                 if (key === "fontFamily") { //font需要先加载再应用，在此对其拦截做特殊处理
                     fontSetter.setFont(this.__native__, value);
                 } else if (key === "tapHighlightColor") {
-                    this.setSelectorBackgroundColor(value);
+                    this.__setSelectorBackgroundColor(value);
                 } else {
                     this.__native__.updateView(key, value);
                 }
