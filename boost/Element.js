@@ -676,6 +676,11 @@ define(function (require, exports, module) {
             return this[name];
         },
         dispatchEvent: function (event) {
+            if (event.propagationStoped === true) {
+                //之前用法为propagationStoped即不向上传播，但会在元素本身派发，这里保留
+                return this._dispatchEventOnPhase(event, "target");
+            }
+
             var ret = event.defaultPrevented;
             var ancestors = [];
             var curNode = this;
