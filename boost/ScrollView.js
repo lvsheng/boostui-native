@@ -46,7 +46,7 @@ define(function (require, exports, module) {
                     this.dispatchEvent(event);
                     break;
                 default:
-                    NativeElement.call(this, type, e);
+                    NativeElement.prototype.__onEvent.call(this, type, e);
             }
             return event && event.propagationStoped;
         },
