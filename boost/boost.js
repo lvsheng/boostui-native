@@ -15,6 +15,7 @@ define(function (require, exports, module) {
     var Slider = require("boost/Slider");
     var Slot = require("boost/Slot");
     var ViewPager = require("boost/ViewPager");
+    var Toolbar = require("boost/Toolbar");
 
     var ROOT_ELEMENT_TAG = "tag_nativeview";
     var TAG_MAP = {
@@ -26,7 +27,8 @@ define(function (require, exports, module) {
         "ScrollView": ScrollView,
         "Slider": Slider,
         "Slot": Slot,
-        "ViewPager": ViewPager
+        "ViewPager": ViewPager,
+        "Toolbar": Toolbar
     };
 
     var documentProto = {
