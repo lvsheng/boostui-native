@@ -8,6 +8,7 @@ define(function (require, exports, module) {
         this.__type__ = type;
         this.__defaultPrevented__ = false;
         this.__propagationStopped__ = false;
+        this.__timeStamp__ = (new Date()).getTime();
     }, {
         "get target": function () {
             return this.__target__;
@@ -26,6 +27,9 @@ define(function (require, exports, module) {
         },
         "get propagationStoped": function () {
             return this.__propagationStopped__;
+        },
+        "get timeStamp": function () {
+            return this.__timeStamp__;
         }
     });
 
