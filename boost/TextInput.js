@@ -39,14 +39,10 @@ define(function (require, exports, module) {
                     event = new Event(this, "search");
                     this.dispatchEvent(event);
                     break;
-                case "touchstart":
-                case "touchend":
-                    event = new TouchEvent(this, type, e.x, e.y);
-                    this.dispatchEvent(event);
-                    break;
                 default:
-                    console.log("unknow event:" + type, e);
+                    NativeElement.call(this, type, e);
             }
+            return event && event.propagationStoped;
         },
         "get value": function () {
             return this.__config__.value || "";

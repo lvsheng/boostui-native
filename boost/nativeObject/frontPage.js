@@ -27,6 +27,7 @@ define(function (require, exports, module) {
                     data: event.data
                 });
             }
+            return event && event.propagationStoped;
         },
         reload: function () {
             this.__callNative("reload", []);

@@ -43,7 +43,7 @@ define(function(require, exports, module) {
             var self = this;
             var nativeObj = self.__native__ = new ElementNativeObject(type);
             nativeObj.__onEvent = function(type, e) {
-                self.__onEvent(type, e);
+                return self.__onEvent(type, e);
             };
         },
         __onEvent: function(type, e) {
@@ -62,6 +62,7 @@ define(function(require, exports, module) {
                 default:
                     console.log("unknow event:" + type, e);
             }
+            return event && event.propagationStoped;
         },
         __getDefaultConfig: function() {
             // TODO more

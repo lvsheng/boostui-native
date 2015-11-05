@@ -23,6 +23,7 @@ define(function (require, exports, module) {
                     });
                     break;
             }
+            return event && event.propagationStoped;
         },
         follow: function (conf) {
             this.__callNative("subscribe", [conf.appid, false]); //TODO: conf.is_silence参数的支持？

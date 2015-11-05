@@ -31,7 +31,7 @@ define(function (require, exports, module) {
 
             var nativeObj = this.__native__ = new NativeObject(typeId, undefined, nativeConfig);
             nativeObj.__onEvent = function (type, e) {
-                self.__onEvent(type, e);
+                return self.__onEvent(type, e);
             };
         },
         start: function () {
@@ -59,6 +59,7 @@ define(function (require, exports, module) {
             default:
                 console.log("unknow event:" + type, e);
             }
+            return event && event.propagationStoped;
         }
     });
 

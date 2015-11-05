@@ -47,8 +47,17 @@ define(function(require, exports, module) {
                 bridge.invoke(this.__tag__, method, args);
             },
 
+            /**
+             * @param type
+             * @param event
+             * @private
+             * @returns {boolean} 事件是否被取消掉
+             *  为了构造click事件的地方能拿到touchstart/touchend是否被取消进而作为是否产生click的判断依据，通过此方法返回
+             *  子类必需记得返回此值！
+             */
             __onEvent: function(type, event) {
                 //do nothing
+                return event && event.propagationStoped;
             }
         }
     );
@@ -92,6 +101,8 @@ define(function(require, exports, module) {
     var lastTouchStartX = null;
     var lastTouchStartY = null;
     var lastTouchTarget = null;
+    var lastTouchType = ""; //"start"|"end"
+    var lastTouchStartStopped = false;
     // 监听统一的 boost 事件
     document.addEventListener("boost", function(e) {
         var origin = e.origin;
@@ -100,13 +111,14 @@ define(function(require, exports, module) {
         var data = e.data;
         var tx;
         var ty;
+        var eventStopped = false;
 
         //if (type == "touchend") return; //TODO:
 
         console.info("origin:" + origin, "type:" + type, e);
         if (target) {
             // 这里为了提高效率，就不用 dispatchEvent 那一套了。
-            target.__onEvent(type, e);
+            eventStopped = target.__onEvent(type, e);
 
             switch (type) {
                 case "touchstart":
@@ -116,7 +128,11 @@ define(function(require, exports, module) {
                     break;
 
                 case "touchend":
-                    if (lastTouchTarget === target) {
+                    if (
+                        lastTouchTarget === target
+                            //必需有连续并且未被stop的一对touchstart-touchend，才发出click （初衷: scrollview滚动中的点停不要触发内部子元素的click）
+                        && lastTouchType === "start" && !lastTouchStartStopped && !eventStopped
+                    ) {
                         // 判断距离，触发点击事件
                         tx = lastTouchStartX - data.x;
                         ty = lastTouchStartY - data.y;
@@ -127,6 +143,13 @@ define(function(require, exports, module) {
                     lastTouchStartX = 0;
                     lastTouchStartY = 0;
                     lastTouchTarget = null;
+            }
+
+            if (type === "touchstart") {
+                lastTouchType = "start";
+                lastTouchStartStopped = eventStopped;
+            } else if (type === "touchend") {
+                lastTouchType = "end";
             }
         }
     }, false);

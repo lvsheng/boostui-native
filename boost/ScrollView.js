@@ -19,7 +19,7 @@ define(function (require, exports, module) {
         //吞掉ScrollView在scroll中子元素的touch与click事件
         var UN_CLICKABLE_TIME = 180;
         var lastScrollTime;
-        //console.error("2"); //for debug
+        //console.error("4"); //for debug
         this.addEventListener("scroll", function (e) {
             console.info("time,scroll", e.timeStamp, e);
             lastScrollTime = e.timeStamp;
@@ -44,11 +44,11 @@ define(function (require, exports, module) {
                     var event = new Event(this, "scroll");
                     event.stopPropagation();
                     this.dispatchEvent(event);
-
                     break;
                 default:
                     NativeElement.call(this, type, e);
             }
+            return event && event.propagationStoped;
         },
         __getStyle: function () {
             //assert(false, "ScrollView 不支持 style 属性");

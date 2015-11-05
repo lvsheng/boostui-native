@@ -27,6 +27,7 @@ define(function (require, exports, module) {
                 default:
                     NativeElement.call(this, type, e);
             }
+            return event && event.propagationStoped;
         },
         __getStyle: function () {
             return new ViewStyle();
