@@ -18,8 +18,10 @@ define(function (require, exports, module) {
 
             assert(type(listeners[eventType]) === "array", "__listeners__ is not an array");
 
-            //TODO useCapture
-            listeners[eventType].push(listener);
+            listeners[eventType].push({
+                useCapture: useCapture || false,
+                listener: listener
+            });
             return true;
         },
 
@@ -27,15 +29,19 @@ define(function (require, exports, module) {
             var listeners = this.__listeners__;
             var index;
             var found;
+            var listenerInfo;
             if (!hasOwnProperty(listeners, eventType)) {
                 return false;
             }
 
             found = false;
-            //TODO useCapture
-            while ((index = listeners[eventType].indexOf(listener)) > -1) {
-                listeners[eventType].splice(index, 1);
-                found = true;
+            for (index = 0; index < listeners[eventType].length; ++index) {
+                listenerInfo = listeners[eventType][index];
+                if (listenerInfo.listener === listener && listenerInfo.useCapture === useCapture) {
+                    listeners[eventType].splice(index, 1);
+                    --index;
+                    found = true;
+                }
             }
             return found;
         },
@@ -45,11 +51,32 @@ define(function (require, exports, module) {
         },
 
         dispatchEvent: function (event) {
+            return this._dispatchEventOnPhase(event, "target");
+        },
+
+        /**
+         * 在本元素身上执行event与phase相应的回调
+         * @protected
+         * @param event
+         * @param phase {'capture'|'bubbling'|'target'}
+         * @private
+         */
+        _dispatchEventOnPhase: function (event, phase) {
             var type = event.type;
             var listeners = this.__listeners__;
             if (hasOwnProperty(listeners, type)) {
-                return listeners[type].forEach(function (listener) {
-                    listener.call(this, event);
+                listeners[type].forEach(function (listenerInfo) {
+                    switch (phase) {
+                        case "capture":
+                            listenerInfo.useCapture && listenerInfo.listener.call(this, event);
+                            break;
+                        case "bubbling":
+                            !listenerInfo.useCapture && listenerInfo.listener.call(this, event);
+                            break;
+                        case "target":
+                            listenerInfo.listener.call(this, event);
+                            break;
+                    }
                 }, this);
             }
             return !event.defaultPrevented;

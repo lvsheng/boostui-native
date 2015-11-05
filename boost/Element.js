@@ -676,13 +676,35 @@ define(function (require, exports, module) {
             return this[name];
         },
         dispatchEvent: function (event) {
-            //console.log(this.__native_tag__ + ":[" + this.tagName + "]" + event.type);
-            var ret;
-            //ret = this._super(event);
-            ret = _super.dispatchEvent.call(this, event);
-            if (!event.propagationStoped && this.parentNode !== null) {
-                ret = this.parentNode.dispatchEvent(event);
+            var ret = event.defaultPrevented;
+            var ancestors = [];
+            var curNode = this;
+            while (curNode = curNode.parentNode) {
+                ancestors.push(curNode); //根在后
             }
+            ancestors.reverse(); //根在前
+
+            //capture phase
+            each(ancestors, function (curNode) {
+                ret = curNode._dispatchEventOnPhase(event, "capture");
+                return !event.propagationStoped;
+            });
+            if (event.propagationStoped) {
+                return ret; //不再继续
+            }
+
+            //target phase
+            ret = this._dispatchEventOnPhase(event, "target");
+            if (event.propagationStoped) {
+                return ret; //不再继续
+            }
+
+            //bubbling phase
+            ancestors.reverse(); //根在后
+            each(ancestors, function (curNode) {
+                ret = curNode._dispatchEventOnPhase(event, "bubbling");
+                return !event.propagationStoped;
+            });
             return ret;
         }
     });
