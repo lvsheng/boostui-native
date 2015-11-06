@@ -104,21 +104,27 @@ define(function (require, exports, module) {
         },
 
         //对应native的PageEntityBase
-        create: function (typeId, objId, conf) {
-            queue.push([0, methodMap.tryGetMethodId("create"), [objId, typeId, conf || {}]]);
-        },
         invoke: function (objId, methodName, params) {
             queue.push([objId, methodMap.tryGetMethodId(methodName), params]);
         },
+        create: function (typeId, objId, conf) {
+            this.__callNative("create", [objId, typeId, conf || {}]);
+        },
         destroy: function (objId) {
-            queue.push([0, methodMap.tryGetMethodId("destroy"), [objId]]);
+            this.__callNative("destroy", [objId]);
         },
         destroyAll: function () {
-            queue.push([0, methodMap.tryGetMethodId("destroyAll"), []]);
+            this.__callNative("destroyAll", []);
             queue.flush();
         },
         postMessage: function (message) {
-            queue.push([0, methodMap.tryGetMethodId("postMessage"), [message]]);
+            this.__callNative("postMessage", [message]);
+        },
+        addLayer: function (layerId, zIndex) {
+            this.__callNative("addLayer", [layerId, zIndex]);
+        },
+        __callNative: function (methodName, params) {
+            queue.push([0, methodMap.tryGetMethodId(methodName), params]);
         }
     };
 
