@@ -14,7 +14,6 @@ define(function (require, exports, module) {
         NativeObject.call(this, null, FRONTPAGE_ID);
     }, {
         __onEvent: function (type, event) {
-            //console.info(type, event);
             // 从前台页面传来的消息与页面刷新事件，抛出事件供背景页监听
             if (type === "message") {
                 this.dispatchEvent({
@@ -45,7 +44,6 @@ define(function (require, exports, module) {
                 "   window.dispatchEvent(event);" +
                 "})();"
             ].join('');
-            //console.info(javascriptUrl);
             this.loadUrl(javascriptUrl);
         }
     });

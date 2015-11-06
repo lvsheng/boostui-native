@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-cp -rf base ~/work/ticket/tpl_ticket_1.0.3/static/o2o
-cp -rf boost ~/work/ticket/tpl_ticket_1.0.3/static/o2o
-cd ~/work/ticket/tpl_ticket_1.0.3/static/o2o
+to="/Users/lvsheng/work/ticket/ticket_tpl_from_trunk"
+cp -rf base ${to}/static/o2o
+cp -rf boost ${to}/static/o2o
+cd ${to}/static/o2o
 sh pack.sh
 fis3 release
 cd -

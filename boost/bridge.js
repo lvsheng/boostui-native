@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var assert = require("base/assert");
     var methodMap = require("boost/methodMap");
+    var nativeCallbackMap = require("boost/nativeCallbackMap");
 
     var methodList = [ //TODO: remove
         "createView",
@@ -104,29 +105,57 @@ define(function (require, exports, module) {
         },
 
         //对应native的PageEntityBase
-        invoke: function (objId, methodName, params) {
-            queue.push([objId, methodMap.tryGetMethodId(methodName), params]);
+        /**
+         * @param objId
+         * @param methodName
+         * @param params
+         * @param [callback]
+         */
+        invoke: function (objId, methodName, params, callback) {
+            var cmd = [objId, methodMap.tryGetMethodId(methodName), params];
+            if (callback) {
+                cmd.push(nativeCallbackMap.genCallback(callback));
+            }
+            queue.push(cmd);
         },
+
         create: function (typeId, objId, conf) {
-            this.__callNative("create", [objId, typeId, conf || {}]);
+            this.__invokeOnBridge("create", [objId, typeId, conf || {}]);
         },
         destroy: function (objId) {
-            this.__callNative("destroy", [objId]);
+            this.__invokeOnBridge("destroy", [objId]);
         },
         destroyAll: function () {
-            this.__callNative("destroyAll", []);
+            this.__invokeOnBridge("destroyAll", []);
             queue.flush();
         },
         postMessage: function (message) {
-            this.__callNative("postMessage", [message]);
+            this.__invokeOnBridge("postMessage", [message]);
         },
         addLayer: function (layerId, zIndex) {
-            this.__callNative("addLayer", [layerId, zIndex]);
+            this.__invokeOnBridge("addLayer", [layerId, zIndex]);
         },
-        __callNative: function (methodName, params) {
-            queue.push([0, methodMap.tryGetMethodId(methodName), params]);
+        getMethodMapping: function (callback) {
+            this.__invokeOnBridge("getMethodMapping", [], callback);
+        },
+
+        /**
+         * @param methodName
+         * @param params
+         * @param [callback]
+         * @private
+         */
+        __invokeOnBridge: function (methodName, params, callback) {
+            this.invoke(0, methodName, params, callback);
         }
     };
+
+    //TODO: 拿到map后把bridge里已有cmd也更新一下?
+    bridge.getMethodMapping(function (obj) {
+        if (obj.state === "success" && obj.data) {
+            methodMap.setMap(obj.data);
+        }
+    });
 
     module.exports = bridge;
 });

@@ -10,10 +10,6 @@ define(function(require, exports, module) {
     var fontSetter = require("boost/fontSetter");
     var bridge = require("boost/bridge");
 
-    //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
-    var ROOT_ELEMENT_OBJ_ID = -8;
-    var ROOT_ELEMENT_TYPE_ID = 0;
-
     var _super = Element.prototype;
     var NativeElement = derive(Element, function(type, tagName) {
         //this._super(tagName);
@@ -32,11 +28,9 @@ define(function(require, exports, module) {
         this.addEventListener("touchstart", stopEventIfNeed, true);
         this.addEventListener("touchend", stopEventIfNeed, true);
         function recordScroll (e) {
-            //console.info("time,scroll", e.timeStamp, e);
             lastScrollTime = e.timeStamp;
         }
         function stopEventIfNeed (e) {
-            //console.info("time,touchstart", e.timeStamp, e);
             if (e.origin === this.tag) {
                 // 自己身上的不屏蔽
                 return;
@@ -65,6 +59,7 @@ define(function(require, exports, module) {
             this.__native__.__callNative('setSelectorBackgroundColor', [color]);
         },
         destroy: function() {
+            this.removeAllEventListeners();
             this.__native__.destroy();
         },
         __createView: function(type) {
@@ -137,18 +132,15 @@ define(function(require, exports, module) {
 
     var ROOT_VIEW_TYPE_ID = 21;
 
+    //TODO: remove?
     var NativeRootElement = derive(NativeElement, function() {
         //this._super(null, "NATIVE_ROOT");
         NativeElement.call(this, null, "NATIVE_ROOT");
     }, {
         __createView: function() {
-            if (navigator.userAgent.indexOf("BaiduRuntimeO2OZone/2.2.1") > -1) { //TODO: for temp test
-                this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
-                //TODO: 用户自定义zIndex、用户可创建多个层
-                bridge.addLayer(this.__native__.tag, 0);
-            } else {
-                this.__native__ = new ElementNativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
-            }
+            this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
+            //TODO: 用户自定义zIndex、用户可创建多个层
+            bridge.addLayer(this.__native__.tag, 0);
         }
     });
 
