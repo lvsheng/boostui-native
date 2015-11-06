@@ -109,8 +109,6 @@ define(function(require, exports, module) {
         var target = NativeObject.getByTag(origin);
         var type = e.boostEventType.toLowerCase();
         var data = e.data;
-        var tx;
-        var ty;
         var eventStopped = false;
 
         //if (type == "touchend") return; //TODO:
@@ -133,12 +131,11 @@ define(function(require, exports, module) {
                             //必需有连续并且未被stop的一对touchstart-touchend，才发出click （初衷: scrollview滚动中的点停不要触发内部子元素的click）
                         && lastTouchType === "start" && !lastTouchStartStopped && !eventStopped
                     ) {
-                        // 判断距离，触发点击事件
-                        tx = lastTouchStartX - data.x;
-                        ty = lastTouchStartY - data.y;
-                        if (Math.pow(tx, 2) + Math.pow(ty, 2) < Math.pow(2, 2)) {
-                            target.__onEvent("click", e);
-                        }
+                        target.__onEvent("click", e);
+                        //console.error("click");
+                    } else {
+                        //debugger;
+                        //console.error("touchend, but no click");
                     }
                     lastTouchStartX = 0;
                     lastTouchStartY = 0;
@@ -148,6 +145,9 @@ define(function(require, exports, module) {
             if (type === "touchstart") {
                 lastTouchType = "start";
                 lastTouchStartStopped = eventStopped;
+                if (eventStopped) {
+                    //debugger;
+                }
             } else if (type === "touchend") {
                 lastTouchType = "end";
             }

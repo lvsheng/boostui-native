@@ -24,6 +24,12 @@ define(function (require, exports, module) {
                     event.data = { position: e.data.position };
                     this.dispatchEvent(event);
                     break;
+                case "pagescroll":
+                    var event = new Event(this, "pagescroll");
+                    event.stopPropagation(); //scroll不冒泡与捕获
+                    event.data = {  }; //TODO
+                    this.dispatchEvent(event);
+                    break;
                 default:
                     NativeElement.prototype.__onEvent.call(this, type, e);
             }
@@ -35,8 +41,13 @@ define(function (require, exports, module) {
         "set loop": function (value) {
             this.__update("loop", boolean(value));
         },
-        "set duration": function (value) {
+        "set duration": function (value) { //多久滚一次
+            console.error("duration", value);
             this.__update("duration", number(value));
+        },
+        "set loopScrollDuration": function (value) { //一次要多久
+            console.error("loopScrollDuration", value);
+            this.__update("loopScrollDuration", number(value));
         },
         setLinkage: function (couple) {
             assert(couple instanceof Couple);

@@ -23,17 +23,19 @@ define(function(require, exports, module) {
         this.__config__ = this.__getDefaultConfig();
         this.__createView(this.__type__);
 
-        //吞掉scroll中子元素的touch与click事件
+        //吞掉scroll,pagescroll中子元素的touch与click事件
         var UN_CLICKABLE_TIME = 180;
         var lastScrollTime;
         //console.error("4"); //for debug
-        this.addEventListener("scroll", function (e) {
+        this.addEventListener("scroll", recordScroll);
+        this.addEventListener("pagescroll", recordScroll);
+        this.addEventListener("touchstart", stopEventIfNeed, true);
+        this.addEventListener("touchend", stopEventIfNeed, true);
+        function recordScroll (e) {
             //console.info("time,scroll", e.timeStamp, e);
             lastScrollTime = e.timeStamp;
-        });
-        this.addEventListener("touchstart", stopEvent, true);
-        this.addEventListener("touchend", stopEvent, true);
-        function stopEvent (e) {
+        }
+        function stopEventIfNeed (e) {
             //console.info("time,touchstart", e.timeStamp, e);
             if (e.origin === this.tag) {
                 // 自己身上的不屏蔽
@@ -43,6 +45,7 @@ define(function(require, exports, module) {
                 return;
             }
             if (e.timeStamp - lastScrollTime < UN_CLICKABLE_TIME) {
+                //debugger;
                 e.stopPropagation();
             }
         }
