@@ -15,28 +15,6 @@ define(function (require, exports, module) {
     var ScrollView = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "ScrollView");
         NativeElement.call(this, NATIVE_VIEW_TYPE, "ScrollView");
-
-        //吞掉ScrollView在scroll中子元素的touch与click事件
-        var UN_CLICKABLE_TIME = 180;
-        var lastScrollTime;
-        //console.error("4"); //for debug
-        this.addEventListener("scroll", function (e) {
-            console.info("time,scroll", e.timeStamp, e);
-            lastScrollTime = e.timeStamp;
-        });
-        this.addEventListener("touchstart", function (e) {
-            console.info("time,touchstart", e.timeStamp, e);
-            if (e.origin === this.tag) {
-                // 自己身上的touchend不屏蔽
-                return;
-            }
-            if (!lastScrollTime) {
-                return;
-            }
-            if (e.timeStamp - lastScrollTime < UN_CLICKABLE_TIME) {
-                e.stopPropagation();
-            }
-        }, true);
     }, {
         __onEvent: function (type, e) {
             switch (type) {

@@ -8,6 +8,7 @@ define(function(require, exports, module) {
     var TouchEvent = require("boost/TouchEvent");
     var Element = require("boost/Element");
     var fontSetter = require("boost/fontSetter");
+    var bridge = require("boost/bridge");
 
     //var ROOT_ELEMENT_OBJ_ID = "tag_nativeview";
     var ROOT_ELEMENT_OBJ_ID = -8;
@@ -21,6 +22,30 @@ define(function(require, exports, module) {
         this.__native__ = null;
         this.__config__ = this.__getDefaultConfig();
         this.__createView(this.__type__);
+
+        //吞掉scroll中子元素的touch与click事件
+        var UN_CLICKABLE_TIME = 180;
+        var lastScrollTime;
+        //console.error("4"); //for debug
+        this.addEventListener("scroll", function (e) {
+            //console.info("time,scroll", e.timeStamp, e);
+            lastScrollTime = e.timeStamp;
+        });
+        this.addEventListener("touchstart", stopEvent, true);
+        this.addEventListener("touchend", stopEvent, true);
+        function stopEvent (e) {
+            //console.info("time,touchstart", e.timeStamp, e);
+            if (e.origin === this.tag) {
+                // 自己身上的不屏蔽
+                return;
+            }
+            if (!lastScrollTime) {
+                return;
+            }
+            if (e.timeStamp - lastScrollTime < UN_CLICKABLE_TIME) {
+                e.stopPropagation();
+            }
+        }
     }, {
         "get nativeObject": function() {
             return this.__native__;
@@ -107,12 +132,20 @@ define(function(require, exports, module) {
         }
     });
 
+    var ROOT_VIEW_TYPE_ID = 21;
+
     var NativeRootElement = derive(NativeElement, function() {
         //this._super(null, "NATIVE_ROOT");
         NativeElement.call(this, null, "NATIVE_ROOT");
     }, {
         __createView: function() {
-            this.__native__ = new ElementNativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
+            if (navigator.userAgent.indexOf("BaiduRuntimeO2OZone/2.2.1") > -1) { //TODO: for temp test
+                this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
+                //TODO: 用户自定义zIndex、用户可创建多个层
+                bridge.addLayer(this.__native__.tag, 0);
+            } else {
+                this.__native__ = new ElementNativeObject(ROOT_ELEMENT_TYPE_ID, ROOT_ELEMENT_OBJ_ID);
+            }
         }
     });
 
