@@ -42,11 +42,9 @@ define(function (require, exports, module) {
             this.__update("loop", boolean(value));
         },
         "set duration": function (value) { //多久滚一次
-            console.error("duration", value);
             this.__update("duration", number(value));
         },
         "set loopScrollDuration": function (value) { //一次要多久
-            console.error("loopScrollDuration", value);
             this.__update("loopScrollDuration", number(value));
         },
         setLinkage: function (couple) {

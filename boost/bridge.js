@@ -8,103 +8,13 @@ define(function (require, exports, module) {
     var methodMap = require("boost/methodMap");
     var nativeCallbackMap = require("boost/nativeCallbackMap");
 
-    var methodList = [ //TODO: remove
-        "createView",
-        "updateView",
-        "addView",
-        "removeView",
-        "createAnimation",
-        "startAnimation",
-        "cancelAnimation"
-    ];
-
     var queue = genQueue(function (list) {
-        //for test
-        //console.log(JSON.stringify(list, null, 2));
         lc_bridge.callQueue(list);
-        clearHeap();
     });
     queue.run();
 
-
-    var createHeap;
-    var updateHeap;
-
-    function clearHeap() {
-        createHeap = {};
-        updateHeap = {};
-    }
-
-    clearHeap();
-
-    var TAG_IDX = 0;
-    var METH_IDX = 1;
-    var ARGS_IDX = 2;
-
+    //一定程度上可认为对应native的PageEntity
     var bridge = {
-        call: function (tag, method, args) { //TODO: remove
-            var cmd = [];
-            var viewTag;
-            var config;
-            var methodIdOrName;
-            // 对createView、updateView 等做优化
-            if (tag === null) {
-                switch (method) {
-                case "createView":
-                    viewTag = "_" + args[0];
-
-                    //将 config 参数存起来,方便 update 的时候改动
-                    config = copyProperties({}, args[2]);
-                    createHeap[viewTag] = config;
-                    args[2] = config;
-                    //args[2] = {};
-                    break;
-
-                case "updateView":
-
-                    viewTag = "_" + args[0];
-
-                    //如果 create 堆里有需要 update 的节点,则直接更新 config
-                    if (hasOwnProperty(createHeap, viewTag)) {
-                        copyProperties(createHeap[viewTag], args[2]);
-                        return;
-                    }
-
-                    //如果 update 堆里有需要 update 的节点,则直接更新 config
-                    if (hasOwnProperty(updateHeap, viewTag)) {
-                        copyProperties(updateHeap[viewTag], args[2]);
-                        return;
-                    }
-
-                    //将 config 参数存起来,方便下次 update 的时候改动
-                    config = copyProperties({}, args[2]);
-                    updateHeap[viewTag] = config;
-                    args[2] = config;
-                    //args[2] = {};
-                    break;
-
-                default:
-                    // nothing
-                }
-            }
-
-            if (tag !== null) {
-                cmd.push(tag);
-            }
-            methodIdOrName = methodList.indexOf(method);
-            if (methodIdOrName < 0) {
-                methodIdOrName = method;
-                //throw new Error("Native 不支持此方法或者未绑定");
-            }
-            cmd.push(methodIdOrName);
-            cmd.push(args);
-            queue.push(cmd);
-        },
-        flush: function () {
-            queue.flush();
-        },
-
-        //对应native的PageEntityBase
         /**
          * @param objId
          * @param methodName
@@ -139,6 +49,10 @@ define(function (require, exports, module) {
             this.__invokeOnBridge("getMethodMapping", [], callback);
         },
 
+        flush: function () {
+            queue.flush();
+        },
+
         /**
          * @param methodName
          * @param params
@@ -150,7 +64,7 @@ define(function (require, exports, module) {
         }
     };
 
-    //TODO: 拿到map后把bridge里已有cmd也更新一下?
+    //TODO: 拿到map后把bridge里已有cmd也更新为数字?
     bridge.getMethodMapping(function (obj) {
         if (obj.state === "success" && obj.data) {
             methodMap.setMap(obj.data);
@@ -158,4 +72,53 @@ define(function (require, exports, module) {
     });
 
     module.exports = bridge;
+
+    //TODO: 合并命令(NativeElement中)：
+    //var createHeap;
+    //var updateHeap;
+    //
+    //function clearHeap() {
+    //    createHeap = {};
+    //    updateHeap = {};
+    //}
+    //
+    //clearHeap();
+    //switch (method) {
+    //    case "createView":
+    //        viewTag = "_" + args[0];
+    //
+    //        //将 config 参数存起来,方便 update 的时候改动
+    //        config = copyProperties({}, args[2]);
+    //        createHeap[viewTag] = config;
+    //        args[2] = config;
+    //        //args[2] = {};
+    //        break;
+    //
+    //    case "updateView":
+    //
+    //        viewTag = "_" + args[0];
+    //
+    //        //如果 create 堆里有需要 update 的节点,则直接更新 config
+    //        if (hasOwnProperty(createHeap, viewTag)) {
+    //            copyProperties(createHeap[viewTag], args[2]);
+    //            return;
+    //        }
+    //
+    //        //如果 update 堆里有需要 update 的节点,则直接更新 config
+    //        if (hasOwnProperty(updateHeap, viewTag)) {
+    //            copyProperties(updateHeap[viewTag], args[2]);
+    //            return;
+    //        }
+    //
+    //        //将 config 参数存起来,方便下次 update 的时候改动
+    //        config = copyProperties({}, args[2]);
+    //        updateHeap[viewTag] = config;
+    //        args[2] = config;
+    //        //args[2] = {};
+    //        break;
+    //
+    //    default:
+    //    // nothing
+    //}
+
 });
