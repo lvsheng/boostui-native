@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     boost.documentElement.appendChild(text);
     text.value = "hello, boost";
     text.style.color = "rgba(0, 0, 0, 1)";
+    text.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
     text.style.fontSize = "22";
     text.style.fontWeight = "bold";
     text.style.fontStyle = "italic";
@@ -15,7 +16,7 @@ define(function (require, exports, module) {
     var moveLeftAnimation = new PropAnimation({
         prop: "left",
         from: 0,
-        to: 500,
+        to: 100,
         duration: 1000,
         easing: "easeInOutSine",
         element: text
@@ -47,11 +48,11 @@ define(function (require, exports, module) {
         element: text
     });
     wholeAnimation.add(moveLeftAnimation);
-    //wholeAnimation.add(scaleAnimation); //TODO: 此处有bug：native现在不支持把AnimationSet组合进AnimationSet里
+    //wholeAnimation.add(scaleAnimation);
     wholeAnimation.start();
 
-    setTimeout(function () {
-        wholeAnimation.cancel();
-    }, 1300);
+    //setTimeout(function () {
+    //    wholeAnimation.cancel();
+    //}, 1300);
 });
 
