@@ -130,22 +130,6 @@ define(function(require, exports, module) {
         }
     });
 
-    var ROOT_VIEW_TYPE_ID = 21;
-
-    //TODO: remove?
-    var NativeRootElement = derive(NativeElement, function() {
-        //this._super(null, "NATIVE_ROOT");
-        NativeElement.call(this, null, "NATIVE_ROOT");
-    }, {
-        __createView: function() {
-            this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
-            //TODO: 用户自定义zIndex、用户可创建多个层
-            bridge.addLayer(this.__native__.tag, 0);
-        }
-    });
-
-    NativeElement.__rootElement = new NativeRootElement();
-
     module.exports = NativeElement;
 });
 

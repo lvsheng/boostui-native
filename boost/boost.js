@@ -16,8 +16,9 @@ define(function (require, exports, module) {
     var Slot = require("boost/Slot");
     var ViewPager = require("boost/ViewPager");
     var Toolbar = require("boost/Toolbar");
+    var ElementNativeObject = require("boost/nativeObject/Element");
+    var bridge = require("boost/bridge");
 
-    var ROOT_ELEMENT_TAG = "tag_nativeview";
     var TAG_MAP = {
         "View": View,
         "Text": Text,
@@ -37,10 +38,11 @@ define(function (require, exports, module) {
             EventTarget.call(this);
             this.__tagMap__ = {};
             this.__docuemntElement__ = null;
+            this.__documentElementZIndex__ = 0;
         },
         "get documentElement": function () {
             if (this.__docuemntElement__ === null) {
-                this.__docuemntElement__ = NativeElement.__rootElement;
+                this.__docuemntElement__ = this.addLayer(this.__documentElementZIndex__);
 
                 this.dispatchEvent({
                     type: "documentElementCreated"
@@ -68,6 +70,31 @@ define(function (require, exports, module) {
             }
 
             this.__tagMap__[tagName.toUpperCase()] = constructor;
+        },
+        setDocumentElementLayerZIndex: function (zIndex) {
+            assert(
+                this.__docuemntElement__ === null,
+                "boost.documentElement has already been created, zIndex can't effect.\n" +
+                "Please set it before any visit of boost.documentElement"
+            );
+            this.__documentElementZIndex__ = zIndex;
+        },
+        addLayer: function (zIndex) {
+            var ROOT_VIEW_TYPE_ID = 21;
+            var NativeRootElement = derive(NativeElement, function() { //TODO: 单独抽离出一个模块?
+                //this._super(null, "NATIVE_ROOT");
+                NativeElement.call(this, null, "NATIVE_ROOT");
+            }, {
+                __createView: function() {
+                    this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
+                    bridge.addLayer(this.__native__.tag, zIndex);
+                }
+            });
+            return new NativeRootElement()
+        },
+        removeLayer: function (layer) {
+            bridge.removeLayer(layer.tag);
+            layer.destroy();
         }
     };
 

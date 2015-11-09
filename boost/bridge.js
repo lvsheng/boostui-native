@@ -45,6 +45,9 @@ define(function (require, exports, module) {
         addLayer: function (layerId, zIndex) {
             this.__invokeOnBridge("addLayer", [layerId, zIndex]);
         },
+        removeLayer: function (layerId) {
+            this.__invokeOnBridge("removeLayer", [layerId]);
+        },
         getMethodMapping: function (callback) {
             this.__invokeOnBridge("getMethodMapping", [], callback);
         },

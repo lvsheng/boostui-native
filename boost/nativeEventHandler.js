@@ -1,5 +1,4 @@
 define(function (require, exports, module) {
-    var boost = require("boost/boost");
     var nativeCallbackMap = require("boost/nativeCallbackMap");
     var tagMap = require("boost/tagMap");
 
