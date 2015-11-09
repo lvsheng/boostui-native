@@ -4,5 +4,5 @@ cp -rf base ${to}/static/o2o
 cp -rf boost ${to}/static/o2o
 cd ${to}/static/o2o
 sh pack.sh
-fis3 release
+#fis3 release
 cd -
