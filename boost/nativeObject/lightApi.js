@@ -1,4 +1,5 @@
 define(function (require, exports, module) {
+    //TODO: 改名: commonUtil
     "use strict";
 
     var derive = require("base/derive");
@@ -55,6 +56,13 @@ define(function (require, exports, module) {
         },
         hideInputMethod: function () {
             this.__callNative("hideInputMethod", []);
+        },
+        getO2OWindowSize: function (callback) {
+            //this.__callNative("getO2OSize", [], callback); //TODO
+            callback({
+                width: 360,
+                height: 400
+            });
         }
     });
 
