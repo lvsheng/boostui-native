@@ -31,6 +31,12 @@ define(function (require, exports, module) {
                 action: action,
                 data: data
             });
+        },
+        jsHandleBack: function () {
+            this.__callNative("jsHandleBack", [true]);
+        },
+        exit: function () {
+            this.__callNative("exit", []);
         }
     });
 

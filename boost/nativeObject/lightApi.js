@@ -58,11 +58,7 @@ define(function (require, exports, module) {
             this.__callNative("hideInputMethod", []);
         },
         getO2OWindowSize: function (callback) {
-            //this.__callNative("getO2OSize", [], callback); //TODO
-            callback({
-                width: 360,
-                height: 400
-            });
+            this.__callNative("getNativeLayerSize", [], callback);
         }
     });
 

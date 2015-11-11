@@ -71,6 +71,7 @@ define(function (require, exports, module) {
         var callbackId = e.id;
         var state = e.state;
         var data = e.data;
+        console.log("callbackId:" + callbackId, "data:", data);
 
         var callback = nativeCallbackMap.get(callbackId);
         if (!callback) {
