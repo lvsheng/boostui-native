@@ -1,3 +1,7 @@
+/**
+ * 用于页面内创建新页面
+ * TODO 整理与fg、bg对应nativeObject的继承关系
+ */
 define(function (require, exports, module) {
     "use strict";
 
