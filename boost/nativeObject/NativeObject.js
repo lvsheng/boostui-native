@@ -42,10 +42,11 @@ define(function(require, exports, module) {
             /**
              * @param method {string}
              * @param args {Array}
+             * @param [callback] {Function}
              * @private
              */
-            __callNative: function(method, args) {
-                bridge.invoke(this.__tag__, method, args);
+            __callNative: function(method, args, callback) {
+                bridge.invoke(this.__tag__, method, args, callback);
             },
 
             /**

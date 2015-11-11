@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var TextInput = require("boost/TextInput");
     var Image = require("boost/Image");
     var ScrollView = require("boost/ScrollView");
+    var BoostPage = require("boost/BoostPage");
     var Slider = require("boost/Slider");
     var Slot = require("boost/Slot");
     var ViewPager = require("boost/ViewPager");
@@ -29,7 +30,8 @@ define(function (require, exports, module) {
         "Slider": Slider,
         "Slot": Slot,
         "ViewPager": ViewPager,
-        "Toolbar": Toolbar
+        "Toolbar": Toolbar,
+        "BoostPage": BoostPage
     };
 
     var documentProto = {
