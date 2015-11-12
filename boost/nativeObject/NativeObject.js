@@ -100,12 +100,5 @@ define(function(require, exports, module) {
         return null;
     };
 
-    // 页面卸载时,删除所有的 NativeView
-    window.addEventListener("unload", function(e) {
-        bridge.destroyAll();
-    });
-    // 页面加载时，先尝试删除所有 NativeView
-    bridge.destroyAll();
-
     module.exports = NativeObject;
 });

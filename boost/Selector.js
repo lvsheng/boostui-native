@@ -1,3 +1,4 @@
+//not in use
 define(function (require, exports, module) {
     "use strict";
 
@@ -36,7 +37,7 @@ define(function (require, exports, module) {
             return results;
         },
         match: function (element, context) {
-            results = results || [];
+            //results = results || [];
             if (this.__matcher === null) {
                 this.__matcher = compileMatcher(this.__str__);
             }
@@ -47,7 +48,7 @@ define(function (require, exports, module) {
     function compileSelector(str) {
         var parts = str.split(",");
         parts = parts.filter(function (item) {
-            return trim(item) !== 
+            //return trim(item) !==
         });
 
         return function () {

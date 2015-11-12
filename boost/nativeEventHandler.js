@@ -1,6 +1,9 @@
 define(function (require, exports, module) {
     var nativeCallbackMap = require("boost/nativeCallbackMap");
     var tagMap = require("boost/tagMap");
+    var lightApi = require("boost/nativeObject/lightApi");
+    var bridge = require("boost/bridge");
+    var assert = require("base/assert");
 
     var BOOST_EVENT_TYPE = "boost";
     var BOOSTCALLBACK_EVENT_TYPE = "boostcallback";
@@ -9,7 +12,7 @@ define(function (require, exports, module) {
 
     var lastTouchStartX = null;
     var lastTouchStartY = null;
-    var lastTouchTarget = null;
+    var touchStartTarget = null;
     var lastTouchType = ""; //"start"|"end"
     var lastTouchStartStopped = false;
 
@@ -32,23 +35,31 @@ define(function (require, exports, module) {
             case "touchstart":
                 lastTouchStartX = data.x;
                 lastTouchStartY = data.y;
-                lastTouchTarget = target;
+                touchStartTarget = target;
                 break;
 
             case "touchend":
-                if (
-                    lastTouchTarget === target
                         //必需有连续并且未被stop的一对touchstart-touchend，才发出click （初衷: scrollview滚动中的点停不要触发内部子元素的click）
-                    && lastTouchType === "start" && !lastTouchStartStopped && !eventStopped
-                ) {
-                    target.__onEvent("click", e);
-                    //console.log("click");
+                if (lastTouchType === "start" && !lastTouchStartStopped && !eventStopped) {
+                    var clickElement = findSameAncestor(touchStartTarget.element, target.element);
+                    var clickTarget = clickElement && clickElement.nativeObject;
+                    //if (!clickTarget) {
+                    //    debugger;
+                    //    findSameAncestor(touchStartTarget.element, target.element);
+                    //}
+                    /**
+                     * clickTarget可能值：
+                     * 两者为同一节点时，此节点
+                     * 其中一个是另一个的祖先时，祖先者（从父移到子，或从子移到父）
+                     * 两者有共同祖先时，共同祖先（从共同父中的一个子移到另一个子）
+                     */
+                    clickTarget && clickTarget.__onEvent("click", e);
                 } else {
-                    //console.log("touchend, but no click");
+                    console.log("touchend, but no click");
                 }
                 lastTouchStartX = 0;
                 lastTouchStartY = 0;
-                lastTouchTarget = null;
+                touchStartTarget = null;
         }
 
         if (type === "touchstart") {
@@ -71,7 +82,7 @@ define(function (require, exports, module) {
         var callbackId = e.id;
         var state = e.state;
         var data = e.data;
-        console.log("callbackId:" + callbackId, "data:", data);
+        console.log("callbackId:" + callbackId, e);
 
         var callback = nativeCallbackMap.get(callbackId);
         if (!callback) {
@@ -86,4 +97,80 @@ define(function (require, exports, module) {
             data: data
         });
     }, false);
+
+    // 页面卸载时,删除所有的 NativeView
+    window.addEventListener("unload", function(e) {
+        lightApi.hideInputMethod(); //跳转时键盘可能还在，这里强制隐藏之
+        bridge.destroyAll();
+    });
+    // 页面加载时，先尝试删除所有 NativeView
+    bridge.destroyAll();
+
+    /**
+     * 判断ancestor是否在descendant的祖先元素中
+     * @param descendant
+     * @param ancestor
+     */
+    function isAncestor (descendant, ancestor) {
+        var parent;
+        for (
+            parent = descendant.parentNode;
+            parent && parent !== ancestor;
+            parent = parent.parentNode
+        ) {
+        }
+        return !!parent;
+    }
+
+    /**
+     * 找到a与b相同的祖先节点
+     *
+     * 若两者为同一节点，返回之
+     * 否则，若其中一个是另一个的祖先，返回祖先者
+     * 否则，若两者有共同祖先，返回之
+     * 否则，返回null
+     * @param a
+     * @param b
+     * @returns {*}
+     */
+    function findSameAncestor (a, b) {
+        if (a === b) {
+            return a;
+        }
+
+        var aAncestors = [];
+        var bAncestors = [];
+        var curA;
+        var curB;
+        for (curA = a; curA; curA = curA.parentNode) {
+            aAncestors.push(curA);
+        }
+        for (curB = b; curB; curB = curB.parentNode) {
+            bAncestors.push(curB);
+        }
+
+        var rootA = aAncestors.pop();
+        var rootB = bAncestors.pop();
+        if (rootA !== rootB) {
+            return null;
+        }
+
+        do {
+            curA = aAncestors.pop();
+            curB = bAncestors.pop();
+        } while (curA === curB);
+
+        if (!curA) {
+            //a是b的祖先
+            return curB.parentNode;
+        }
+        if (!curB) {
+            //b是a的祖先
+            return curA.parentNode;
+        }
+
+        //curA与curB是兄弟
+        assert(curA.parentNode === curB.parentNode, "logic error: curA and curB should be brothers");
+        return curA.parentNode;
+    }
 });

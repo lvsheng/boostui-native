@@ -5,8 +5,9 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var toCamelCase = require("base/toCamelCase");
 
-    var ElementNativeObject = derive(NativeObject, function (typeId, objId) {
+    var ElementNativeObject = derive(NativeObject, function (typeId, objId, nativeElement) {
             NativeObject.call(this, typeId, objId);
+            this.__nativeElement__ = nativeElement;
         },
         {
             addView: function (child, index) {
@@ -19,6 +20,10 @@ define(function (require, exports, module) {
 
             removeViewAt: function (index) {
                 this.__callNative("removeViewAt", [index]);
+            },
+
+            "get element": function () {
+                return this.__nativeElement__;
             }
         }
     );

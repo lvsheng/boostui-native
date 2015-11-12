@@ -1,4 +1,4 @@
-define("base/isPlainObject", function (require, exports, module) {
+define(function (require, exports, module) {
     var type = require("base/type");
 
     function isWindow(obj) {

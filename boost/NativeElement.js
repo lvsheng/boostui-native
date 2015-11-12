@@ -64,7 +64,7 @@ define(function(require, exports, module) {
         },
         __createView: function(type) {
             var self = this;
-            var nativeObj = self.__native__ = new ElementNativeObject(type);
+            var nativeObj = self.__native__ = new ElementNativeObject(type, undefined, self);
             nativeObj.__onEvent = function(type, e) {
                 return self.__onEvent(type, e);
             };

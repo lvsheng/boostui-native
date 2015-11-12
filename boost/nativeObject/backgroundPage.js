@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    //TODO: 限制只有特定代码才能使用
+    //TODO: 限制只有特定代码才能使用. TODO: 要不要继承自BoostPage
     var derive = require("base/derive");
     var assert = require("base/assert");
     var bridge = require("boost/bridge");
