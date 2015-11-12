@@ -57,13 +57,11 @@ define(function (require, exports, module) {
             this.loadUrl(javascriptUrl);
         },
 
-        attachToPopWindow: function (menuNativeObjectId) {
-            console.info("attachToPopWindow");
-            //this.__callNative("attachToPopWindow", [menuNativeObjectId]);
+        updateMenu: function (menuNativeObjectId) {
+            this.nativeObject.__callNative("updateMenu", [menuNativeObjectId]);
         },
-        dismissPopWindow: function () {
-            console.info("dismissPopWindow");
-            //this.__callNative("dismissPopWindow", []);
+        dismissMenu: function () {
+            this.nativeObject.__callNative("dismissMenu", []);
         }
     });
     module.exports = BoostPage;
