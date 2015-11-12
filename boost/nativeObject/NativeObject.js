@@ -8,7 +8,6 @@ define(function(require, exports, module) {
     var tagMap = require("boost/tagMap");
     var bridge = require("boost/bridge");
     var toCamelCase = require("base/toCamelCase");
-    require("boost/nativeEventHandler");
 
     var NativeObject = derive(
         EventTarget,
