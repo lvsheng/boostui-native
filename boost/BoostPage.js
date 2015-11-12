@@ -1,7 +1,3 @@
-/**
- * 用于页面内创建新页面
- * TODO 整理与fg、bg对应nativeObject的继承关系
- */
 define(function (require, exports, module) {
     "use strict";
 
@@ -18,6 +14,21 @@ define(function (require, exports, module) {
         //this._super(NATIVE_VIEW_TYPE, "BoostPage");
         NativeElement.call(this, NATIVE_VIEW_TYPE, "BoostPage");
     }, {
+        __onEvent: function (type, event) {
+            // 从前台页面传来的消息与页面刷新事件，抛出事件供背景页监听
+            if (type === "message") {
+                this.dispatchEvent({
+                    type: "message",
+                    data: event.data
+                });
+            } else if (type === "pagestarted") {
+                this.dispatchEvent({
+                    type: "pagestarted",
+                    data: event.data
+                });
+            }
+            return event && event.propagationStoped;
+        },
         __getStyle: function () {
             return new ViewStyle();
         },
@@ -32,6 +43,27 @@ define(function (require, exports, module) {
         },
         goBackOrForward: function (steps) {
             this.nativeObject.__callNative("goBackOrForward", [steps]);
+        },
+        dispatchWindowEvent: function (type, data) {
+            var javascriptUrl = [
+                "javascript:  (function(){",
+                "   var data = " + JSON.stringify(data) + ";",
+                "   var event = document.createEvent('Event');",
+                "   event.initEvent(\"" + type + "\" , false, false);",
+                "   event.data = data;",
+                "   window.dispatchEvent(event);" +
+                "})();"
+            ].join('');
+            this.loadUrl(javascriptUrl);
+        },
+
+        attachToPopWindow: function (menuNativeObjectId) {
+            console.info("attachToPopWindow");
+            //this.__callNative("attachToPopWindow", [menuNativeObjectId]);
+        },
+        dismissPopWindow: function () {
+            console.info("dismissPopWindow");
+            //this.__callNative("dismissPopWindow", []);
         }
     });
     module.exports = BoostPage;
