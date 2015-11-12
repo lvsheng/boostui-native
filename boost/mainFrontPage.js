@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    //TODO: 限制只有背景页可以使用？
+    //TODO: change name to frontPage?
     var derive = require("base/derive");
     var assert = require("base/assert");
     var BoostPage = require("boost/BoostPage");
@@ -9,7 +9,8 @@ define(function (require, exports, module) {
 
     var FRONTPAGE_ID = -2;
     /**
-     * 对应o2o打开时背景页中由native创建的主/默认前景页
+     * 背景页中：对应o2o打开时背景页中由native创建的主/默认前景页
+     * 前景页中：对应本页面的boostPage
      */
     var MainFrontPage = derive(BoostPage, function () {
         BoostPage.call(this);

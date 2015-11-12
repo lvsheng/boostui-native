@@ -10,9 +10,9 @@ define(function (require, exports, module) {
 
     var NATIVE_VIEW_TYPE = 20;
     var ViewStyle = derive(StyleSheet, LayoutPropTypes);
-    var BoostPage = derive(NativeElement, function () {
-        //this._super(NATIVE_VIEW_TYPE, "BoostPage");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "BoostPage");
+    var FgBoostPage = derive(NativeElement, function () {
+        //this._super(NATIVE_VIEW_TYPE, "FgBoostPage");
+        NativeElement.call(this, NATIVE_VIEW_TYPE, "FgBoostPage");
     }, {
         __onEvent: function (type, event) {
             // 从前台页面传来的消息与页面刷新事件，抛出事件供背景页监听
@@ -62,7 +62,19 @@ define(function (require, exports, module) {
         },
         dismissMenu: function () {
             this.nativeObject.__callNative("dismissMenu", []);
+        },
+        handleLoading: function () {
+            this.nativeObject.__callNative("handleLoading", [true]);
+        },
+        cancelHandleLoading: function () {
+            this.nativeObject.__callNative("handleLoading", [false]);
+        },
+        showLoading: function (text) {
+            this.nativeObject.__callNative("showLoading", [text || "正在加载..."]);
+        },
+        hideLoading: function () {
+            this.nativeObject.__callNative("hideLoading", []);
         }
     });
-    module.exports = BoostPage;
+    module.exports = FgBoostPage;
 });
