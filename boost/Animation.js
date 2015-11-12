@@ -23,11 +23,13 @@ define(function (require, exports, module) {
         this.__create(typeId, config);
     }, {
         __create: function (typeId, config) {
-            assert(config.element instanceof NativeElement, "Animation must apply on NativeElement");
             var self = this;
             var nativeConfig = copyProperties({}, config);
             delete nativeConfig.element;
-            nativeConfig.target = config.element.tag;
+            if (config.element) {
+                assert(!config.element || config.element instanceof NativeElement, "Animation must apply on NativeElement");
+                nativeConfig.target = config.element.tag;
+            }
 
             var nativeObj = this.__native__ = new NativeObject(typeId, undefined, nativeConfig);
             nativeObj.__onEvent = function (type, e) {
