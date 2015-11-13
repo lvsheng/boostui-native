@@ -13,8 +13,25 @@ define(function (require, exports, module) {
     });
     queue.run();
 
+    var interceptedCommandsCollector = null;
     //一定程度上可认为对应native的PageEntity
     var bridge = {
+        /**
+         * 截获之后的cmd至commandsCollector中
+         * 被截获的命令将不再被执行
+         * 最初应用：在ListView中生成命令并交给native以便其重复执行
+         * @param commandsCollector
+         */
+        interceptCommands: function (commandsCollector) {
+            assert(!interceptedCommandsCollector, "commands已被截获，暂不支持嵌套截获");
+            interceptedCommandsCollector = [];
+        },
+        finishIntercept: function () {
+            var result = interceptedCommandsCollector;
+            interceptedCommandsCollector = null;
+            return result;
+        },
+
         /**
          * @param objId
          * @param methodName
@@ -26,6 +43,11 @@ define(function (require, exports, module) {
             if (callback) {
                 cmd.push(nativeCallbackMap.genCallback(callback));
             }
+            if (interceptedCommandsCollector) {
+                interceptedCommandsCollector.push(cmd);
+                return;
+            }
+
             queue.push(cmd);
         },
 
