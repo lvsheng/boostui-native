@@ -34,35 +34,45 @@
         #flex .container {
             flex-direction: row;
             background-color: blue;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            padding-left: 10px;
-            padding-right: 10px;
             margin-top: 10px;
-            height: 100px;
-            justify-content: flex-end;
+            /*justify-content: center;*/
             align-items: stretch;
             flex-wrap: nowrap;
-            border-width: 5px;
-            border-color: gray;
-            width: 300px;
+            /*position: absolute;*/
         }
         #flex .container .span {
             background-color: orange;
-            padding: 10px;
-
+            padding: 20px;
+        }
+        #flex .container .span2 {
+            background-color: #C33434;
+            height: 150px;
+        }
+        #flex .container .span2,
+        #flex .container .span2 text {
+            color: white;
+        }
+        .bottom-item {
             position: absolute;
-            left: 0;
-            right: 0;
-            margin-left: 1px;
-            margin-right: 1px;
+            bottom: 0;
         }
     </style>
 </head>
 <body>
 <div id="flex">
     <div class="container">
-        <div class="span">span1</div>
+        <div class="span">
+            <div>span1</div>
+            <div class="bottom-item">hello</div>
+        </div>
+        <div class="span span2">
+            <div>span2</div>
+            <div class="bottom-item">hello</div>
+        </div>
+        <div class="span">
+            <div>span3</div>
+            <div class="bottom-item">hello</div>
+        </div>
     </div>
 </div>
 </body>
@@ -73,7 +83,7 @@
     require.config({
         baseUrl: "../../../",
         paths: {
-            main: "test/flex/dim-of-absolut-with-left-right/main"
+            main: "test/flex/stretch/main"
         },
         urlArgs: "t=" + +new Date
     });

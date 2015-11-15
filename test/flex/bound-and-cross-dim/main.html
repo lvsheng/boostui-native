@@ -39,23 +39,22 @@
             padding-left: 10px;
             padding-right: 10px;
             margin-top: 10px;
-            height: 100px;
             justify-content: flex-end;
             align-items: stretch;
             flex-wrap: nowrap;
-            border-width: 5px;
-            border-color: gray;
-            width: 300px;
         }
         #flex .container .span {
             background-color: orange;
             padding: 10px;
-
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin-left: 1px;
-            margin-right: 1px;
+        }
+        #flex .container .span2 {
+            background-color: #C33434;
+            max-height: 50px; /*去除此行后与web则一致*/
+            margin-top: 45px;
+        }
+        #flex .container .span2,
+        #flex .container .span2 text {
+            color: white;
         }
     </style>
 </head>
@@ -63,6 +62,8 @@
 <div id="flex">
     <div class="container">
         <div class="span">span1</div>
+        <div class="span span2">span2</div>
+        <div class="span">span3</div>
     </div>
 </div>
 </body>
@@ -73,7 +74,7 @@
     require.config({
         baseUrl: "../../../",
         paths: {
-            main: "test/flex/dim-of-absolut-with-left-right/main"
+            main: "test/flex/bound-and-cross-dim/main"
         },
         urlArgs: "t=" + +new Date
     });
