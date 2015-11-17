@@ -52,6 +52,7 @@ define(function (require, exports, module) {
         "flexDirection": [_enum("row", "column"), "column"],
         "justifyContent": [_enum("flex-start", "flex-end", "center", "space-between", "space-around"), "flex-start"],
         "alignItems": [_enum("flex-start", "flex-end", "center", "stretch"), "stretch"],
+        //"alignContent": [_enum("flex-start", "flex-end", "center", "stretch"), "flex-start"], //TODO: native support
         "alignSelf": [_enum("auto", "flex-start", "flex-end", "center", "stretch"), "auto"],
         "flex": [number, 0],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <style type="text/css" id="boost-style">
+        .span,
+        .span text {
+            color: red;
+            font-size: 16px;
+            font-family: sans-serif;
+        }
+        #flex div,
+        #flex view {
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            flex-shrink: 0;
+            align-content: flex-start;
+            border: 0 solid black;
+            margin: 0;
+            padding: 0;
+        }
+        #flex .container {
+            flex-direction: row;
+            background-color: blue;
+            margin-top: 10px;
+
+            height: 200px;
+            flex-wrap: wrap;
+            /*align-items: flex-start;*/
+            /*align-items: stretch;*/
+            align-items: center;
+            /*align-content: stretch;*/
+            align-content: flex-end;
+        }
+        #flex .container .span {
+            background-color: orange;
+            padding: 20px;
+        }
+        #flex .container .span2 {
+            background-color: #C33434;
+            /*height: 150px;*/
+        }
+        #flex .container .span2,
+        #flex .container .span2 text {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="flex">
+    <div class="container">
+        <div class="span">
+            <div>span1</div>
+        </div>
+        <div class="span span2">
+            <div>span2</div>
+        </div>
+        <div class="span">
+            <div>span3</div>
+        </div>
+        <div class="span">
+            <div>span3</div>
+        </div>
+        <div class="span">
+            <div>span3</div>
+        </div>
+        <div class="span">
+            <div>span3</div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="../../bridge.js"></script>
+<script src="../../require.js" data-main="main"></script>
+<script>
+    require.config({
+        baseUrl: "../../../",
+        paths: {
+            main: "test/flex/stretch-content-and-item/main"
+        },
+        urlArgs: "t=" + +new Date
+    });
+</script>
+</html>
