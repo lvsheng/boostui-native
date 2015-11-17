@@ -90,11 +90,11 @@ define(function (require, exports, module) {
     };
 
     //TODO: 拿到map后把bridge里已有cmd也更新为数字?
-    bridge.getMethodMapping(function (obj) {
-        if (obj.state === "success" && obj.data) {
-            methodMap.setMap(obj.data);
-        }
-    });
+    //bridge.getMethodMapping(function (obj) {
+    //    if (obj.state === "success" && obj.data) {
+    //        methodMap.setMap(obj.data);
+    //    }
+    //});
 
     module.exports = bridge;
 
