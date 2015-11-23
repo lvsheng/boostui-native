@@ -35,6 +35,7 @@ define(function (require, exports, module) {
         getSubscribedAppinfos: 109,
         getUniqueId: 110,
         goBackOrForward: 128,
+        goBack: 1128,
         handleLoading: 148,
         hideInputMethod: 14,
         hideLoading: 149,

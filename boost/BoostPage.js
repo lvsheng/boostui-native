@@ -44,6 +44,9 @@ define(function (require, exports, module) {
         goBackOrForward: function (steps) {
             this.nativeObject.__callNative("goBackOrForward", [steps]);
         },
+        goBack: function () {
+            this.nativeObject.__callNative("goBack", []);
+        },
         dispatchWindowEvent: function (type, data) {
             var javascriptUrl = [
                 "javascript:  (function(){",
