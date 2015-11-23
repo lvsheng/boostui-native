@@ -62,6 +62,10 @@ define(function (require, exports, module) {
         },
         dismissMenu: function () {
             this.nativeObject.__callNative("dismissMenu", []);
+        },
+        //展示关闭按钮
+        showExitButton: function (show) {
+            this.nativeObject.__callNative("showExitButton", [show]);
         }
     });
     module.exports = FgBoostPage;
