@@ -70,12 +70,33 @@ define(function (require, exports, module) {
         removeLayer: function (layerId) {
             this.__invokeOnBridge("removeLayer", [layerId]);
         },
-        getMethodMapping: function (callback) {
-            this.__invokeOnBridge("getMethodMapping", [], callback);
+        getMethodMapping: function () {
+            //TODO: 拿到map后把bridge里已有cmd也更新为数字?
+            this.__invokeOnBridge("getMethodMapping", [], function (obj) {
+                if (obj.state === "success" && obj.data) {
+                    console.log("methodMapping got", obj);
+                    methodMap.setMap(obj.data);
+                }
+            });
+            this.flush();
         },
 
         flush: function () {
             queue.flush();
+        },
+
+        //loading相关
+        handleLoading: function () {
+            this.__invokeOnBridge("handleLoading", [true]);
+        },
+        cancelHandleLoading: function () {
+            this.__invokeOnBridge("handleLoading", [false]);
+        },
+        showLoading: function (text) {
+            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
+        },
+        hideLoading: function () {
+            this.__invokeOnBridge("hideLoading", []);
         },
 
         /**
@@ -88,13 +109,6 @@ define(function (require, exports, module) {
             this.invoke(0, methodName, params, callback);
         }
     };
-
-    //TODO: 拿到map后把bridge里已有cmd也更新为数字?
-    //bridge.getMethodMapping(function (obj) {
-    //    if (obj.state === "success" && obj.data) {
-    //        methodMap.setMap(obj.data);
-    //    }
-    //});
 
     module.exports = bridge;
 

@@ -18,7 +18,6 @@ define(function (require, exports, module) {
     var Slot = require("boost/Slot");
     var ViewPager = require("boost/ViewPager");
     var Toolbar = require("boost/Toolbar");
-    var ElementNativeObject = require("boost/nativeObject/Element");
     var bridge = require("boost/bridge");
 
     var TAG_MAP = {

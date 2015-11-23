@@ -11,5 +11,5 @@ define(function (require, exports, module) {
             this.__native__ = new ElementNativeObject(ROOT_VIEW_TYPE_ID);
         }
     });
-    return RootView;
+    module.exports = RootView;
 });

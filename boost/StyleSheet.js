@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var PropertyChangeEvent = require("boost/PropertyChangeEvent");
     var validator = require("boost/validator");
+    var validatorCache = require("boost/validatorCache");
     var toCamelCase = require("base/toCamelCase");
 
     var StyleSheet = derive(EventTarget, function () {
@@ -23,10 +24,10 @@ define(function (require, exports, module) {
         //TODO
         // 现在的 cssText 是 Native 的格式，需要转换
         /*
-        "get cssText": function () {
-            return JSON.stringify(this.__getProps());
-        },
-       */
+         "get cssText": function () {
+         return JSON.stringify(this.__getProps());
+         },
+         */
         "set cssText": function (value) {
             this.__styleProps__ = {};
             var list = String(value).split(";");
@@ -74,13 +75,19 @@ define(function (require, exports, module) {
 
             proto["set " + key] = function (value) {
                 var origValue = this.__styleProps__[key];
-                var event;
+                //var event;
 
-                //null对应css中取消设置该值, "auto"对应css中设置值为"auto"
-                if (value === null || value === "auto") {
-                    value = defaultValue;
+                var cachedValue = validatorCache.get(key, value);
+                if (cachedValue === undefined) {
+                    //null对应css中取消设置该值, "auto"对应css中设置值为"auto"
+                    if (value === null || value === "auto") {
+                        value = defaultValue;
+                    } else {
+                        value = curValidator(value);
+                    }
+                    validatorCache.set(key, value, value);
                 } else {
-                    value = curValidator(value);
+                    value = cachedValue;
                 }
 
                 if (value !== origValue) {

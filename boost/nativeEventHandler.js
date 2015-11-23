@@ -22,8 +22,13 @@ define(function (require, exports, module) {
         var type = e.boostEventType.toLowerCase();
         var data = e.data;
         var eventStopped;
+        var clickTimerHandle;
 
-        console.log("origin:" + origin, "type:" + type, e);
+        if (clickTimerHandle && (type === "touchstart" || type === "touchend")) {
+            clearTimeout(clickTimerHandle);
+        }
+
+        //console.info("origin:" + origin, "type:" + type, e);
         if (!target) {
             return;
         }
@@ -39,23 +44,24 @@ define(function (require, exports, module) {
                 break;
 
             case "touchend":
-                        //必需有连续并且未被stop的一对touchstart-touchend，才发出click （初衷: scrollview滚动中的点停不要触发内部子元素的click）
+                //必需有连续并且未被stop的一对touchstart-touchend，才发出click （初衷: scrollview滚动中的点停不要触发内部子元素的click）
                 if (lastTouchType === "start" && !lastTouchStartStopped && !eventStopped) {
                     var clickElement = findSameAncestor(touchStartTarget.element, target.element);
                     var clickTarget = clickElement && clickElement.nativeObject;
-                    //if (!clickTarget) {
-                    //    debugger;
-                    //    findSameAncestor(touchStartTarget.element, target.element);
-                    //}
-                    /**
-                     * clickTarget可能值：
-                     * 两者为同一节点时，此节点
-                     * 其中一个是另一个的祖先时，祖先者（从父移到子，或从子移到父）
-                     * 两者有共同祖先时，共同祖先（从共同父中的一个子移到另一个子）
-                     */
-                    clickTarget && clickTarget.__onEvent("click", e);
+                    var DURATION = 100;
+                    // 一断时间之后再派发，这样如果这断时间内有scroll，就可以由scroll元素把click事件也在派发时拦截。。
+                    // 前因：scrollView某些场景的操作会在touchend之后几十毫秒再派发scroll事件。。。。
+                    clickTimerHandle = setTimeout(function () {
+                        /**
+                         * clickTarget可能值：
+                         * 两者为同一节点时，此节点
+                         * 其中一个是另一个的祖先时，祖先者（从父移到子，或从子移到父）
+                         * 两者有共同祖先时，共同祖先（从共同父中的一个子移到另一个子）
+                         */
+                        clickTarget && clickTarget.__onEvent("click", e);
+                    }, DURATION);
                 } else {
-                    console.log("touchend, but no click");
+                    //console.log("touchend, but no click");
                 }
                 lastTouchStartX = 0;
                 lastTouchStartY = 0;
@@ -82,7 +88,8 @@ define(function (require, exports, module) {
         var callbackId = e.id;
         var state = e.state;
         var data = e.data;
-        console.log("callbackId:" + callbackId, e);
+        //console.log("FOUND CALLBACK " + JSON.stringify(data));
+        //console.info("callbackId:" + callbackId, e);
 
         var callback = nativeCallbackMap.get(callbackId);
         if (!callback) {

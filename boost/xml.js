@@ -6,7 +6,6 @@ define(function (require, exports, module) {
     var Event = require("boost/Event");
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
-    var nativeGlobal = require("boost/nativeObject/NativeObject").global;
     var FROM_CUSTOM_HANDLER = "__from_custom_handler__";
 
     /**
@@ -28,11 +27,11 @@ define(function (require, exports, module) {
             var XML_DECLARE_STR = "<?xml version='1.0' encoding='UTF-8' ?>";
             var xmlDoc = domParser.parseFromString(XML_DECLARE_STR + xmlStr, "text/xml");
 
-            if (xmlDoc.querySelector('parsererror div')) {
-                console.error("xml parse error: " + xmlDoc.querySelector('parsererror div').innerText);
-                console.error(xmlStr);
-                console.error(xmlDoc);
-            }
+            //if (xmlDoc.querySelector('parsererror div')) {
+            //    console.error("xml parse error: " + xmlDoc.querySelector('parsererror div').innerText);
+            //    console.error(xmlStr);
+            //    console.error(xmlDoc);
+            //}
 
             return this._process(xmlDoc);
         },
@@ -73,9 +72,12 @@ define(function (require, exports, module) {
          * @private
          */
         _process: function (xmlDocument) {
-            console.log("process:", xmlDocument);
+            //console.log("process:", xmlDocument);
+            console.log("process:");
             var rootNativeElement = this._processElement(xmlDocument.documentElement);
+            console.log("element got");
             this._styleRender.apply(rootNativeElement);
+            console.log("style render done");
             return rootNativeElement;
         },
 
@@ -95,16 +97,16 @@ define(function (require, exports, module) {
             var tagName = xmlElement.tagName.toUpperCase();
             switch (tagName) {
                 case "PARSERERROR":
-                    console.error(element.innerText);
+                    console.error(xmlElement.innerText);
                     break;
 
                 case "STYLE":
                     this._styleRender.parse(xmlElement.firstChild ? xmlElement.firstChild.nodeValue: '');
                     break;
 
-                case "FLUSH":
-                    nativeGlobal.test();
-                    break;
+                //case "FLUSH":
+                //    nativeGlobal.test();
+                //    break;
 
                 default:
                     var customHandlerResult = this._customHandler ? this._customHandler(xmlElement) : false;
@@ -184,11 +186,15 @@ define(function (require, exports, module) {
         },
 
         loadFromString: function (str) {
+            console.time("loadFromString.parse");
             var element = this.parse(str);
+            console.timeEnd("loadFromString.parse");
             //TODO: remove <?xml>?
             boost.documentElement.appendChild(element);
             var event = new Event(xml, "domready");
+            console.time("loadFromString.dispatchEvent");
             xml.dispatchEvent(event);
+            console.timeEnd("loadFromString.dispatchEvent");
         }
     });
     module.exports = xml;

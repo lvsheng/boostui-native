@@ -62,18 +62,6 @@ define(function (require, exports, module) {
         },
         dismissMenu: function () {
             this.nativeObject.__callNative("dismissMenu", []);
-        },
-        handleLoading: function () {
-            this.nativeObject.__callNative("handleLoading", [true]);
-        },
-        cancelHandleLoading: function () {
-            this.nativeObject.__callNative("handleLoading", [false]);
-        },
-        showLoading: function (text) {
-            this.nativeObject.__callNative("showLoading", [text || "正在加载..."]);
-        },
-        hideLoading: function () {
-            this.nativeObject.__callNative("hideLoading", []);
         }
     });
     module.exports = FgBoostPage;

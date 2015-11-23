@@ -59,6 +59,9 @@ define(function (require, exports, module) {
         },
         getO2OWindowSize: function (callback) {
             this.__callNative("getNativeLayerSize", [], callback);
+        },
+        getLocatedCity: function (callback) {
+            this.__callNative("getLocationCityName", [], callback);
         }
     });
 

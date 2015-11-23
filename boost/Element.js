@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
-    var shadowRoot = require("boost/ShadowRoot");
+    //var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var push = [].push;
@@ -57,6 +57,9 @@ define(function (require, exports, module) {
          * 暂未实现shadowRootInitDict参数
          */
         "attachShadow": function () {
+            assert(false, "todo");
+            return;
+
             var self = this;
             var NOT_SUPPORTED_TAGS = [
                 "TEXT",
@@ -94,6 +97,10 @@ define(function (require, exports, module) {
             return this.__id__;
         },
         "set className": function (value) {
+            //if (value.indexOf("j-") < 0) { //FIXME: 票务临时方案
+            //    return;
+            //}
+
             this.__className__ = value;
             var classList = [];
             var list = value.split(" ");
@@ -193,12 +200,13 @@ define(function (require, exports, module) {
         __styleChange: function (key, value, origValue) {
             // do nothing
 
-            this.dispatchEvent({
-                type: "styleChange",
-                key: key,
-                value: value,
-                propagationStoped: true
-            });
+            //TODO 为了性能暂时注释，影响：webDebugger
+            //this.dispatchEvent({
+            //    type: "styleChange",
+            //    key: key,
+            //    value: value,
+            //    propagationStoped: true
+            //});
         },
 
         /**
@@ -299,6 +307,7 @@ define(function (require, exports, module) {
          * @returns {null|Slot}
          */
         __calculateAssignedSlot: function (node) {
+            return null; //TODO
             var shadowHost = node.parentNode;
             if (!shadowHost) {
                 return null;

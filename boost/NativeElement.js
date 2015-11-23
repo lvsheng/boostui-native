@@ -27,6 +27,7 @@ define(function(require, exports, module) {
         this.addEventListener("pagescroll", recordScroll);
         this.addEventListener("touchstart", stopEventIfNeed, true);
         this.addEventListener("touchend", stopEventIfNeed, true);
+        this.addEventListener("click", stopEventIfNeed, true);
         function recordScroll (e) {
             lastScrollTime = e.timeStamp;
         }
@@ -41,6 +42,7 @@ define(function(require, exports, module) {
             if (e.timeStamp - lastScrollTime < UN_CLICKABLE_TIME) {
                 //debugger;
                 e.stopPropagation();
+                //console.error("因有scroll而截断的事件：", e);
             }
         }
     }, {

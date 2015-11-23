@@ -41,7 +41,7 @@ define(function(require, exports, module) {
             /**
              * @param method {string}
              * @param args {Array}
-             * @param [callback] {Function}
+             * @param callback
              * @private
              */
             __callNative: function(method, args, callback) {
