@@ -98,12 +98,6 @@ define(function (require, exports, module) {
         hideLoading: function () {
             this.__invokeOnBridge("hideLoading", []);
         },
-        showInputMethod: function () {
-            this.__invokeOnBridge("showInputMethod", []);
-        },
-        hideInputMethod: function () {
-            this.__invokeOnBridge("hideInputMethod", []);
-        },
 
         /**
          * @param methodName

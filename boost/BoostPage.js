@@ -47,14 +47,6 @@ define(function (require, exports, module) {
         goBack: function () {
             this.nativeObject.__callNative("goBack", []);
         },
-        //FIXME: 与bridge上方法重复，因为前景页需要调自己的，而背景页需要调前景页的
-        showInputMethod: function () {
-            this.nativeObject.__callNative("showInputMethod", []);
-        },
-        hideInputMethod: function () {
-            this.nativeObject.__callNative("hideInputMethod", []);
-        },
-
         dispatchWindowEvent: function (type, data) {
             var javascriptUrl = [
                 "javascript:  (function(){",

@@ -107,7 +107,7 @@ define(function (require, exports, module) {
 
     // 页面卸载时,删除所有的 NativeView
     window.addEventListener("unload", function(e) {
-        bridge.hideInputMethod(); //跳转时键盘可能还在，这里强制隐藏之
+        lightApi.hideInputMethod(); //跳转时键盘可能还在，这里强制隐藏之
         bridge.destroyAll();
     });
     // 页面加载时，先尝试删除所有 NativeView
