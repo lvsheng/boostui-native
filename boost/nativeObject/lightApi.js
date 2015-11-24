@@ -51,12 +51,6 @@ define(function (require, exports, module) {
             }]);
         },
 
-        showInputMethod: function () {
-            this.__callNative("showInputMethod", []);
-        },
-        hideInputMethod: function () {
-            this.__callNative("hideInputMethod", []);
-        },
         getO2OWindowSize: function (callback) {
             this.__callNative("getNativeLayerSize", [], callback);
         },
