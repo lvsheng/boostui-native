@@ -49,7 +49,8 @@ define(function (require, exports, module) {
         },
         dispatchWindowEvent: function (type, data) {
             var javascriptUrl = [
-                "javascript:  (function(){",
+                "javascript:  (function(){" +
+                "console.info('event from bg: " + type + ", " + JSON.stringify(data) + "');",
                 "   var data = " + JSON.stringify(data) + ";",
                 "   var event = document.createEvent('Event');",
                 "   event.initEvent(\"" + type + "\" , false, false);",
@@ -58,6 +59,7 @@ define(function (require, exports, module) {
                 "})();"
             ].join('');
             this.loadUrl(javascriptUrl);
+            console.info("loadUrl of boostPage: ", javascriptUrl);
         },
 
         updateMenu: function (menuNativeObjectId) {
