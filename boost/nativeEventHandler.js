@@ -28,7 +28,7 @@ define(function (require, exports, module) {
             clearTimeout(clickTimerHandle);
         }
 
-        console.info("origin:" + origin, "type:" + type, e);
+        //console.info("origin:" + origin, "type:" + type, e);
         if (!target) {
             return;
         }

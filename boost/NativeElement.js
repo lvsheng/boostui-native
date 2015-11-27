@@ -19,17 +19,33 @@ define(function(require, exports, module) {
         this.__config__ = this.__getDefaultConfig();
         this.__createView(this.__type__);
 
-        //吞掉scroll,pagescroll中子元素的touch与click事件
+        //scroll后一断时间内的touchstart、click、touchend都吞掉。scroll之后任意长时间的第一次没有touchstart的touchend也吞掉
         var UN_CLICKABLE_TIME = 180;
         var lastScrollTime;
-        //console.error("4"); //for debug
+        var fingerStillOnScreenForScroll = false;
         this.addEventListener("scroll", recordScroll);
         this.addEventListener("pagescroll", recordScroll);
-        this.addEventListener("touchstart", stopEventIfNeed, true);
-        this.addEventListener("touchend", stopEventIfNeed, true);
+        this.addEventListener("touchstart", function (e) {
+            stopEventIfNeed.call(this, e);
+
+            //手指再次放上屏幕，说明上次scroll之后到此次再放上的中间，用户手指已经抬起过了。清除此状态
+            fingerStillOnScreenForScroll = false;
+        }, true);
+        this.addEventListener("touchend", function (e) {
+            stopEventIfNeed.call(this, e);
+
+            if (fingerStillOnScreenForScroll) {
+                e.stopPropagation();
+                fingerStillOnScreenForScroll = false;
+            }
+        }, true);
         this.addEventListener("click", stopEventIfNeed, true);
         function recordScroll (e) {
             lastScrollTime = e.timeStamp;
+
+            // 这里只要scroll了，就假设手指还在屏幕上。
+            // 在用户松手后还在惯性滚动的情况、以及touchstart->touchend->scroll事件序列下(用户松手了才开始滚)，此变量不准，由下次touchstart中进行修正
+            fingerStillOnScreenForScroll = true;
         }
         function stopEventIfNeed (e) {
             if (e.origin === this.tag) {

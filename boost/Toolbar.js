@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
     var LayoutStyle = require("boost/LayoutStyle");
+    var backgroundPage = require("boost/nativeObject/backgroundPage");
 
     //var NATIVE_VIEW_TYPE = "ToolbarWrapper";
     var NATIVE_VIEW_TYPE = 19;
@@ -14,6 +15,17 @@ define(function (require, exports, module) {
         //this._super(NATIVE_VIEW_TYPE, "Toolbar");
         NativeElement.call(this, NATIVE_VIEW_TYPE, "Toolbar");
     }, {
+        __onEvent: function (type, e) {
+            switch (type) {
+                case "openpage":
+                    //外界不需关心，不向外派发，这里直接处理
+                    backgroundPage.postMessage("openPage", e.data);
+                    break;
+                default:
+                    NativeElement.prototype.__onEvent.call(this, type, e);
+            }
+            return event && event.propagationStoped;
+        },
         __getStyle: function () {
             return new LayoutStyle();
         },
