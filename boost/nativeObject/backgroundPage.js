@@ -21,6 +21,9 @@ define(function (require, exports, module) {
                 case "back":
                     this.dispatchEvent(new Event(this, "back"));
                     break;
+                case "closepage":
+                    this.dispatchEvent(new Event(this, "closepage"));
+                    break;
                 default:
                     console.log("unknow event:" + type, e);
             }
