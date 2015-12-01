@@ -75,16 +75,16 @@ define(function (require, exports, module) {
 
         //loading相关
         handleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [true]);
+            this.nativeObject.__callNative("handleLoading", [true]);
         },
         cancelHandleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [false]);
+            this.nativeObject.__callNative("handleLoading", [false]);
         },
         showLoading: function (text) {
-            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
+            this.nativeObject.__callNative("showLoading", [text || "正在加载..."]);
         },
         hideLoading: function () {
-            this.__invokeOnBridge("hideLoading", []);
+            this.nativeObject.__callNative("hideLoading", []);
         },
         setLoadingTextOnce: function (text) {
             this.nativeObject.__callNative("setLoadingText", [text]);
