@@ -94,7 +94,7 @@ define(function(require, exports, module) {
                 case "touchstart":
                 case "touchend":
                 case "click":
-                    event = new TouchEvent(this, type, e.x, e.y);
+                    event = new TouchEvent(this, type, e.data.x, e.data.y);
                     this.dispatchEvent(event);
                     break;
                 case "dialogdismiss":

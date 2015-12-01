@@ -185,12 +185,35 @@ define(function (require, exports, module) {
             xhr.send(null);
         },
 
-        loadFromString: function (str) {
+        /**
+         * @param str
+         * @param noRoot {boolean} 若str中非单根，需用此参数标明
+         */
+        loadFromString: function (str, noRoot) {
+            if (noRoot) {
+                //因为parse时需要单根才行，这里增加根节点
+                str = "<view>" + str + "</view>";
+            }
             console.time("loadFromString.parse");
-            var element = this.parse(str);
+            var element = this.parse(str); //TODO: 把noRoot移到parse方法内
             console.timeEnd("loadFromString.parse");
-            //TODO: remove <?xml>?
-            boost.documentElement.appendChild(element);
+            if (!noRoot) {
+                boost.documentElement.appendChild(element);
+            } else {
+                //方才增加的根节点这里不放到boost.documentElement上
+                var children = [];
+                var i;
+                for (i = 0; i < element.childNodes.length; ++i) {
+                    children.push(element.childNodes[i]);
+                }
+                for (i = 0; i < children.length; ++i) {
+                    var child = children[i];
+                    element.removeChild(child);
+                    boost.documentElement.appendChild(child);
+                }
+                element.destroy();
+            }
+
             var event = new Event(xml, "domready");
             console.time("loadFromString.dispatchEvent");
             xml.dispatchEvent(event);

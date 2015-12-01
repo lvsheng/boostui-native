@@ -121,6 +121,9 @@ define(function (require, exports, module) {
                 attributeValue: value,
                 propagationStoped: true
             });
+
+            //TODO: just for debug
+            //this.nativeObject.__callNative("setContentDescription", [this.__className__]);
         },
         "get className": function () {
             return this.__className__;
