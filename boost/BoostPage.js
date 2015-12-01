@@ -71,6 +71,10 @@ define(function (require, exports, module) {
         //展示关闭按钮
         showExitButton: function (show) {
             this.nativeObject.__callNative("showExitButton", [show]);
+        },
+
+        setLoadingTextOnce: function (text) {
+            this.nativeObject.__callNative("setLoadingTextOnce", [text]);
         }
     });
     module.exports = FgBoostPage;
