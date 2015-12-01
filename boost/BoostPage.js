@@ -73,6 +73,19 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("showExitButton", [show]);
         },
 
+        //loading相关
+        handleLoading: function () {
+            this.__invokeOnBridge("handleLoading", [true]);
+        },
+        cancelHandleLoading: function () {
+            this.__invokeOnBridge("handleLoading", [false]);
+        },
+        showLoading: function (text) {
+            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
+        },
+        hideLoading: function () {
+            this.__invokeOnBridge("hideLoading", []);
+        },
         setLoadingTextOnce: function (text) {
             this.nativeObject.__callNative("setLoadingText", [text]);
         }

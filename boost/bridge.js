@@ -85,20 +85,6 @@ define(function (require, exports, module) {
             queue.flush();
         },
 
-        //loading相关
-        handleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [true]);
-        },
-        cancelHandleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [false]);
-        },
-        showLoading: function (text) {
-            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
-        },
-        hideLoading: function () {
-            this.__invokeOnBridge("hideLoading", []);
-        },
-
         /**
          * @param methodName
          * @param params
