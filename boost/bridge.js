@@ -85,7 +85,7 @@ define(function (require, exports, module) {
             queue.flush();
         },
 
-        //loading相关，为了在背景页调用，所以BoostPage上也有
+        //loading相关
         handleLoading: function () {
             this.__invokeOnBridge("handleLoading", [true]);
         },

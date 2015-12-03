@@ -74,17 +74,18 @@ define(function (require, exports, module) {
         },
 
         //loading相关
+        //FIXME: 背景页有可能调用到（只不过目前没有前景页给背景页发命令触发调用场景），但native有此方法的代码已回退，后续看是否需要恢复，若不需要，删除此处方法
         handleLoading: function () {
-            this.nativeObject.__callNative("handleLoading", [true]);
+            this.__invokeOnBridge("handleLoading", [true]);
         },
         cancelHandleLoading: function () {
-            this.nativeObject.__callNative("handleLoading", [false]);
+            this.__invokeOnBridge("handleLoading", [false]);
         },
         showLoading: function (text) {
-            this.nativeObject.__callNative("showLoading", [text || "正在加载..."]);
+            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
         },
         hideLoading: function () {
-            this.nativeObject.__callNative("hideLoading", []);
+            this.__invokeOnBridge("hideLoading", []);
         },
         setLoadingTextOnce: function (text) {
             this.nativeObject.__callNative("setLoadingText", [text]);
