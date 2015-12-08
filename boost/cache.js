@@ -67,7 +67,7 @@ define(function (require, exports, module) {
         var str = rule;
 
         //把所有./去掉
-        str.replace(/(^|\/)\.\//g, "$1");
+        str = str.replace(/(^|\/)\.\//g, "$1");
 
         //根目录补全
         if (str[0] === "/") {
