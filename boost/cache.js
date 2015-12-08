@@ -63,23 +63,44 @@ define(function (require, exports, module) {
      * @returns {string}
      */
     function ruleToRegStr (rule) {
-        var h = location.href;
-        h = h.slice(0, h.indexOf("#"));
+        var h = dropHash(location.href);
         var str = rule;
-        str.replace(/(^|\/)\.\//g, "$1"); //把所有./去掉
+
+        //把所有./去掉
+        str.replace(/(^|\/)\.\//g, "$1");
+
+        //根目录补全
         if (str[0] === "/") {
             str = location.origin + str;
         }
-        if (!/^https?:\/\//.test(str)) {
-            str = h.slice(0, h.lastIndexOf("/")) + "/" + str;
-        }
-        str.replace(/\/([^\/]*)\/\.\.\//g, "/"); //处理所有../
-        str.replace(/\*/g, ".*");
 
+        if (!/^https?:\/\//.test(str)) {
+            //当前目录补全
+            str = h.slice(0, h.lastIndexOf("/")) + "/" + str;
+        } else {
+            //去除hash部分
+            str = dropHash(str);
+        }
+
+        //处理所有../
+        str = str.replace(/\/([^\/]*)\/\.\.\//g, "/");
+
+        //转义特殊字符
         //var reg = new RegExp(rule.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\\/])/g, "\\$1"));
         //var reg = new RegExp(rule.replace(/([\.\?\+\$\^\[\]\(\)\{\}\|\\\/])/g, "\\$1"));
-        str = str.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1"); //转义特殊字符
+        //str = str.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1");
+        str = str.replace(/([\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1");
+
+        //处理*
+        str = str.replace(/\*/g, ".*");
+        //console.log(str);
         return str;
+    }
+    function dropHash (url) {
+        if (url.indexOf("#") === -1) {
+            return url;
+        }
+        return url.slice(0, url.indexOf("#"));
     }
 
     module.exports = new OfflineCache();
