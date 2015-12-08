@@ -5,7 +5,7 @@ define(function (require, exports, module) {
     var type = require("base/type");
     var NativeObject = require("boost/nativeObject/NativeObject");
 
-    var TYPE_ID = -7; //TODO: edit
+    var TYPE_ID = -107; //TODO: edit
     /**
      * 提供离线缓存的能力
      * 目前提供的接口比较简单粗暴
@@ -15,9 +15,11 @@ define(function (require, exports, module) {
     }, {
         /**
          * 增加规则
-         * 若rule为string，缓存其对应的url
-         * 若rule为RegExp，缓存后续请求中正则匹配中的url
-         * @param rule {string|RegExp}
+         *  string内的'*'字符可匹配任意子串
+         *  string中可以使用"./"与"../"书写相对路径
+         *  若string以'/'开头，表示从当前域根目录开始匹配
+         *  若string以非"http://"或"https://"开头，表示从当前目录开始匹配
+         * @param rule {string}
          */
         addRule: function (rule) {
             this.__callNative("addRule", [ruleToRegStr(rule)]);
@@ -52,15 +54,32 @@ define(function (require, exports, module) {
         }
     });
 
+    /**
+     *  若string以'/'开头，表示从当前域根目录开始匹配
+     *  若string以非"http://"或"https://"开头，表示从当前目录开始匹配
+     *  string内的'*'字符可匹配任意子串
+     *  string中可以使用"./"与"../"书写相对路径
+     * @param rule
+     * @returns {string}
+     */
     function ruleToRegStr (rule) {
-        var reg;
-        if (type(rule) === "string") {
-            reg = new RegExp(rule.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\\/])/g, "\\$1"));
-        } else {
-            assert(type(rule) === "regexp");
-            reg = rule;
+        var h = location.href;
+        h = h.slice(0, h.indexOf("#"));
+        var str = rule;
+        str.replace(/(^|\/)\.\//g, "$1"); //把所有./去掉
+        if (str[0] === "/") {
+            str = location.origin + str;
         }
-        return reg.toString();
+        if (!/^https?:\/\//.test(str)) {
+            str = h.slice(0, h.lastIndexOf("/")) + "/" + str;
+        }
+        str.replace(/\/([^\/]*)\/\.\.\//g, "/"); //处理所有../
+        str.replace(/\*/g, ".*");
+
+        //var reg = new RegExp(rule.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\\/])/g, "\\$1"));
+        //var reg = new RegExp(rule.replace(/([\.\?\+\$\^\[\]\(\)\{\}\|\\\/])/g, "\\$1"));
+        str = str.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1"); //转义特殊字符
+        return str;
     }
 
     module.exports = new OfflineCache();
