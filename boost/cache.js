@@ -110,6 +110,10 @@ define(function (require, exports, module) {
 
         //处理*
         str = str.replace(/\*/g, ".*");
+
+        //加^与$
+        str = "^" + str + "$";
+
         //console.log(str);
         return str;
     }
