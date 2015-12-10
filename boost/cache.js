@@ -6,8 +6,8 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var nativeVersion = require("boost/nativeVersion");
 
-    var SUPPORT_VERSION = 2.4; //TODO: 目前2.3开发中，还未支持，故先写为2.4
-    var TYPE_ID = -107; //TODO: edit
+    var SUPPORT_VERSION = 2.3; //TODO: 目前2.3开发中，还未支持，故先写为2.4
+    var TYPE_ID = -10; //TODO: edit
     /**
      * 提供离线缓存的能力
      * 目前提供的接口比较简单粗暴
@@ -108,8 +108,15 @@ define(function (require, exports, module) {
         //str = str.replace(/([\*\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1");
         str = str.replace(/([\.\?\+\$\^\[\]\(\)\{\}\|\\])/g, "\\$1");
 
-        //处理*
-        str = str.replace(/\*/g, ".*");
+        var magicStr = "#LKDSJFOINJlkasdfjoi21223400asjdflkj";
+        //处理** (这里将2个以上的*都处理掉)
+        str = str.replace(/\*{2,}/g, "." + magicStr); //防止直接替换成*与用户写的*混淆，这里替换成一个临时魔术数
+
+        //处理单个的*
+        str = str.replace(/\*/g, "[^/]*");
+
+        //将magicStr再换回*
+        str = str.replace(magicStr, "*");
 
         //加^与$
         str = "^" + str + "$";
