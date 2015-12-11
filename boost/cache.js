@@ -24,7 +24,7 @@ define(function (require, exports, module) {
          * @param rule {string}
          */
         addRule: function (rule) {
-            if (nativeVersion < SUPPORT_VERSION) {
+            if (nativeVersion.get() < SUPPORT_VERSION) {
                 return;
             }
             this.__callNative("addRule", [ruleToRegStr(rule)]);
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
          * @param rule
          */
         removeRule: function (rule) {
-            if (nativeVersion < SUPPORT_VERSION) {
+            if (nativeVersion.get() < SUPPORT_VERSION) {
                 return;
             }
             this.__callNative("removeRule", [ruleToRegStr(rule)]);
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
          * @param url
          */
         updateContent: function (url) {
-            if (nativeVersion < SUPPORT_VERSION) {
+            if (nativeVersion.get() < SUPPORT_VERSION) {
                 return;
             }
             this.__callNative("updateContent", [url]);
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
          * @param url
          */
         removeContent: function (url) {
-            if (nativeVersion < SUPPORT_VERSION) {
+            if (nativeVersion.get() < SUPPORT_VERSION) {
                 return;
             }
             this.__callNative("removeContent", [url]);
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
          * 注：目前会删除其他页面缓存的内容。后续需改良缓存方案以解决此问题
          */
         removeAllContent: function () {
-            if (nativeVersion < SUPPORT_VERSION) {
+            if (nativeVersion.get() < SUPPORT_VERSION) {
                 return;
             }
             this.__callNative("removeAllContent", []);
