@@ -2,13 +2,15 @@
 console.timeEnd("define.boost");
 console.log("boost/main.js loaded");
 console.time("boost.main");
-//FIXME: 现在只在票务页面里用了
 require([
     "boost/nativeEventHandler",
-    "boost/bridge"
-], function (nativeEventHandler, bridge) {
+    "boost/bridge",
+    "boost/boost"
+], function (nativeEventHandler, bridge, boost) {
     console.timeEnd("boost.main");
     console.log("boost/main.js module start");
     //console.log("no getMethodMapping");
     //bridge.getMethodMapping();// TODO: 为了性能，暂去掉getMethodMapping
+
+    window.boost = boost; //TODO: add more function
 });
