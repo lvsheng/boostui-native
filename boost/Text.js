@@ -40,6 +40,9 @@ define(function (require, exports, module) {
         },
         "set ellipsize": function (value) {
             this.__update("ellipsize", validator.string(value));
+        },
+        "get innerHTML": function () {
+            return this.value;
         }
     });
     module.exports = Text;

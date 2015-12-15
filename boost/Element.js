@@ -25,6 +25,8 @@ define(function (require, exports, module) {
         this.__children__ = [];
         this.__parent__ = null;
 
+        this.__attrs__ = {};
+
         this.__composedParent__ = null; //其计算依赖parent的shadowTree及其后代shadowTree中slot的assignedSlot
         this.__composedChildren__ = [];
         this.__shadowRoot__ = null;
@@ -142,6 +144,35 @@ define(function (require, exports, module) {
             each(xml.parseNodes(innerHTML), function (child) {
                 self.appendChild(child);
             });
+        },
+        "get innerHTML": function () {
+            var result = "";
+            each(this.childNodes, function (child) {
+                result += child.outerHTML;
+            });
+            return result;
+        },
+        "get outerHTML": function () {
+            var result = '';
+            var tagName = this.tagName.toLowerCase();
+            result += '<' + tagName;
+            if (this.id) {
+                result += ' id="' + this.id + '"';
+            }
+            if (this.className) {
+                result += ' class="' + this.className + '"';
+            }
+            if (this.style.cssText) {
+                result += ' style=' + JSON.stringify(this.style.cssText) + '';
+            }
+            each(this.__attrs__, function (value, name) {
+                result += ' ' + name + '=' + JSON.stringify(value);
+            });
+            result += '>';
+            result += this.innerHTML;
+            result += '</' + tagName + '>';
+
+            return result;
         },
         "get style": function () {
             var style;
@@ -674,15 +705,22 @@ define(function (require, exports, module) {
         },
        */
         setAttribute: function (name, value) {
+            if (typeof value !== "string") {
+                value = value.toString();
+            }
+
             switch (name.toLowerCase()) {
                 case "class":
                     this.className = value;
+                    break;
+                case "id":
+                    this.__id__ = value;
                     break;
                 case "style":
                     this.style.cssText = value;
                     break;
                 default:
-                    this[name] = value;
+                    this.__attrs__[name] = value;
 
                     this.dispatchEvent({
                         type: "attributeChange",
@@ -694,7 +732,7 @@ define(function (require, exports, module) {
             }
         },
         getAttribute: function (name) {
-            return this[name];
+            return this.__attrs__[name];
         },
         dispatchEvent: function (event) {
             if (event.propagationStoped === true) {
