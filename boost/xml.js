@@ -162,15 +162,14 @@ define(function (require, exports, module) {
     };
 
     var xml = new EventTarget();
+    var xmlParser = new XmlParser();
     copyProperties(xml, {
         /**
          * @param xmlStr {string} xml串，不需包含<?xml>说明标签，需单根
-         * @param [customHandler] {Function}
-         * @returns {*|Element}
+         * @returns {Element}
          */
-        parse: function (xmlStr, customHandler) {
-            var parser = new XmlParser(customHandler);
-            return parser.parse(xmlStr);
+        parse: function (xmlStr) {
+            return xmlParser.parse(xmlStr);
         },
 
         parseNodes: function (xmlStr) {
