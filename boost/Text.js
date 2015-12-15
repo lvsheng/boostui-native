@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var validator = require("boost/validator");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
@@ -21,6 +22,9 @@ define(function (require, exports, module) {
             return this.__config__.value || "";
         },
         "set value": function (value) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.innerText = value;
+            }
             this.__update("value", value);
 
             this.dispatchEvent({

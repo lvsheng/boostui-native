@@ -12,4 +12,7 @@ define(function (require, exports, module) {
     exports.get = function () {
         return parseFloat(version);
     };
+    exports.shouldUseWeb = function () {
+        return this.get() < 2.2;
+    };
 });

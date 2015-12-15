@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var EventTarget = require("boost/EventTarget");
     var bridge = require("boost/bridge");
     var elementCreator = require("boost/elementCreator");
+    var nativeVersion = require("boost/nativeVersion");
 
     var documentProto = {
         constructor: function () {
@@ -44,7 +45,12 @@ define(function (require, exports, module) {
         },
         addLayer: function (zIndex) {
             var rootView = this.createElement("RootView");
-            bridge.addLayer(rootView.tag, zIndex);
+
+            if (nativeVersion.shouldUseWeb()) {
+                document.body.appendChild(rootView.nativeObject.__webElement__);
+            } else {
+                bridge.addLayer(rootView.tag, zIndex);
+            }
 
             return rootView;
         },

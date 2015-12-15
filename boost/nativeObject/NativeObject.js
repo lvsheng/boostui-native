@@ -8,6 +8,7 @@ define(function(require, exports, module) {
     var tagMap = require("boost/tagMap");
     var bridge = require("boost/bridge");
     var toCamelCase = require("base/toCamelCase");
+    var nativeVersion = require("boost/nativeVersion");
 
     var NativeObject = derive(
         EventTarget,
@@ -26,7 +27,7 @@ define(function(require, exports, module) {
             tagMap.set(objId, this);
             this.__tag__ = objId;
 
-            if (objId > 1) { //TODO: 要这样来过滤吗？0为rootElement、1为nativeGlobal、负数为已有对象
+            if (objId > 1 && !nativeVersion.shouldUseWeb()) { //TODO: 要这样来过滤吗？0为rootElement、1为nativeGlobal、负数为已有对象
                 bridge.create(typeId, this.__tag__, conf);
             }
         }, {
