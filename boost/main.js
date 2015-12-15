@@ -8,7 +8,6 @@ require([
     "boost/nativeEventHandler",
     "boost/bridge",
     "boost/boost",
-    "boost/xml",
     "boost/$",
 
     "boost/View",
@@ -25,7 +24,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    derive, each, nativeEventHandler, bridge, boost, xml, $,
+    derive, each, nativeEventHandler, bridge, boost, $,
 
     View,
     Element,
@@ -70,10 +69,20 @@ require([
         "get documentElement": function () {
             return boost.documentElement;
         },
-        setDocumentElementLayerZIndex: $.proxy(boost.setDocumentElementLayerZIndex, boost),
-        parse: $.proxy(xml.parse, xml),
-        createElement: $.proxy(boost.createElement, boost),
         $: $
     });
-    window.boost = new Boost();
+    var exportBoost = new Boost();
+    exportsMethod("createElement", boost);
+    exportsMethod("getElementById", boost);
+    exportsMethod("getElementsByClassName", boost);
+    exportsMethod("getElementsByTagName", boost);
+    exportsMethod("querySelectorAll", boost);
+    exportsMethod("dispatchEvent", boost);
+    exportsMethod("setDocumentElementLayerZIndex", boost);
+
+    window.boost = exportBoost;
+
+    function exportsMethod (methodName, obj) {
+        exportBoost[methodName] = $.proxy(obj[methodName], obj);
+    }
 });

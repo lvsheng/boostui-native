@@ -137,6 +137,11 @@ define(function (require, exports, module) {
         "get tagName": function () {
             return this.__tag__;
         },
+
+        /**
+         * 注：与web不同：为防止内存泄漏，set时会将子元素都销毁掉
+         * @param innerHTML
+         */
         "set innerHTML": function (innerHTML) {
             var self = this;
             self.__destroyChildrenRecursively();
@@ -145,6 +150,18 @@ define(function (require, exports, module) {
                 self.appendChild(child);
             });
         },
+        /**
+         * 注：与web不同：为防止内存泄漏，set时会将自己及子元素都销毁掉
+         * @param outerHTML
+         */
+        "set outerHTML": function (outerHTML) {
+            assert(this.parentNode, "NoModificationAllowedError: Failed to set the 'outerHTML' property on 'Element': This element has no parent node.");
+
+            var newNode = xml.parse(outerHTML);
+            this.parentNode.replaceChild(newNode, this);
+            this.destroyRecursively();
+        },
+
         "get innerHTML": function () {
             var result = "";
             each(this.childNodes, function (child) {
