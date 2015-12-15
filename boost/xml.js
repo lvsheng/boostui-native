@@ -1,11 +1,11 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var boost = require("boost/boost");
     var StyleRender = require("boost/styleRender");
     var Event = require("boost/Event");
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
+    var elementCreator = require("boost/elementCreator");
     var FROM_CUSTOM_HANDLER = "__from_custom_handler__";
 
     /**
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
                     switch (customHandlerResult) {
                         case false:
                             //this._customHandler未处理，走默认处理
-                            nativeElement = boost.createElement(xmlElement.tagName);
+                            nativeElement = elementCreator.create(xmlElement.tagName);
                             attributes = xmlElement.attributes;
                             count = attributes.length;
                             for (index = 0; index < count; index++) {
@@ -173,52 +173,41 @@ define(function (require, exports, module) {
             return parser.parse(xmlStr);
         },
 
-        loadFromURL: function (url) {
-            var self = this;
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function onStateChanged() {
-                if (this.readyState == 4) {
-                    self.loadFromString(this.responseText);
-                }
-            };
-            xhr.open("GET", url, true);
-            xhr.send(null);
-        },
-
-        /**
-         * @param str
-         * @param noRoot {boolean} 若str中非单根，需用此参数标明
-         */
-        loadFromString: function (str, noRoot) {
-            if (noRoot) {
-                //因为parse时需要单根才行，这里增加根节点
-                str = "<view>" + str + "</view>";
-            }
-            console.time("loadFromString.parse");
-            var element = this.parse(str); //TODO: 把noRoot移到parse方法内
-            console.timeEnd("loadFromString.parse");
-            if (!noRoot) {
-                boost.documentElement.appendChild(element);
-            } else {
-                //方才增加的根节点这里不放到boost.documentElement上
-                var children = [];
-                var i;
-                for (i = 0; i < element.childNodes.length; ++i) {
-                    children.push(element.childNodes[i]);
-                }
-                for (i = 0; i < children.length; ++i) {
-                    var child = children[i];
-                    element.removeChild(child);
-                    boost.documentElement.appendChild(child);
-                }
-                element.destroy();
-            }
-
-            var event = new Event(xml, "domready");
-            console.time("loadFromString.dispatchEvent");
-            xml.dispatchEvent(event);
-            console.timeEnd("loadFromString.dispatchEvent");
+        parseNodes: function (xmlStr) {
+            var virtualRoot = this.parse("<view>" + xmlStr + "</view>"); //parse需要单根
+            var nodes = virtualRoot.childNodes.slice();
+            virtualRoot.destroy(); //destroy接口保证其会removeChild但不会销毁child
+            return nodes;
         }
+        //,
+        //
+        //loadFromURL: function (url) {
+        //    var self = this;
+        //    var xhr = new XMLHttpRequest();
+        //    xhr.onreadystatechange = function onStateChanged() {
+        //        if (this.readyState == 4) {
+        //            self.loadFromString(this.responseText);
+        //        }
+        //    };
+        //    xhr.open("GET", url, true);
+        //    xhr.send(null);
+        //},
+        ///**
+        // * @param str
+        // */
+        //loadFromString: function (str) {
+        //    console.time("loadFromString.parse");
+        //    var nodes = this.parseNodes(str);
+        //    console.timeEnd("loadFromString.parse");
+        //    for (var i = 0; i < nodes.length; ++i) {
+        //        boost.documentElement.appendChild(nodes[i]);
+        //    }
+        //
+        //    var event = new Event(xml, "domready");
+        //    console.time("loadFromString.dispatchEvent");
+        //    xml.dispatchEvent(event);
+        //    console.timeEnd("loadFromString.dispatchEvent");
+        //}
     });
     module.exports = xml;
 });

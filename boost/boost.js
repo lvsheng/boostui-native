@@ -4,42 +4,14 @@ define(function (require, exports, module) {
     var each = require("base/each");
     var hasOwnProperty = require("base/hasOwnProperty");
     var assert = require("base/assert");
-    var Element = require("boost/Element");
     var EventTarget = require("boost/EventTarget");
-    var NativeElement = require("boost/NativeElement");
-    var View = require("boost/View");
-    var Text = require("boost/Text");
-    var TextInput = require("boost/TextInput");
-    var Image = require("boost/Image");
-    var ScrollView = require("boost/ScrollView");
-    var BoostPage = require("boost/BoostPage");
-    var Slider = require("boost/Slider");
-    var RootView = require("boost/RootView");
-    var Slot = require("boost/Slot");
-    var ViewPager = require("boost/ViewPager");
-    var Toolbar = require("boost/Toolbar");
     var bridge = require("boost/bridge");
-
-    var TAG_MAP = {
-        "View": View,
-        "Text": Text,
-        "TextInput": TextInput,
-        "Image": Image,
-        "Img": Image,
-        "ScrollView": ScrollView,
-        "Slider": Slider,
-        "Slot": Slot,
-        "ViewPager": ViewPager,
-        "Toolbar": Toolbar,
-        "BoostPage": BoostPage,
-        "RootView": RootView
-    };
+    var elementCreator = require("boost/elementCreator");
 
     var documentProto = {
         constructor: function () {
             //this._super();
             EventTarget.call(this);
-            this.__tagMap__ = {};
             this.__docuemntElement__ = null;
             this.__documentElementZIndex__ = 0;
         },
@@ -54,25 +26,13 @@ define(function (require, exports, module) {
             return this.__docuemntElement__;
         },
         createElement: function (tagName) {
-            tagName = tagName.toUpperCase();
-            assert(hasOwnProperty(this.__tagMap__, tagName), "unknow tag \"" + tagName + "\"");
-            var element = new this.__tagMap__[tagName]();
+            var element = elementCreator.create(tagName);
 
             this.dispatchEvent({
                 type: "createElement",
                 element: element
             });
             return element;
-        },
-        registerElement: function (tagName, options) {
-            var constructor;
-            if (options.constructor) {
-                constructor = options.constructor;
-            } else {
-                constructor = Element;
-            }
-
-            this.__tagMap__[tagName.toUpperCase()] = constructor;
         },
         setDocumentElementLayerZIndex: function (zIndex) {
             assert(
@@ -108,14 +68,5 @@ define(function (require, exports, module) {
     bridgeDocumentElement(documentProto, "querySelectorAll");
 
     var BoostDocument = derive(EventTarget, documentProto);
-    var boost = new BoostDocument();
-
-    each(TAG_MAP, function (constructor, tagName) {
-        boost.registerElement(tagName, {
-            constructor: constructor
-        });
-    });
-
-    module.exports = boost;
-
+    module.exports = new BoostDocument();
 });

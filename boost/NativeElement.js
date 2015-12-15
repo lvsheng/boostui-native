@@ -77,7 +77,7 @@ define(function(require, exports, module) {
             this.__native__.__callNative('setSelectorBackgroundColor', [color]);
         },
         destroy: function() {
-            this.removeAllEventListeners();
+            _super.destroy.call(this);
             this.__native__.destroy();
         },
         __createView: function(type) {

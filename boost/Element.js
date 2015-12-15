@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     //var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
+    var xml = require("boost/xml");
     var push = [].push;
 
     var _super = EventTarget.prototype;
@@ -133,6 +134,14 @@ define(function (require, exports, module) {
         },
         "get tagName": function () {
             return this.__tag__;
+        },
+        "set innerHTML": function (innerHTML) {
+            var self = this;
+            self.__destroyChildrenRecursively();
+
+            each(xml.parseNodes(innerHTML), function (child) {
+                self.appendChild(child);
+            });
         },
         "get style": function () {
             var style;
@@ -723,6 +732,32 @@ define(function (require, exports, module) {
                 return !event.propagationStoped;
             });
             return ret;
+        },
+
+        /**
+         * 对子元素：removeChild，但并不销毁
+         */
+        destroy: function() {
+            while (this.__children__.length) {
+                this.__removeChildAt(0);
+            }
+
+            this.removeAllEventListeners();
+        },
+        /**
+         * 对子元素：removeChild并递归destroy之
+         */
+        destroyRecursively: function () {
+            this.__destroyChildrenRecursively();
+            this.destroy();
+        },
+
+        __destroyChildrenRecursively: function () {
+            while (this.__children__.length) {
+                var child = this.__children__[0];
+                this.__removeChildAt(0);
+                child.destroyRecursively();
+            }
         }
     });
 

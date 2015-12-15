@@ -6,7 +6,6 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var each = require("base/each");
     var trim = require("base/trim");
-    var boost = require("boost/boost");
     var copyProperties = require("base/copyProperties");
     var toCamelCase = require("base/toCamelCase");
     var fontSetter = require("boost/fontSetter");

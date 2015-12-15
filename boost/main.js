@@ -4,16 +4,67 @@ console.log("boost/main.js loaded");
 console.time("boost.main");
 require([
     "base/derive",
+    "base/each",
     "boost/nativeEventHandler",
     "boost/bridge",
     "boost/boost",
     "boost/xml",
-    "boost/$"
-], function (derive, nativeEventHandler, bridge, boost, xml, $) {
+    "boost/$",
+
+    "boost/View",
+    "boost/Element",
+    "boost/Text",
+    "boost/TextInput",
+    "boost/Image",
+    "boost/ScrollView",
+    "boost/BoostPage",
+    "boost/Slider",
+    "boost/RootView",
+    "boost/Slot",
+    "boost/ViewPager",
+    "boost/Toolbar",
+    "boost/elementCreator"
+], function (
+    derive, each, nativeEventHandler, bridge, boost, xml, $,
+
+    View,
+    Element,
+    Text,
+    TextInput,
+    Image,
+    ScrollView,
+    BoostPage,
+    Slider,
+    RootView,
+    Slot,
+    ViewPager,
+    Toolbar,
+    elementCreator
+) {
     console.timeEnd("boost.main");
     console.log("boost/main.js module start");
     //console.log("no getMethodMapping");
     //bridge.getMethodMapping();// TODO: 为了性能，暂去掉getMethodMapping
+
+    var TAG_MAP = {
+        "View": View,
+        "Text": Text,
+        "TextInput": TextInput,
+        "Image": Image,
+        "Img": Image,
+        "ScrollView": ScrollView,
+        "Slider": Slider,
+        "Slot": Slot,
+        "ViewPager": ViewPager,
+        "Toolbar": Toolbar,
+        "BoostPage": BoostPage,
+        "RootView": RootView
+    };
+    each(TAG_MAP, function (constructor, tagName) {
+        elementCreator.register(tagName, {
+            constructor: constructor
+        });
+    });
 
     var Boost = derive(Object, {
         "get documentElement": function () {
