@@ -693,6 +693,9 @@ define(function (require, exports, module) {
         querySelectorAll: function (selector) {
             return this.__select(selector);
         },
+        querySelector: function (selector) {
+            return this.querySelectorAll(selector)[0] || null; //FIXME: 改为找到一个就停止
+        },
         /*
         querySelector: function (selector) {
             var func = getSelectorFunction(selector);

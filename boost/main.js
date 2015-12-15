@@ -76,6 +76,7 @@ require([
     exportsMethod("getElementById", boost);
     exportsMethod("getElementsByClassName", boost);
     exportsMethod("getElementsByTagName", boost);
+    exportsMethod("querySelector", boost);
     exportsMethod("querySelectorAll", boost);
     exportsMethod("dispatchEvent", boost);
     exportsMethod("setDocumentElementLayerZIndex", boost);
