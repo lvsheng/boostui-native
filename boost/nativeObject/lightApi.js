@@ -6,12 +6,12 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var NativeObject = require("boost/nativeObject/NativeObject");
 
-    var LIGHT_API_TYPE_ID = -7;
+    var OBJ_ID = -7;
     /**
      * 供背景页用作与前景页通信的中介（向前景页发送消息，监听前景页发来的消息）
      */
     var LightApiNativeObject = derive(NativeObject, function () {
-        NativeObject.call(this, null, LIGHT_API_TYPE_ID);
+        NativeObject.call(this, null, OBJ_ID);
     }, {
         __onEvent: function (type, event) {
             switch (type) {

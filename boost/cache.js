@@ -7,13 +7,13 @@ define(function (require, exports, module) {
     var nativeVersion = require("boost/nativeVersion");
 
     var SUPPORT_VERSION = 2.4; //TODO: 目前2.3开发中，还未支持，故先写为2.4
-    var TYPE_ID = -10; //TODO: edit
+    var OBJ_ID = -10; //TODO: edit
     /**
      * 提供离线缓存的能力
      * 目前提供的接口比较简单粗暴
      */
     var OfflineCache = derive(NativeObject, function () {
-        NativeObject.call(this, null, TYPE_ID);
+        NativeObject.call(this, null, OBJ_ID);
     }, {
         /**
          * 增加规则

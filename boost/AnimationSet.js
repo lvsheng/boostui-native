@@ -4,8 +4,8 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var Animation= require("boost/Animation");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    var TYPE_ANIMATION_SET = 12;
     /**
      * @param config {Object}
      * @param config.type {string} "together"|"sequentially"
@@ -13,7 +13,7 @@ define(function (require, exports, module) {
      */
     var AnimationSet = derive(Animation, function (config) {
         this._index = -1;
-        Animation.call(this, TYPE_ANIMATION_SET, {
+        Animation.call(this, TYPE_ID.ANIMATION_SET, {
             type: config.type,
             element: config.element
         });

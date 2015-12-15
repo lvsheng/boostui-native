@@ -7,8 +7,8 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var NativeElement = require("boost/NativeElement");
     var NativeObject = require("boost/nativeObject/NativeObject");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    var COUPLE_TYPE_ID = 16;
     /**
      * 联动器
      * @param conf.prop {string}
@@ -27,7 +27,7 @@ define(function (require, exports, module) {
             assert(conf.target instanceof NativeElement);
             conf.target = conf.target.nativeObject.tag;
         }
-        NativeObject.call(this, COUPLE_TYPE_ID, undefined, conf);
+        NativeObject.call(this, TYPE_ID.COUPLE, undefined, conf);
 
         this._curIndex = 0;
     }, {

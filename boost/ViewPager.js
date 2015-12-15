@@ -11,11 +11,10 @@ define(function (require, exports, module) {
     var boolean = require("boost/validator").boolean;
     var number = require("boost/validator").number;
     var Couple = require("boost/nativeObject/Couple");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    //var NATIVE_VIEW_PAGER_TYPE = "WrappedToastViewGroup";
-    var NATIVE_VIEW_PAGER_TYPE = 15;
     var ViewPager = derive(NativeElement, function () {
-        NativeElement.call(this, NATIVE_VIEW_PAGER_TYPE, "ViewPager");
+        NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");
     }, {
         __onEvent: function (type, e) {
             switch (type) {

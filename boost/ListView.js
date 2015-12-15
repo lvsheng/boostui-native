@@ -12,12 +12,12 @@ define(function (require, exports, module) {
     var xml = require("boost/xml");
     var bridge = require("boost/bridge");
     var Couple = require("boost/nativeObject/Couple");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    var NATIVE_VIEW_TYPE = 28; //FIXME
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     //TODO: 与ScrollView抽离公共基类？
     var ListView = derive(NativeElement, function () {
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "ListView");
+        NativeElement.call(this, TYPE_ID.LIST_VIEW, "ListView");
         this.__dataStructureDesc = null;
         this.__template = null;
     }, {

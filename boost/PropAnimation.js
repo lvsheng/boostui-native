@@ -4,8 +4,8 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var Animation= require("boost/Animation");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    var TYPE_PROP_ANIMATION = 11;
     /**
      * @param config {Object}
      * @param config.prop {string}
@@ -17,7 +17,7 @@ define(function (require, exports, module) {
      * @param config.element {NativeElement}
      */
     var PropAnimation = derive(Animation, function (config) {
-        Animation.call(this, TYPE_PROP_ANIMATION, {
+        Animation.call(this, TYPE_ID.PROP_ANIMATION, {
             prop: config.prop,
             from: config.from,
             to: config.to,

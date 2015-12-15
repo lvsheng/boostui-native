@@ -8,13 +8,12 @@ define(function (require, exports, module) {
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var Couple = require("boost/nativeObject/Couple");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    //var NATIVE_VIEW_TYPE = "WrappedScrollView";
-    var NATIVE_VIEW_TYPE = 3;
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var ScrollView = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "ScrollView");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "ScrollView");
+        NativeElement.call(this, TYPE_ID.SCROLL_VIEW, "ScrollView");
     }, {
         __onEvent: function (type, e) {
             switch (type) {

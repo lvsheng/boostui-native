@@ -9,15 +9,13 @@ define(function (require, exports, module) {
     var Event = require("boost/Event");
     var TouchEvent = require("boost/TouchEvent");
     var FocusEvent = require("boost/FocusEvent");
-
-    //var NATIVE_VIEW_TYPE = "WrappedEditText";
-    var NATIVE_VIEW_TYPE = 5;
+    var TYPE_ID = require("boost/TYPE_ID");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
     var TextInput = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "TextInput");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "TextInput");
+        NativeElement.call(this, TYPE_ID.TEXT_INPUT, "TextInput");
     }, {
         __getStyle: function () {
             return new TextStyle();

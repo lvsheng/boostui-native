@@ -4,13 +4,11 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var NativeElement = require("boost/NativeElement");
     var LayoutStyle = require("boost/LayoutStyle");
-
-    //var NATIVE_VIEW_TYPE = "WrappedImageView";
-    var NATIVE_VIEW_TYPE = 2;
+    var TYPE_ID = require("boost/TYPE_ID");
 
     var Image = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "Image");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Image");
+        NativeElement.call(this, TYPE_ID.IMAGE, "Image");
     }, {
         __getStyle: function () {
             return new LayoutStyle();

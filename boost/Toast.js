@@ -4,13 +4,12 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    //var NATIVE_VIEW_TYPE = "WrappedToastViewGroup";
-    var NATIVE_VIEW_TYPE = 8;
     var Toast = derive(NativeElement, function (conf) {
         conf = conf || {};
         //this._super(NATIVE_VIEW_TYPE, "Toast");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Toast");
+        NativeElement.call(this, TYPE_ID.TOAST, "Toast");
         if (conf.duration) {
             this.duration = conf.duration;
         }

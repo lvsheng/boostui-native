@@ -8,13 +8,13 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var Event = require("boost/Event");
 
-    var BACKGROUND_PAGE_TYPE_ID = -1;
+    var BACKGROUND_PAGE_OBJ_ID = -1;
     /**
      * 供前景页用作与背景页通信的中介（向背景页发送消息，监听背景页发来的消息）
      * 也可用作背景页自己操作自己的boostPage
      */
     var BackgroundPageNativeObject = derive(NativeObject, function () {
-        NativeObject.call(this, null, BACKGROUND_PAGE_TYPE_ID);
+        NativeObject.call(this, null, BACKGROUND_PAGE_OBJ_ID);
     }, {
         __onEvent: function (type, e) {
             switch (type) {

@@ -7,12 +7,12 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var LayoutPropTypes = require("boost/LayoutPropTypes");
     var StyleSheet = require("boost/StyleSheet");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    var NATIVE_VIEW_TYPE = 20;
     var ViewStyle = derive(StyleSheet, LayoutPropTypes);
-    var FgBoostPage = derive(NativeElement, function () {
-        //this._super(NATIVE_VIEW_TYPE, "FgBoostPage");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "FgBoostPage");
+    var BoostPage = derive(NativeElement, function () {
+        //this._super(NATIVE_VIEW_TYPE, "BoostPage");
+        NativeElement.call(this, TYPE_ID.BOOST_PAGE, "BoostPage");
     }, {
         __onEvent: function (type, event) {
             // 从前台页面传来的消息与页面刷新事件，抛出事件供背景页监听
@@ -91,5 +91,5 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("setLoadingText", [text]);
         }
     });
-    module.exports = FgBoostPage;
+    module.exports = BoostPage;
 });

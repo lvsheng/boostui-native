@@ -7,13 +7,11 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var LayoutStyle = require("boost/LayoutStyle");
     var backgroundPage = require("boost/nativeObject/backgroundPage");
-
-    //var NATIVE_VIEW_TYPE = "ToolbarWrapper";
-    var NATIVE_VIEW_TYPE = 19;
+    var TYPE_ID = require("boost/TYPE_ID");
 
     var Toolbar = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "Toolbar");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Toolbar");
+        NativeElement.call(this, TYPE_ID.TOOL_BAR, "Toolbar");
     }, {
         __onEvent: function (type, e) {
             switch (type) {

@@ -4,13 +4,12 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
+    var TYPE_ID = require("boost/TYPE_ID");
 
-    //var NATIVE_VIEW_TYPE = "WrappedDialogViewGroup";
-    var NATIVE_VIEW_TYPE = 9;
     var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
         //this._super(NATIVE_VIEW_TYPE, "Dialog");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Dialog");
+        NativeElement.call(this, TYPE_ID.DIALOG, "Dialog");
         if (conf.gravityVertical) {
             this.gravityVertical = conf.gravityVertical;
         }

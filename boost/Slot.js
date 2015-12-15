@@ -8,13 +8,13 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
+    var TYPE_ID = require("boost/TYPE_ID");
 
     //FIXME: 与View中耦合了~
-    var NATIVE_VIEW_TYPE = 0; //与WebNativeMapping.TypeMapping.TYPES中序号对应
     module.exports = derive(View, function () {
         //this._super();
-        //TODO: 如果直接调用View，则这里初始化的tagName就成View了，故直接跨级调NativeElement
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Slot");
+        //如果直接调用View，则这里初始化的tagName就成View了，故直接跨级调NativeElement
+        NativeElement.call(this, TYPE_ID.VIEW, "Slot");
 
         this.__name__ = ""; //slotName
         this.__distributedNodes__ = [];

@@ -6,15 +6,13 @@ define(function (require, exports, module) {
     var TextStylePropTypes = require("boost/TextStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var validator = require("boost/validator");
-
-    //var NATIVE_VIEW_TYPE = "WrappedTextView";
-    var NATIVE_VIEW_TYPE = 1;
+    var TYPE_ID = require("boost/TYPE_ID");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
     var Text = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "Text");
-        NativeElement.call(this, NATIVE_VIEW_TYPE, "Text");
+        NativeElement.call(this, TYPE_ID.TEXT, "Text");
     }, {
         __getStyle: function () {
             return new TextStyle();
