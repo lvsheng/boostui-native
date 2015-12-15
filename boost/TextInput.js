@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     var TouchEvent = require("boost/TouchEvent");
     var FocusEvent = require("boost/FocusEvent");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
@@ -46,6 +47,9 @@ define(function (require, exports, module) {
             return this.__config__.value || "";
         },
         "set value": function (value) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.value = value;
+            }
             this.__update("value", value);
 
             this.dispatchEvent({
@@ -93,6 +97,12 @@ define(function (require, exports, module) {
         },
         focus: function () {
             this.__native__.__callNative("focus", []);
+        },
+
+        __createWebElement: function () {
+            var input = document.createElement("input");
+            input.type = "text";
+            return input;
         }
     });
     module.exports = TextInput;
