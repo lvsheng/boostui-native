@@ -8,6 +8,7 @@ require([
     "boost/nativeEventHandler",
     "boost/bridge",
     "boost/boost",
+    "boost/nativeVersion",
     "boost/$",
 
     "boost/View",
@@ -24,7 +25,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    derive, each, nativeEventHandler, bridge, boost, $,
+    derive, each, nativeEventHandler, bridge, boost, nativeVersion, $,
 
     View,
     Element,
@@ -85,5 +86,27 @@ require([
 
     function exportsMethod (methodName, obj) {
         exportBoost[methodName] = $.proxy(obj[methodName], obj);
+    }
+
+    if (nativeVersion.shouldUseWeb()) {
+        var styleEl = document.createElement("style");
+        styleEl.innerText = '' +
+            'html, body {' +
+            '    margin: 0;' +
+            '    padding: 0;' +
+            '}' +
+            'div {' +
+            '    box-sizing: border-box;' +
+            '    position: relative;' +
+            '    display: flex;' +
+            '    flex-direction: column;' +
+            '    align-items: stretch;' +
+            '    flex-shrink: 0;' +
+            '    align-content: flex-start;' +
+            '    border: 0 solid black;' +
+            '    margin: 0;' +
+            '    padding: 0;' +
+            '}';
+        document.head.appendChild(styleEl);
     }
 });

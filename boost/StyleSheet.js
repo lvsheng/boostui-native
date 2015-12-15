@@ -14,6 +14,7 @@ define(function (require, exports, module) {
     var validator = require("boost/validator");
     var validatorCache = require("boost/validatorCache");
     var toCamelCase = require("base/toCamelCase");
+    var nativeVersion = require("boost/nativeVersion");
 
     var StyleSheet = derive(EventTarget, function () {
         //this._super();
@@ -77,17 +78,19 @@ define(function (require, exports, module) {
                 var origValue = this.__styleProps__[key];
                 //var event;
 
-                var cachedValue = validatorCache.get(key, value);
-                if (cachedValue === undefined) {
-                    //null对应css中取消设置该值, "auto"对应css中设置值为"auto"
-                    if (value === null || value === "auto") {
-                        value = defaultValue;
+                if (!nativeVersion.shouldUseWeb()) {
+                    var cachedValue = validatorCache.get(key, value);
+                    if (cachedValue === undefined) {
+                        //null对应css中取消设置该值, "auto"对应css中设置值为"auto"
+                        if (value === null || value === "auto") {
+                            value = defaultValue;
+                        } else {
+                            value = curValidator(value);
+                        }
+                        validatorCache.set(key, value, value);
                     } else {
-                        value = curValidator(value);
+                        value = cachedValue;
                     }
-                    validatorCache.set(key, value, value);
-                } else {
-                    value = cachedValue;
                 }
 
                 if (value !== origValue) {

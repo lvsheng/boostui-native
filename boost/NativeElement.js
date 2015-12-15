@@ -9,6 +9,7 @@ define(function(require, exports, module) {
     var Element = require("boost/Element");
     var fontSetter = require("boost/fontSetter");
     var bridge = require("boost/bridge");
+    var nativeVersion = require("boost/nativeVersion");
 
     var _super = Element.prototype;
     var NativeElement = derive(Element, function(type, tagName) {
@@ -144,6 +145,11 @@ define(function(require, exports, module) {
         //__styleChange
         __styleChange: function(key, value, origValue) {
             this.__update(key, value);
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.style[key] = value;
+            }
+
             //return this._super(key, value, origValue);
             return _super.__styleChange.call(this, key, value, origValue);
         }
