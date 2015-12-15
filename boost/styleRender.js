@@ -143,8 +143,9 @@ define(function (require, exports, module) {
     /**
      * @constructor
      */
-    function StyleRender (xmlParser) {
-        this._xmlParser = xmlParser;
+    function StyleRender () {
+    //function StyleRender (xmlParser) {
+        //this._xmlParser = xmlParser;
         this._parser = new StyleParser();
         this._ruleList = [];
     }
@@ -166,10 +167,10 @@ define(function (require, exports, module) {
                     elements.push(rootElement);
                 }
 
-                //过滤掉自定义handler返回的节点不渲染
-                elements = elements.filter(function (element) {
-                    return !self._xmlParser.fromCustomHandler(element, rootElement);
-                });
+                ////过滤掉自定义handler返回的节点不渲染
+                //elements = elements.filter(function (element) {
+                //    return !self._xmlParser.fromCustomHandler(element, rootElement);
+                //});
 
                 each(elements, function (element) {
                     self._applyRule(element, item.rule);
@@ -278,5 +279,6 @@ define(function (require, exports, module) {
         }
     };
 
-    module.exports = StyleRender;
+    //module.exports = StyleRender;
+    module.exports = new StyleRender();
 });

@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var boost = require("boost/boost");
     var copyProperties = require("base/copyProperties");
     var Event = require("boost/Event");
+    var styleRender = require("boost/styleRender");
 
     var emptyArray = [],
         noop = function () {},
@@ -36,17 +37,11 @@ define(function (require, exports, module) {
     }
 
     function updateStyle (element) {
-        //TODO: change to update all children style
         walkTree(element, function (curElement) {
-            var elementStyleRender = curElement.__styleRender__;
-            if (!elementStyleRender) {
-                //应对非xml-parser解析出的元素
-                console.warn("to auto update element's style when it's class changes, element.__styleRender(added in xml-parser.js) is required.");
-                return;
-            }
+            var elementStyleRender = styleRender;
 
             elementStyleRender.clearStyle(curElement);
-            elementStyleRender.applyOnOne(curElement);
+            elementStyleRender.apply(curElement);
         });
     }
 

@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var StyleRender = require("boost/styleRender");
+    var styleRender = require("boost/styleRender");
     var Event = require("boost/Event");
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
@@ -14,7 +14,8 @@ define(function (require, exports, module) {
      */
     function XmlParser (customHandler) {
         this._customHandler = customHandler;
-        this._styleRender = new StyleRender(this); //每次实例一个以避免本次parse中的style影响外界
+        //this._styleRender = new StyleRender(this); //每次实例一个以避免本次parse中的style影响外界
+        this._styleRender = styleRender;
     }
     XmlParser.prototype = {
         /**
@@ -128,8 +129,8 @@ define(function (require, exports, module) {
                                 this._walkElement(xmlElement, nativeElement);
                             }
 
-                            //TODO: 在Element定义属性
-                            nativeElement.__styleRender__ = this._styleRender;
+                            ////TODO: 在Element定义属性
+                            //nativeElement.__styleRender__ = this._styleRender;
 
                             result = nativeElement;
                             break;
