@@ -62,6 +62,7 @@ define(function(require, exports, module) {
             }
         }
     }, {
+        __createWebElement: null,
         "get nativeObject": function() {
             return this.__native__;
         },
@@ -82,7 +83,7 @@ define(function(require, exports, module) {
         },
         __createView: function(type) {
             var self = this;
-            var nativeObj = self.__native__ = new ElementNativeObject(type, undefined, self);
+            var nativeObj = self.__native__ = new ElementNativeObject(type, undefined, self, self.__createWebElement);
             nativeObj.__onEvent = function(type, e) {
                 return self.__onEvent(type, e);
             };

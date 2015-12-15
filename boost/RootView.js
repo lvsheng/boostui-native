@@ -11,6 +11,11 @@ define(function (require, exports, module) {
     }, {
         __getStyle: function () {
             return new ViewStyle();
+        },
+        __createWebElement: function (info) {
+            var el = document.createElement("div");
+            el.id = "BOOST_ROOT_VIEW_" + info.objId;
+            return el;
         }
     });
     module.exports = RootView;

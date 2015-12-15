@@ -8,20 +8,25 @@ define(function (require, exports, module) {
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
 
-    var ElementNativeObject = derive(NativeObject, function (typeId, objId, nativeElement) {
+    var ElementNativeObject = derive(NativeObject, function (typeId, objId, nativeElement, webElementCreator) {
             NativeObject.call(this, typeId, objId);
             this.__nativeElement__ = nativeElement;
 
             if (nativeVersion.shouldUseWeb()) {
-                if (typeId === TYPE_ID.ROOT_VIEW) {
-                    this.__webElement__ = document.createElement("div");
-                    this.__webElement__.id = "BOOST_ROOT_VIEW_" + this.__tag__;
+                var info = {
+                    objId: this.__tag__
+                };
+                if (webElementCreator) {
+                    this.__webElement__ = webElementCreator(info);
                 } else {
-                    this.__webElement__ = document.createElement("div");
+                    this.__webElement__ = this.__createWebElement(info);
                 }
             }
         },
         {
+            __createWebElement: function () {
+                return document.createElement("div");
+            },
             addView: function (child, index) {
                 if (nativeVersion.shouldUseWeb()) {
                     var el = this.__webElement__;
