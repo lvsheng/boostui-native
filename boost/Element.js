@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var xml = require("boost/xml");
     var push = [].push;
+    var styleRender = require("boost/styleRender");
 
     var _super = EventTarget.prototype;
     var Element = derive(EventTarget, function (tagName) {
@@ -149,6 +150,7 @@ define(function (require, exports, module) {
             each(xml.parseNodes(innerHTML), function (child) {
                 self.appendChild(child);
             });
+            styleRender.apply(this);
         },
         /**
          * 注：与web不同：为防止内存泄漏，set时会将自己及子元素都销毁掉
@@ -158,6 +160,7 @@ define(function (require, exports, module) {
             assert(this.parentNode, "NoModificationAllowedError: Failed to set the 'outerHTML' property on 'Element': This element has no parent node.");
 
             var newNode = xml.parse(outerHTML);
+            styleRender.apply(newNode);
             this.parentNode.replaceChild(newNode, this);
             this.destroyRecursively();
         },

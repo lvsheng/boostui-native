@@ -155,6 +155,7 @@ define(function (require, exports, module) {
         },
 
         /**
+         * FIXME: 本方法调用时机需要再斟酌~ 目前是在innerHTML、outerHTML改变时调用（因给用户的可parse一断内容的接口只有这两个）。但append、removeChild时并不会（如果也调就太频繁了）
          * @param rootElement {Element}
          */
         apply: function (rootElement) {

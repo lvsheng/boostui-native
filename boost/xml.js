@@ -77,8 +77,6 @@ define(function (require, exports, module) {
             console.log("process:");
             var rootNativeElement = this._processElement(xmlDocument.documentElement);
             console.log("element got");
-            this._styleRender.apply(rootNativeElement);
-            console.log("style render done");
             return rootNativeElement;
         },
 
@@ -179,35 +177,6 @@ define(function (require, exports, module) {
             virtualRoot.destroy(); //destroy接口保证其会removeChild但不会销毁child
             return nodes;
         }
-        //,
-        //
-        //loadFromURL: function (url) {
-        //    var self = this;
-        //    var xhr = new XMLHttpRequest();
-        //    xhr.onreadystatechange = function onStateChanged() {
-        //        if (this.readyState == 4) {
-        //            self.loadFromString(this.responseText);
-        //        }
-        //    };
-        //    xhr.open("GET", url, true);
-        //    xhr.send(null);
-        //},
-        ///**
-        // * @param str
-        // */
-        //loadFromString: function (str) {
-        //    console.time("loadFromString.parse");
-        //    var nodes = this.parseNodes(str);
-        //    console.timeEnd("loadFromString.parse");
-        //    for (var i = 0; i < nodes.length; ++i) {
-        //        boost.documentElement.appendChild(nodes[i]);
-        //    }
-        //
-        //    var event = new Event(xml, "domready");
-        //    console.time("loadFromString.dispatchEvent");
-        //    xml.dispatchEvent(event);
-        //    console.timeEnd("loadFromString.dispatchEvent");
-        //}
     });
     module.exports = xml;
 });
