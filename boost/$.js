@@ -247,7 +247,11 @@ define(function (require, exports, module) {
         return flatten(values);
     };
 
-
+    $.proxy = function (func, context) {
+        return function () {
+            return func.apply(context, arguments);
+        };
+    };
 
 
     $.Widget = function (options, element) {
