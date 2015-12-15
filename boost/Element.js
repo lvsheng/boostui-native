@@ -26,7 +26,7 @@ define(function (require, exports, module) {
         this.__children__ = [];
         this.__parent__ = null;
 
-        this.__attrs__ = {};
+        this.__settedAttributes = [];
 
         this.__composedParent__ = null; //其计算依赖parent的shadowTree及其后代shadowTree中slot的assignedSlot
         this.__composedChildren__ = [];
@@ -173,23 +173,24 @@ define(function (require, exports, module) {
             return result;
         },
         "get outerHTML": function () {
+            var self = this;
             var result = '';
-            var tagName = this.tagName.toLowerCase();
+            var tagName = self.tagName.toLowerCase();
             result += '<' + tagName;
-            if (this.id) {
-                result += ' id="' + this.id + '"';
+            if (self.id) {
+                result += ' id="' + self.id + '"';
             }
-            if (this.className) {
-                result += ' class="' + this.className + '"';
+            if (self.className) {
+                result += ' class="' + self.className + '"';
             }
-            if (this.style.cssText) {
-                result += ' style=' + JSON.stringify(this.style.cssText) + '';
+            if (self.style.cssText) {
+                result += ' style=' + JSON.stringify(self.style.cssText) + '';
             }
-            each(this.__attrs__, function (value, name) {
-                result += ' ' + name + '=' + JSON.stringify(value);
+            each(self.__settedAttributes, function (attrName) {
+                result += ' ' + attrName + '=' + JSON.stringify(self[attrName]);
             });
             result += '>';
-            result += this.innerHTML;
+            result += self.innerHTML;
             result += '</' + tagName + '>';
 
             return result;
@@ -743,7 +744,8 @@ define(function (require, exports, module) {
                     this.style.cssText = value;
                     break;
                 default:
-                    this.__attrs__[name] = value;
+                    this.__settedAttributes.push(name);
+                    this[name] = value;
 
                     this.dispatchEvent({
                         type: "attributeChange",
@@ -755,7 +757,7 @@ define(function (require, exports, module) {
             }
         },
         getAttribute: function (name) {
-            return this.__attrs__[name];
+            return this[name];
         },
         dispatchEvent: function (event) {
             if (event.propagationStoped === true) {

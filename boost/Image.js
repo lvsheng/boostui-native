@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var LayoutStyle = require("boost/LayoutStyle");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var Image = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "Image");
@@ -28,10 +29,17 @@ define(function (require, exports, module) {
                     url = host + location.pathname.slice(0, location.pathname.lastIndexOf('/')) + '/' + value;
                 }
             }
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.src = url;
+            }
             this.__update("source", url);
         },
         "set resizeMode": function (value) {
             this.__update("resizeMode", value);
+        },
+        __createWebElement: function () {
+            return document.createElement("img");
         }
     });
     module.exports = Image;
