@@ -23,6 +23,9 @@ define(function (require, exports, module) {
          * @return {Element}
          */
         parse: function (xmlStr) {
+            //从template里直接innerHTML得来的内容中，web会把<image></image>转换为<img>这里做处理：
+            xmlStr = xmlStr.replace(/<img(\s+[^>]*)?\/?>/g, '<image$1></image>');
+
             var domParser = new DOMParser();
             console.log("parse");
             var XML_DECLARE_STR = "<?xml version='1.0' encoding='UTF-8' ?>";
