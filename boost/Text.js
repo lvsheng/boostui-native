@@ -39,9 +39,18 @@ define(function (require, exports, module) {
         },
         "set multiline": function (value) {
             this.__update("multiline", validator.boolean(value));
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.style["display"] = "-webkit-box";
+                this.__native__.__webElement__.style["-webkit-line-clamp"] = value === "false" ? 1 : "initial";
+            }
         },
         "set ellipsize": function (value) {
             this.__update("ellipsize", validator.string(value));
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.style["-webkit-box-orient"] = "vertical";
+            }
         },
         "get innerHTML": function () {
             return this.value;
