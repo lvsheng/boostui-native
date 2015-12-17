@@ -224,6 +224,16 @@ define(function (require, exports, module) {
             return this.each(function (idx, element) {
                 element.style[key] = value;
             });
+        },
+
+        html: function (value) {
+            if (arguments.length) {
+                return this.each(function (idx, element) {
+                    element.innerHTML = value;
+                });
+            } else {
+                return this[0].innerHTML;
+            }
         }
     };
 
