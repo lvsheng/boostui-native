@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var Event = require("boost/Event");
     var EventTarget = require("boost/EventTarget");
     var copyProperties = require("base/copyProperties");
+    var toCamelCase = require("base/toCamelCase");
     var elementCreator = require("boost/elementCreator");
     var FROM_CUSTOM_HANDLER = "__from_custom_handler__";
 
@@ -119,8 +120,8 @@ define(function (require, exports, module) {
                             attributes = xmlElement.attributes;
                             count = attributes.length;
                             for (index = 0; index < count; index++) {
-                                attribute = attributes[index];
-                                nativeElement.setAttribute(attribute.name, attribute.value);
+                                attribute = attributes[index]; //从template里拿时，没有大小写区分，故让用户写'-'分割，这里转成驼峰
+                                nativeElement.setAttribute(toCamelCase(attribute.name), attribute.value);
                             }
 
                             if (tagName === "TEXT" || tagName === "TEXTINPUT") {
