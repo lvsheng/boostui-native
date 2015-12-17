@@ -106,6 +106,7 @@ require([
             '    border: 0 solid black;' +
             '    margin: 0;' +
             '    padding: 0;' +
+            '    overflow: hidden;' +
             '}';
         document.head.appendChild(styleEl);
     }
