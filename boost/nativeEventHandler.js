@@ -117,20 +117,21 @@ define(function (require, exports, module) {
     document.addEventListener("touchend", generateBoostEventFromWeb);
     document.addEventListener("scroll", generateBoostEventFromWeb);
     function generateBoostEventFromWeb (e) {
-        if (!e.target.getAttribute("__boost_origin__")) {
+        var originId = e.target.__boost_origin__;
+        if (!originId) {
             return;
         }
 
         var event = document.createEvent('Event');
         event.initEvent(BOOST_EVENT_TYPE, false, false);
         event.boostEventType = e.type;
-        event.origin = parseInt(e.target.getAttribute("__boost_origin__"));
+        event.origin = originId;
         switch (event.boostEventType) {
             case "touchstart":
             case "touchend":
                 event.data = {
-                    x: e.touches[0].clientX,
-                    y: e.touches[0].clientY
+                    x: e.changedTouches[0].clientX,
+                    y: e.changedTouches[0].clientY
                 };
                 break;
             case "scroll":
