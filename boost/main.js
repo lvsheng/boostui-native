@@ -10,6 +10,7 @@ require([
     "boost/boost",
     "boost/nativeVersion",
     "boost/$",
+    "boost/nativeObject/backgroundPage",
 
     "boost/View",
     "boost/Element",
@@ -25,7 +26,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    derive, each, nativeEventHandler, bridge, boost, nativeVersion, $,
+    derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage,
 
     View,
     Element,
@@ -70,7 +71,14 @@ require([
         "get documentElement": function () {
             return boost.documentElement;
         },
-        $: $
+        $: $,
+        openNewPage: function (href) {
+            if (nativeVersion.shouldUseWeb()) {
+                window.open(href);
+            } else {
+                backgroundPage.postMessage("openPage", href);
+            }
+        }
     });
     var exportBoost = new Boost();
     exportsMethod("createElement", boost);
