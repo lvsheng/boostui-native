@@ -113,6 +113,36 @@ define(function (require, exports, module) {
     // 页面加载时，先尝试删除所有 NativeView
     //bridge.destroyAll(); //因为服务导航与票务页面都加载js，如果后加载的一个destroyAll，会影响前一个页面的内容
 
+    document.addEventListener("touchstart", generateBoostEventFromWeb);
+    document.addEventListener("touchend", generateBoostEventFromWeb);
+    document.addEventListener("scroll", generateBoostEventFromWeb);
+    function generateBoostEventFromWeb (e) {
+        if (!e.target.getAttribute("__boost_origin__")) {
+            return;
+        }
+
+        var event = document.createEvent('Event');
+        event.initEvent(BOOST_EVENT_TYPE, false, false);
+        event.boostEventType = e.type;
+        event.origin = parseInt(e.target.getAttribute("__boost_origin__"));
+        switch (event.boostEventType) {
+            case "touchstart":
+            case "touchend":
+                event.data = {
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY
+                };
+                break;
+            case "scroll":
+                var tagName = tagMap.get(event.origin).tagName.toLowerCase();
+                assert(tagName === "scrollview" || tagName === "viewpager");
+                //TODO
+                break;
+        }
+
+        document.dispatchEvent(event);
+    }
+
     /**
      * 判断ancestor是否在descendant的祖先元素中
      * @param descendant

@@ -36,6 +36,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var each = require("base/each");
     var hasOwnProperty = require("base/hasOwnProperty");
+    var camelToDash = require("base/camelToDash");
 
     function bindSuper(fn, superFn) {
         //return fn;
@@ -80,7 +81,8 @@ define(function (require, exports, module) {
             subClass = constructor,
             subClassPrototype,
             key, value,
-            parts, modifier, properties, property;
+            keyDash,
+            parts, modifier, properties, property, propertyDash;
 
         //原型链桥接
         //tmp.prototype = parent.prototype;
@@ -114,6 +116,17 @@ define(function (require, exports, module) {
                     property = properties[key] || {};
                     property[modifier] = value;
                     properties[key] = property;
+
+                    //FIXME: 为了方便，这里除了生成原有设值取值方法，还生成一份中划线命名法的方法供标签属性上直接使用。具体原因如下：
+                    // 从webView的template标签中取innerHTML再传入boost时，元素属性的驼峰消失、故需支持各属性中划线设置。
+                    // 但有些属性如data-xx需要保留中划线，故不能在xml解析时转换。
+                    // 而在每个"set xx"定义的地方写两份，又较啰嗦，故在此处处理
+                    keyDash = camelToDash(key);
+                    if (keyDash !== key) {
+                        propertyDash = properties[keyDash] || {};
+                        propertyDash[modifier] = value;
+                        properties[keyDash] = propertyDash;
+                    }
                     break;
                 default:
                     //TODO

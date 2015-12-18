@@ -21,6 +21,7 @@ define(function (require, exports, module) {
                 } else {
                     this.__webElement__ = this.__createWebElement(info);
                 }
+                this.__webElement__.__boost_origin__ = this.__tag__;
             }
         },
         {

@@ -120,8 +120,9 @@ define(function (require, exports, module) {
                             attributes = xmlElement.attributes;
                             count = attributes.length;
                             for (index = 0; index < count; index++) {
-                                attribute = attributes[index]; //从template里拿时，没有大小写区分，故让用户写'-'分割，这里转成驼峰
-                                nativeElement.setAttribute(toCamelCase(attribute.name), attribute.value);
+                                attribute = attributes[index];
+                                //nativeElement.setAttribute(toCamelCase(attribute.name), attribute.value); //从template里拿时，没有大小写区分，故让用户写'-'分割，这里转成驼峰
+                                nativeElement.setAttribute(attribute.name, attribute.value);
                             }
 
                             if (tagName === "TEXT" || tagName === "TEXTINPUT") {
