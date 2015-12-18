@@ -137,6 +137,9 @@ define(function(require, exports, module) {
                     fontSetter.setFont(this.__native__, value);
                 } else if (key === "tapHighlightColor") {
                     this.__setSelectorBackgroundColor(value);
+                    if (nativeVersion.shouldUseWeb()) {
+                        this.__native__.__webElement__.style["-webkit-tap-highlight-color"] = value;
+                    }
                 } else {
                     this.__native__.updateView(key, value);
                 }

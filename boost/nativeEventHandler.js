@@ -117,6 +117,7 @@ define(function (require, exports, module) {
     document.addEventListener("touchend", generateBoostEventFromWeb);
     document.addEventListener("scroll", generateBoostEventFromWeb);
     function generateBoostEventFromWeb (e) {
+        console.log("generateBoostEventFromWeb", e);
         var originId = e.target.__boost_origin__;
         if (!originId) {
             return;
@@ -141,6 +142,7 @@ define(function (require, exports, module) {
                 break;
         }
 
+        console.log("generateBoostEventFromWeb, gen:", event);
         document.dispatchEvent(event);
     }
 
