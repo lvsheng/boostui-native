@@ -15,6 +15,7 @@ define(function (require, exports, module) {
         __createWebElement: function (info) {
             var el = document.createElement("div");
             el.id = "BOOST_ROOT_VIEW_" + info.objId;
+            el.style.height = "100%";
             return el;
         }
     });

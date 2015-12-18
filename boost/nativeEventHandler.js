@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     var lightApi = require("boost/nativeObject/lightApi");
     var bridge = require("boost/bridge");
     var assert = require("base/assert");
+    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
 
     var BOOST_EVENT_TYPE = "boost";
     var BOOSTCALLBACK_EVENT_TYPE = "boostcallback";
@@ -113,38 +114,8 @@ define(function (require, exports, module) {
     // 页面加载时，先尝试删除所有 NativeView
     //bridge.destroyAll(); //因为服务导航与票务页面都加载js，如果后加载的一个destroyAll，会影响前一个页面的内容
 
-    document.addEventListener("touchstart", generateBoostEventFromWeb);
-    document.addEventListener("touchend", generateBoostEventFromWeb);
-    document.addEventListener("scroll", generateBoostEventFromWeb);
-    function generateBoostEventFromWeb (e) {
-        console.log("generateBoostEventFromWeb", e);
-        var originId = e.target.__boost_origin__;
-        if (!originId) {
-            return;
-        }
-
-        var event = document.createEvent('Event');
-        event.initEvent(BOOST_EVENT_TYPE, false, false);
-        event.boostEventType = e.type;
-        event.origin = originId;
-        switch (event.boostEventType) {
-            case "touchstart":
-            case "touchend":
-                event.data = {
-                    x: e.changedTouches[0].clientX,
-                    y: e.changedTouches[0].clientY
-                };
-                break;
-            case "scroll":
-                var tagName = tagMap.get(event.origin).tagName.toLowerCase();
-                assert(tagName === "scrollview" || tagName === "viewpager");
-                //TODO
-                break;
-        }
-
-        console.log("generateBoostEventFromWeb, gen:", event);
-        document.dispatchEvent(event);
-    }
+    document.body.addEventListener("touchstart", generateBoostEventFromWeb);
+    document.body.addEventListener("touchend", generateBoostEventFromWeb);
 
     /**
      * 判断ancestor是否在descendant的祖先元素中
