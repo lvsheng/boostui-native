@@ -26,14 +26,14 @@ define(function (require, exports, module) {
             }
             return event && event.propagationStoped;
         },
-        follow: function (conf) {
-            this.__callNative("subscribe", [conf.appid, false]); //TODO: conf.is_silence参数的支持？
+        follow: function (conf, callback) {
+            this.__callNative("subscribe", [conf], callback);
         },
-        unfollow: function (conf) {
-            this.__callNative("unsubscribe", [conf.appid]);
+        unfollow: function (conf, callback) {
+            this.__callNative("unsubscribe", [conf], callback);
         },
-        checkFollow: function (conf) {
-            this.__callNative("querySubscribe", [conf.appid]);
+        checkFollow: function (conf, callback) {
+            this.__callNative("querySubscribe", [conf], callback);
         },
         share: function (conf) {
             this.__callNative("shareApp", [{
