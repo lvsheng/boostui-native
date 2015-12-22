@@ -51,7 +51,7 @@ define(function (require, exports, module) {
             }]);
         },
         IMConsult: function (conf) {
-            this.__callNative("consult", [conf]);
+            this.__callNative("consult", [conf], function () {});
         },
 
         showInputMethod: function () {
