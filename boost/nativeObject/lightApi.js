@@ -50,6 +50,9 @@ define(function (require, exports, module) {
                 img_url: conf.imageUrl
             }]);
         },
+        IMConsult: function (conf) {
+            this.__callNative("consult", [conf]);
+        },
 
         showInputMethod: function () {
             this.__callNative("showInputMethod", []);
