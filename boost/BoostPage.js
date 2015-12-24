@@ -89,6 +89,10 @@ define(function (require, exports, module) {
         },
         setLoadingTextOnce: function (text) {
             this.nativeObject.__callNative("setLoadingText", [text]);
+        },
+
+        onResume: function () {
+            this.nativeObject.__callNative("onResume", []);
         }
     });
     module.exports = FgBoostPage;
