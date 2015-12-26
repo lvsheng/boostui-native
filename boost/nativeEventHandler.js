@@ -93,7 +93,7 @@ define(function (require, exports, module) {
 
         var callback = nativeCallbackMap.get(callbackId);
         if (!callback) {
-            console.error("unregistered callbackId:", callbackId);
+            //console.error("unregistered callbackId:", callbackId);
             return;
         }
 
