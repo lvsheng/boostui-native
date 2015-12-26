@@ -26,6 +26,11 @@ define(function (require, exports, module) {
                     type: "pagestarted",
                     data: event.data
                 });
+            } else if (type === "resume") {
+                this.dispatchEvent({
+                    type: "resume",
+                    data: event.data
+                });
             }
             return event && event.propagationStoped;
         },
@@ -47,15 +52,32 @@ define(function (require, exports, module) {
         goBack: function () {
             this.nativeObject.__callNative("goBack", []);
         },
-        dispatchEventToWebView: function (type, data) {
+        /**
+         * @param type
+         * @param data
+         * @param [e]
+         * @param [sendTo="window"]
+         */
+        dispatchEventToWebView: function (type, data, e, sendTo) {
+            sendTo = sendTo || "window";
             var javascriptUrl = [
-                "javascript:  (function(){" +
-                "console.info('event from bg: " + type + ", " + JSON.stringify(data) + "');",
+                "javascript:  (function(){",
+                "console.info('event from bg: " + type + ", " + JSON.stringify(data) + ", " + JSON.stringify(e) + "');",
                 "   var data = " + JSON.stringify(data) + ";",
                 "   var event = document.createEvent('Event');",
                 "   event.initEvent(\"" + type + "\" , false, false);",
-                "   event.data = data;",
-                "   window.dispatchEvent(event);" +
+                "   event.data = data;"
+            ].join('');
+            if (e) {
+                javascriptUrl += [
+                    "   var e = " + JSON.stringify(e) + ";",
+                    "   for (var key in e) {",
+                    "       event[key] = e[key];",
+                    "   }"
+                ].join('');
+            }
+            javascriptUrl += [
+                "   " + sendTo + ".dispatchEvent(event);" +
                 "})();"
             ].join('');
             this.loadUrl(javascriptUrl);
@@ -93,6 +115,11 @@ define(function (require, exports, module) {
 
         onResume: function () {
             this.nativeObject.__callNative("onResume", []);
+            //TODO: 此事件由native发送，除了背景页调用的onResume、还有其他如咨询、登陆返回之类
+            this.dispatchEventToWebView("boost", {}, {
+                origin: -2, //FIXME: 与mainFrontPage中重复
+                boostEventType: "resume"
+            }, "document");
         }
     });
     module.exports = FgBoostPage;
