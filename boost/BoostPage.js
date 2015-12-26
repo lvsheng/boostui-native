@@ -47,7 +47,7 @@ define(function (require, exports, module) {
         goBack: function () {
             this.nativeObject.__callNative("goBack", []);
         },
-        dispatchWindowEvent: function (type, data) {
+        dispatchEventToWebView: function (type, data) {
             var javascriptUrl = [
                 "javascript:  (function(){" +
                 "console.info('event from bg: " + type + ", " + JSON.stringify(data) + "');",
