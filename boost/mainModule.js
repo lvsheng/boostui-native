@@ -6,5 +6,5 @@ define(function (require, exports, module) {
 
     var tagMap = require("boost/tagMap");
     var mainFrontPage = require("boost/mainFrontPage");
-    tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用
+    tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });

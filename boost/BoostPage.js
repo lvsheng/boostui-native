@@ -115,11 +115,9 @@ define(function (require, exports, module) {
 
         onResume: function () {
             this.nativeObject.__callNative("onResume", []);
-            //TODO: 此事件由native发送，除了背景页调用的onResume、还有其他如咨询、登陆返回之类
-            this.dispatchEventToWebView("boost", {}, {
-                origin: -2, //FIXME: 与mainFrontPage中重复
-                boostEventType: "resume"
-            }, "document");
+
+            //TODO: 此事件应由native发送，除了背景页调用的onResume、还有其他如咨询、登陆返回之类
+            this.dispatchEvent({ type: "resume" });
         }
     });
     module.exports = FgBoostPage;
