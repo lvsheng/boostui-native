@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeObject = require("boost/nativeObject/NativeObject");
+    var nativeVersion = require("boost/nativeVersion");
 
     var OBJ_ID = -7;
     /**
@@ -35,8 +36,12 @@ define(function (require, exports, module) {
         checkFollow: function (conf, callback) {
             this.__callNative("querySubscribe", [conf], callback);
         },
-        share: function (conf) {
-            this.__callNative("shareApp", [{
+        /**
+         * @param conf
+         * @param [callback]
+         */
+        share: function (conf, callback) {
+            var data = {
                 title: conf.title,
                 url: conf.linkUrl,
                 content: conf.content,
@@ -48,7 +53,13 @@ define(function (require, exports, module) {
                 weixin_description: conf.content,
                 thumb_img_url: conf.imageUrl,
                 img_url: conf.imageUrl
-            }]);
+            };
+            if (nativeVersion.get() < 2.3) {
+                this.__callNative("shareApp", [data]);
+            } else {
+                //2.3之后支持了回调
+                this.__callNative("shareApp", [data], callback || function () {});
+            }
         },
         IMConsult: function (conf) {
             this.__callNative("consult", [conf], function () {});
