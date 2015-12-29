@@ -48,6 +48,12 @@ define(function (require, exports, module) {
         setLinkage: function (couple) {
             assert(couple instanceof Couple);
             this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        },
+        __addComposedChildAt: function (child, index) {
+            //TODO:
+        },
+        __removeComposedChildAt: function (index) {
+            //TODO:
         }
     });
     module.exports = ScrollView;
