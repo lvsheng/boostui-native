@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var ScrollView = derive(NativeElement, function () {
@@ -50,10 +51,17 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("setLinkage", [couple.tag]);
         },
         __addComposedChildAt: function (child, index) {
-            //TODO:
+            if (nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "visible"; //scrollView的子元素如果也是overflow:hidden，滚动时会卡
+            }
+            NativeElement.prototype.__addComposedChildAt.call(this, child, index);
         },
         __removeComposedChildAt: function (index) {
-            //TODO:
+            var child = this.__composedChildren__[index];
+            if (child && nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "hidden"; //恢复__addComposedChildAt中所改的值
+            }
+            NativeElement.prototype.__removeComposedChildAt.call(this, index);
         }
     });
     module.exports = ScrollView;
