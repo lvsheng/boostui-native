@@ -95,28 +95,10 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("showExitButton", [show]);
         },
 
-        //loading相关
-        //FIXME: 背景页有可能调用到（只不过目前没有前景页给背景页发命令触发调用场景），但native有此方法的代码已回退，后续看是否需要恢复，若不需要，删除此处方法
-        handleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [true]);
-        },
-        cancelHandleLoading: function () {
-            this.__invokeOnBridge("handleLoading", [false]);
-        },
-        showLoading: function (text) {
-            this.__invokeOnBridge("showLoading", [text || "正在加载..."]);
-        },
-        hideLoading: function () {
-            this.__invokeOnBridge("hideLoading", []);
-        },
-        setLoadingTextOnce: function (text) {
-            this.nativeObject.__callNative("setLoadingText", [text]);
-        },
-
         onResume: function () {
+            //1. 通知native
             this.nativeObject.__callNative("onResume", []);
-
-            //TODO: 此事件应由native发送，除了背景页调用的onResume、还有其他如咨询、登陆返回之类
+            //2. 派发事件（供背景页中更新右上角菜单、通知前景页以刷新前景页服务导航）
             this.dispatchEvent({ type: "resume" });
         }
     });
