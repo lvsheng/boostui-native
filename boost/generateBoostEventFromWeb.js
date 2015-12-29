@@ -5,7 +5,16 @@ define(function (require, exports, module) {
 
     module.exports = function generateBoostEventFromWeb(e) {
         //console.log("generateBoostEventFromWeb", e);
-        var originId = e.target.__boost_origin__;
+        var target = e.target;
+        //touchend时e.target仍为touchstart的元素，故单独查找
+        if (e.type === "touchend") {
+            target = document.elementFromPoint(
+                e.changedTouches[0].pageX,
+                e.changedTouches[0].pageY
+            );
+        }
+
+        var originId = target.__boost_origin__;
         if (!originId) {
             return;
         }
@@ -23,7 +32,6 @@ define(function (require, exports, module) {
                 };
                 break;
             case "scroll":
-                //FIXME: 太卡了，控制一下频率。。
                 var tagName = tagMap.get(event.origin).__nativeElement__.tagName.toLowerCase();
                 assert(tagName === "scrollview" || tagName === "viewpager");
                 event.data = {
