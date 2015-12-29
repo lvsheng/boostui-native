@@ -94,7 +94,7 @@ define(function(require, exports, module) {
             var event;
             switch (type) {
                 case "touchstart":
-                case "touchend":
+                case "touchend": //FIXME: 注：与web不同：touchend时的target为touchend时手指所在的元素而非touchstart时的元素
                 case "click":
                     event = new TouchEvent(this, type, e.data.x, e.data.y);
                     this.dispatchEvent(event);
