@@ -78,6 +78,14 @@ require([
             } else {
                 backgroundPage.postMessage("openPage", href);
             }
+        },
+        showLoading: function () {
+            bridge.handleLoading();
+            bridge.showLoading();
+        },
+        hideLoading: function () {
+            bridge.hideLoading();
+            bridge.cancelHandleLoading(); //为保证安全，每次hide都交还控制权
         }
     });
     var exportBoost = new Boost();
@@ -89,6 +97,7 @@ require([
     exportsMethod("querySelectorAll", boost);
     exportsMethod("dispatchEvent", boost);
     exportsMethod("setDocumentElementLayerZIndex", boost);
+    exportsMethod("flush", bridge);
 
     window.boost = exportBoost;
 
