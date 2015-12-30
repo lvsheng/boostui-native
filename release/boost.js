@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Dec 30 2015 16:34:28 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed Dec 30 2015 19:59:31 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -3977,6 +3977,7 @@ define("boost/fontSetter",function(require, exports, module) {
     var each = require("base/each");
     var assert = require("base/assert");
     var FontNativeObject = require("boost/nativeObject/Font");
+    var nativeVersion = require("boost/nativeVersion");
 
     //TODO: 是否有默认已加载的font？
     var createdFont = {}; //key为fontName 值为FontNativeObject
@@ -3985,6 +3986,10 @@ define("boost/fontSetter",function(require, exports, module) {
     //TODO: 单独抽离出一个font对应的NativeObject，将现有的NativeObject分离出基类与ElementNativeObject
     module.exports = {
         setFont: function (nativeObject, fontName) {
+            if (nativeVersion.shouldUseWeb()) { //web下不需操作
+                return;
+            }
+
             if (createdFont[fontName]) { //load过的，直接应用即可
                 nativeObject.updateView("font", createdFont[fontName].tag);
                 delete fontToApply[nativeObject.tag]; //之前待load的字体已失效
@@ -3993,8 +3998,15 @@ define("boost/fontSetter",function(require, exports, module) {
             }
         },
         createFont: function (fontName, src) {
+            if (nativeVersion.shouldUseWeb()) {
+                var style = document.createElement("style");
+                style.innerText = '@font-face { font-family: ' + fontName + '; src: url("' + src + '"); }';
+                document.head.appendChild(style);
+                return;
+            }
+
             if (createdFont[fontName] && createdFont[fontName].src !== src) {
-                console.warn("正常尝试对同一个fontFamily从两个url加载字体，不予生效！");
+                console.warn("正在尝试对同一个fontFamily从两个url加载字体，不予生效！");
                 return;
             }
             if (createdFont[fontName]) {
@@ -4156,7 +4168,7 @@ define("boost/mainModule",function(require, exports, module) {
     tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });
 define("boost/methodMap",function(require, exports, module) {
-    var inDebug = true;
+    var inDebug = false;
 
     var map = {
         add: 20,

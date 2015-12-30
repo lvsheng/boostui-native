@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var each = require("base/each");
     var assert = require("base/assert");
     var FontNativeObject = require("boost/nativeObject/Font");
+    var nativeVersion = require("boost/nativeVersion");
 
     //TODO: 是否有默认已加载的font？
     var createdFont = {}; //key为fontName 值为FontNativeObject
@@ -14,6 +15,10 @@ define(function (require, exports, module) {
     //TODO: 单独抽离出一个font对应的NativeObject，将现有的NativeObject分离出基类与ElementNativeObject
     module.exports = {
         setFont: function (nativeObject, fontName) {
+            if (nativeVersion.shouldUseWeb()) { //web下不需操作
+                return;
+            }
+
             if (createdFont[fontName]) { //load过的，直接应用即可
                 nativeObject.updateView("font", createdFont[fontName].tag);
                 delete fontToApply[nativeObject.tag]; //之前待load的字体已失效
@@ -22,8 +27,15 @@ define(function (require, exports, module) {
             }
         },
         createFont: function (fontName, src) {
+            if (nativeVersion.shouldUseWeb()) {
+                var style = document.createElement("style");
+                style.innerText = '@font-face { font-family: ' + fontName + '; src: url("' + src + '"); }';
+                document.head.appendChild(style);
+                return;
+            }
+
             if (createdFont[fontName] && createdFont[fontName].src !== src) {
-                console.warn("正常尝试对同一个fontFamily从两个url加载字体，不予生效！");
+                console.warn("正在尝试对同一个fontFamily从两个url加载字体，不予生效！");
                 return;
             }
             if (createdFont[fontName]) {
