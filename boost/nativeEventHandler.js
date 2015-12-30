@@ -114,8 +114,8 @@ define(function (require, exports, module) {
     // 页面加载时，先尝试删除所有 NativeView
     //bridge.destroyAll(); //因为服务导航与票务页面都加载js，如果后加载的一个destroyAll，会影响前一个页面的内容
 
-    document.body.addEventListener("touchstart", generateBoostEventFromWeb);
-    document.body.addEventListener("touchend", generateBoostEventFromWeb);
+    document.addEventListener("touchstart", generateBoostEventFromWeb);
+    document.addEventListener("touchend", generateBoostEventFromWeb);
 
     /**
      * 判断ancestor是否在descendant的祖先元素中
