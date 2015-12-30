@@ -11,7 +11,7 @@ var BOOST_DEPENDENCY = [
     "bridge.js"
 ];
 var OUT_PUT = {
-    boost: "/Users/lvsheng/work/clouda/golf/lib/boost.js"
+    boost: "release/boost.js"
 };
 
 //require
