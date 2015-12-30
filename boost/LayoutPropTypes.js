@@ -60,6 +60,8 @@ define(function (require, exports, module) {
         "translationX": [px, 0],
         "translationY": [px, 0],
 
+        //"display": [_enum("block", "none"), "block"],
+
         //TODO: 改为transform
         "scaleX": [number, 1],
         "scaleY": [number, 1],
