@@ -147,6 +147,9 @@ require([
             '    margin: 0;' +
             '    padding: 0;' +
             '    overflow: hidden;' +
+            '}' +
+            'input {' +
+            '    border: none;' +
             '}';
         document.head.appendChild(styleEl);
     }

@@ -84,6 +84,10 @@ define(function (require, exports, module) {
             this.__update("numberOfLines", validator.number(value));
         },
         "set placeholder": function (value) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.placeholder = value;
+            }
+
             this.__update("placeholder", validator.string(value));
         },
         "get placeholder": function (value) {
