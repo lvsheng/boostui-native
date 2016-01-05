@@ -44,6 +44,10 @@ define(function (require, exports, module) {
             return el;
         },
         scrollTo: function (location) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.nativeObject.__webElement__.scrollTop = location;
+                return;
+            }
             this.nativeObject.__callNative("scrollTo", [location]);
         },
         setLinkage: function (couple) {
