@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Dec 30 2015 19:59:31 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Jan 05 2016 14:57:11 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -6183,6 +6183,7 @@ console.timeEnd("define.boost");
 console.log("boost/main.js loaded");
 console.time("boost.main");
 require([
+    "base/assert",
     "base/derive",
     "base/each",
     "boost/nativeEventHandler",
@@ -6206,7 +6207,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage,
+    assert, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage,
 
     View,
     Element,
@@ -6248,15 +6249,35 @@ require([
     });
 
     var Boost = derive(Object, {
+        //base
+        assert: assert,
+        each: each,
+
+        $: $,
+
         "get documentElement": function () {
             return boost.documentElement;
         },
-        $: $,
         openNewPage: function (href) {
+            function completeHref (inValue) {
+                if (/^https?:\/\//.test(inValue)) {
+                    return inValue;
+                }
+
+                if (inValue[0] === "/") {
+                    return location.origin + inValue;
+                }
+
+                var h = location.href;
+                return h.slice(0, h.lastIndexOf("/")) + "/" + inValue.slice(1);
+            }
+
+            var url = completeHref(href);
+
             if (nativeVersion.shouldUseWeb()) {
-                window.open(href);
+                window.open(url);
             } else {
-                backgroundPage.postMessage("openPage", href);
+                backgroundPage.postMessage("openPage", url);
             }
         },
         showLoading: function () {
