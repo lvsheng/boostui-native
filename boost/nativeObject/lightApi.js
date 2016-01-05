@@ -75,7 +75,14 @@ define(function (require, exports, module) {
             this.__callNative("getNativeLayerSize", [], callback);
         },
         getLocatedCity: function (callback) {
-            this.__callNative("getLocationCityName", [], callback);
+            if (nativeVersion.shouldUseWeb()) {
+                callback({
+                    state: "fail",
+                    info: "not in o2o"
+                });
+            } else {
+                this.__callNative("getLocationCityName", [], callback);
+            }
         }
     });
 

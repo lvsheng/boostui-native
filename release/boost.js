@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Jan 05 2016 14:57:11 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Jan 05 2016 18:28:53 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -526,10 +526,12 @@ define("base/type",function(require, exports, module) {
     module.exports = type;
 
 });
+//FIXME: 将$.js作为单独文件暴露
 define("boost/$",function(require, exports, module) {
     "use strict";
 
     var type = require("base/type");
+    var trim = require("base/trim");
     var assert = require("base/assert");
     var derive = require("base/derive");
     var isFunction = require("base/isFunction");
@@ -537,6 +539,7 @@ define("boost/$",function(require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var Event = require("boost/Event");
     var styleRender = require("boost/styleRender");
+    var xml = require("boost/xml");
 
     var emptyArray = [],
         noop = function () {},
@@ -578,9 +581,16 @@ define("boost/$",function(require, exports, module) {
         if (!selector) {
             dom = [];
         } else if (typeof selector == 'string') {
-            // FIXME 不支持传HTML
-            context = context || boost;
-            dom = context.querySelectorAll(selector);
+            selector = trim(selector);
+            var isHtml = selector[0] === "<";
+            if (isHtml) {
+                //html
+                return $(xml.parseNodes(selector));
+            } else {
+                //选择器
+                context = context || boost;
+                dom = context.querySelectorAll(selector);
+            }
         } else if (selector instanceof $) {
             return selector;
         } else if (likeArray(selector)) {
@@ -3276,6 +3286,10 @@ define("boost/TextInput",function(require, exports, module) {
             this.__update("numberOfLines", validator.number(value));
         },
         "set placeholder": function (value) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.placeholder = value;
+            }
+
             this.__update("placeholder", validator.string(value));
         },
         "get placeholder": function (value) {
@@ -4978,7 +4992,14 @@ define("boost/nativeObject/lightApi",function(require, exports, module) {
             this.__callNative("getNativeLayerSize", [], callback);
         },
         getLocatedCity: function (callback) {
-            this.__callNative("getLocationCityName", [], callback);
+            if (nativeVersion.shouldUseWeb()) {
+                callback({
+                    state: "fail",
+                    info: "not in o2o"
+                });
+            } else {
+                this.__callNative("getLocationCityName", [], callback);
+            }
         }
     });
 
@@ -6184,6 +6205,7 @@ console.log("boost/main.js loaded");
 console.time("boost.main");
 require([
     "base/assert",
+    "base/type",
     "base/derive",
     "base/each",
     "boost/nativeEventHandler",
@@ -6192,6 +6214,7 @@ require([
     "boost/nativeVersion",
     "boost/$",
     "boost/nativeObject/backgroundPage",
+    "boost/nativeObject/lightApi",
 
     "boost/View",
     "boost/Element",
@@ -6207,7 +6230,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    assert, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage,
+    assert, type, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
 
     View,
     Element,
@@ -6252,6 +6275,7 @@ require([
         //base
         assert: assert,
         each: each,
+        type: type,
 
         $: $,
 
@@ -6299,6 +6323,7 @@ require([
     exportsMethod("dispatchEvent", boost);
     exportsMethod("setDocumentElementLayerZIndex", boost);
     exportsMethod("flush", bridge);
+    exportsMethod("getLocatedCity", lightApi);
 
     window.boost = exportBoost;
 
@@ -6327,6 +6352,9 @@ require([
             '    margin: 0;' +
             '    padding: 0;' +
             '    overflow: hidden;' +
+            '}' +
+            'input {' +
+            '    border: none;' +
             '}';
         document.head.appendChild(styleEl);
     }

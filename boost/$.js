@@ -1,7 +1,9 @@
+//FIXME: 将$.js作为单独文件暴露
 define(function (require, exports, module) {
     "use strict";
 
     var type = require("base/type");
+    var trim = require("base/trim");
     var assert = require("base/assert");
     var derive = require("base/derive");
     var isFunction = require("base/isFunction");
@@ -9,6 +11,7 @@ define(function (require, exports, module) {
     var copyProperties = require("base/copyProperties");
     var Event = require("boost/Event");
     var styleRender = require("boost/styleRender");
+    var xml = require("boost/xml");
 
     var emptyArray = [],
         noop = function () {},
@@ -50,9 +53,16 @@ define(function (require, exports, module) {
         if (!selector) {
             dom = [];
         } else if (typeof selector == 'string') {
-            // FIXME 不支持传HTML
-            context = context || boost;
-            dom = context.querySelectorAll(selector);
+            selector = trim(selector);
+            var isHtml = selector[0] === "<";
+            if (isHtml) {
+                //html
+                return $(xml.parseNodes(selector));
+            } else {
+                //选择器
+                context = context || boost;
+                dom = context.querySelectorAll(selector);
+            }
         } else if (selector instanceof $) {
             return selector;
         } else if (likeArray(selector)) {

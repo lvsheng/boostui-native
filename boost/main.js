@@ -4,6 +4,7 @@ console.log("boost/main.js loaded");
 console.time("boost.main");
 require([
     "base/assert",
+    "base/type",
     "base/derive",
     "base/each",
     "boost/nativeEventHandler",
@@ -12,6 +13,7 @@ require([
     "boost/nativeVersion",
     "boost/$",
     "boost/nativeObject/backgroundPage",
+    "boost/nativeObject/lightApi",
 
     "boost/View",
     "boost/Element",
@@ -27,7 +29,7 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    assert, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage,
+    assert, type, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
 
     View,
     Element,
@@ -72,6 +74,7 @@ require([
         //base
         assert: assert,
         each: each,
+        type: type,
 
         $: $,
 
@@ -119,6 +122,7 @@ require([
     exportsMethod("dispatchEvent", boost);
     exportsMethod("setDocumentElementLayerZIndex", boost);
     exportsMethod("flush", bridge);
+    exportsMethod("getLocatedCity", lightApi);
 
     window.boost = exportBoost;
 
