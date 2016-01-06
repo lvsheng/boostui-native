@@ -730,7 +730,11 @@ define(function (require, exports, module) {
        */
         setAttribute: function (name, value) {
             if (typeof value !== "string") {
-                value = value.toString();
+                if (value === undefined || value === null) {
+                    value = "";
+                } else {
+                    value = value.toString();
+                }
             }
 
             switch (name.toLowerCase()) {
