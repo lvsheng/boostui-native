@@ -162,6 +162,13 @@ require([
             '}' +
             'input {' +
             '    border: none;' +
+            '    outline: -webkit-focus-ring-color auto 0px;' +
+            '}' +
+            'input[type="search"]::-webkit-search-decoration,' +
+            'input[type="search"]::-webkit-search-cancel-button,' +
+            'input[type="search"]::-webkit-search-results-button,' +
+            'input[type="search"]::-webkit-search-results-decoration { ' +
+            '    display: none;' +
             '}';
         document.head.appendChild(styleEl);
     }
