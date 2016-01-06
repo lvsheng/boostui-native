@@ -16,6 +16,10 @@ define(function (require, exports, module) {
             var el = document.createElement("div");
             el.id = "BOOST_ROOT_VIEW_" + info.objId;
             el.style.height = "100%";
+            el.style.width = "100%";
+            el.style.position = "absolute";
+            el.style.top = "0";
+            el.style.left = "0";
             return el;
         }
     });

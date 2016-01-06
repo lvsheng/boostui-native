@@ -47,7 +47,8 @@ define(function (require, exports, module) {
             var rootView = this.createElement("RootView");
 
             if (nativeVersion.shouldUseWeb()) {
-                document.body.appendChild(rootView.nativeObject.__webElement__);
+                document.body.appendChild(rootView.__native__.__webElement__);
+                rootView.__native__.__webElement__.style.zIndex = zIndex;
             } else {
                 bridge.addLayer(rootView.tag, zIndex);
             }
@@ -55,7 +56,11 @@ define(function (require, exports, module) {
             return rootView;
         },
         removeLayer: function (layer) {
-            bridge.removeLayer(layer.tag);
+            if (nativeVersion.shouldUseWeb()) {
+                document.body.removeChild(layer.nativeObject.__webElement__);
+            } else {
+                bridge.removeLayer(layer.tag);
+            }
             layer.destroy();
         }
     };
