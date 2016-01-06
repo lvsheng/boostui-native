@@ -250,6 +250,11 @@ define(function (require, exports, module) {
             return this.each(function (idx, element) {
                 element.focus && element.focus();
             });
+        },
+        blur: function () {
+            return this.each(function (idx, element) {
+                element.blur && element.blur();
+            });
         }
     };
 

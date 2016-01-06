@@ -123,6 +123,9 @@ define(function (require, exports, module) {
             this.__update("placeholderTextColor", validator.color(value));
         },
         blur: function () {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.blur();
+            }
             this.__native__.__callNative("blur", []);
         },
         focus: function () {
