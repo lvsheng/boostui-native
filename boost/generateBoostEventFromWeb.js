@@ -40,7 +40,8 @@ define(function (require, exports, module) {
                 assert(tagName === "scrollview" || tagName === "viewpager");
                 event.data = {
                     scrollLeft: this.scrollLeft,
-                    scrollTop: this.scrollTop
+                    scrollTop: this.scrollTop,
+                    scrollpercent: this.scrollTop / this.scrollHeight //这里与native保持一致 TODO: native也支持水平的scrollPercent
                 };
                 break;
             case "change": //认为是input的change事件

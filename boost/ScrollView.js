@@ -21,7 +21,11 @@ define(function (require, exports, module) {
             switch (type) {
                 case "scroll":
                     var event = new Event(this, "scroll");
-                    event.data = e.data;
+                    event.data = {
+                        scrollLeft: e.data.scrollLeft,
+                        scrollTop: e.data.scrollTop,
+                        scrollTopPercent: e.data.scrollpercent
+                    };
                     event.stopPropagation();
                     this.dispatchEvent(event);
                     break;
