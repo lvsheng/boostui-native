@@ -126,6 +126,9 @@ define(function (require, exports, module) {
             this.__native__.__callNative("blur", []);
         },
         focus: function () {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.focus();
+            }
             this.__native__.__callNative("focus", []);
         },
 
@@ -135,13 +138,25 @@ define(function (require, exports, module) {
             input.addEventListener("focus", generateBoostEventFromWeb);
             input.addEventListener("blur", generateBoostEventFromWeb);
             input.addEventListener("change", generateBoostEventFromWeb);
+            input.addEventListener("input", detectChange);
+            input.addEventListener("keyup", detectChange);
+            //input.addEventListener("propertychange", detectChange);
+            //input.addEventListener("change", detectChange);
+            //input.addEventListener("click", detectChange);
+            //input.addEventListener("paste", detectChange);
             input.addEventListener("keyup", function (e) {
                 if (e.keyCode === 13) {
                     generateBoostEventFromWeb(e, "submit");
-                } else {
-                    generateBoostEventFromWeb(e, "change");
                 }
             });
+
+            function detectChange (e) {
+                var el = e.target;
+                if (el.getAttribute("data-oldValue") !== el.value) {
+                    el.setAttribute("data-oldValue", el.value);
+                    generateBoostEventFromWeb(e, "change");
+                }
+            }
 
             return input;
         }

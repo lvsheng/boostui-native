@@ -244,6 +244,12 @@ define(function (require, exports, module) {
             } else {
                 return this[0].innerHTML;
             }
+        },
+
+        focus: function () {
+            return this.each(function (idx, element) {
+                element.focus && element.focus();
+            });
         }
     };
 
