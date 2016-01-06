@@ -3,7 +3,11 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var BOOST_EVENT_TYPE = "boost";
 
-    module.exports = function generateBoostEventFromWeb(e) {
+    /**
+     * @param e
+     * @param [type] {string} 默认取e.type
+     */
+    module.exports = function generateBoostEventFromWeb(e, type) {
         //console.log("generateBoostEventFromWeb", e);
         var target = e.target;
         //touchend时e.target仍为touchstart的元素，故单独查找
@@ -21,7 +25,7 @@ define(function (require, exports, module) {
 
         var event = document.createEvent('Event');
         event.initEvent(BOOST_EVENT_TYPE, false, false);
-        event.boostEventType = e.type;
+        event.boostEventType = type || e.type;
         event.origin = originId;
         switch (event.boostEventType) {
             case "touchstart":
@@ -37,6 +41,11 @@ define(function (require, exports, module) {
                 event.data = {
                     scrollLeft: this.scrollLeft,
                     scrollTop: this.scrollTop
+                };
+                break;
+            case "change": //认为是input的change事件
+                event.data = {
+                    text: target.value
                 };
                 break;
         }

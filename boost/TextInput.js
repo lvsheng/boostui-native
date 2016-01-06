@@ -11,6 +11,7 @@ define(function (require, exports, module) {
     var FocusEvent = require("boost/FocusEvent");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
+    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
@@ -34,8 +35,9 @@ define(function (require, exports, module) {
                     event = new Event(this, "change");
                     this.dispatchEvent(event);
                     break;
+                case "submit":
                 case "search":
-                    event = new Event(this, "search");
+                    event = new Event(this, "submit");
                     this.dispatchEvent(event);
                     break;
                 default:
@@ -71,14 +73,38 @@ define(function (require, exports, module) {
         "set multiline": function (value) {
             this.__update("multiline", validator.boolean(value));
         },
-        "get password": function () {
-            return this.__config__.password || false;
+        "set type": function (value) {
+            this.__config__.type = value;
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.type = value;
+                return;
+            }
+
+            switch (value) {
+                case "text":
+                    this.__update("keyboardType", validator.string("text"));
+                    break;
+                case "search":
+                    this.__update("keyboardType", validator.string("web-search"));
+                    break;
+                case "number":
+                    this.__update("keyboardType", validator.string("numeric"));
+                    break;
+                case "email":
+                    this.__update("keyboardType", validator.string("email-address"));
+                    break;
+                case "url":
+                    this.__update("keyboardType", validator.string("url"));
+                    break;
+
+                case "password":
+                    this.__update("password", validator.boolean(value));
+                    break;
+            }
         },
-        "set password": function (value) {
-            this.__update("password", validator.boolean(value));
-        },
-        "set keyboardType": function (value) {
-            this.__update("keyboardType", validator.string(value));
+        "get type": function () {
+            return this.__config__.type;
         },
         "set numberOfLines": function (value) {
             this.__update("numberOfLines", validator.number(value));
@@ -105,7 +131,18 @@ define(function (require, exports, module) {
 
         __createWebElement: function () {
             var input = document.createElement("input");
-            input.type = "text";
+
+            input.addEventListener("focus", generateBoostEventFromWeb);
+            input.addEventListener("blur", generateBoostEventFromWeb);
+            input.addEventListener("change", generateBoostEventFromWeb);
+            input.addEventListener("keyup", function (e) {
+                if (e.keyCode === 13) {
+                    generateBoostEventFromWeb(e, "submit");
+                } else {
+                    generateBoostEventFromWeb(e, "change");
+                }
+            });
+
             return input;
         }
     });

@@ -7,6 +7,8 @@ require([
     "base/type",
     "base/derive",
     "base/each",
+    "base/copyProperties",
+
     "boost/nativeEventHandler",
     "boost/bridge",
     "boost/boost",
@@ -29,7 +31,8 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    assert, type, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
+    assert, type, derive, each, copyProperties,
+    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
 
     View,
     Element,
@@ -75,6 +78,7 @@ require([
         assert: assert,
         each: each,
         type: type,
+        copyProperties: copyProperties,
 
         $: $,
 
@@ -115,6 +119,8 @@ require([
     var exportBoost = new Boost();
     exportsMethod("createElement", boost);
     exportsMethod("getElementById", boost);
+    exportsMethod("addLayer", boost);
+    exportsMethod("removeLayer", boost);
     exportsMethod("getElementsByClassName", boost);
     exportsMethod("getElementsByTagName", boost);
     exportsMethod("querySelector", boost);
@@ -123,6 +129,8 @@ require([
     exportsMethod("setDocumentElementLayerZIndex", boost);
     exportsMethod("flush", bridge);
     exportsMethod("getLocatedCity", lightApi);
+    exportsMethod("showInputMethod", lightApi);
+    exportsMethod("hideInputMethod", lightApi);
 
     window.boost = exportBoost;
 
