@@ -18,6 +18,7 @@ define(function (require, exports, module) {
     var TextInput = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "TextInput");
         NativeElement.call(this, TYPE_ID.TEXT_INPUT, "TextInput");
+        this.multiline = "false"; //FIXME: 由native设置默认值
     }, {
         __getStyle: function () {
             return new TextStyle();
