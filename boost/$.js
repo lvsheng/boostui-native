@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var type = require("base/type");
     var trim = require("base/trim");
     var assert = require("base/assert");
+    var each = require("base/each");
     var derive = require("base/derive");
     var isFunction = require("base/isFunction");
     var boost = require("boost/boost");
@@ -48,14 +49,17 @@ define(function (require, exports, module) {
         });
     }
 
+    function isHtmlString (value) {
+        return type(value) === "string" && value[0] === "<";
+    }
+
     function $(selector, context) {
         var dom;
         if (!selector) {
             dom = [];
         } else if (typeof selector == 'string') {
             selector = trim(selector);
-            var isHtml = selector[0] === "<";
-            if (isHtml) {
+            if (isHtmlString(selector)) {
                 //html
                 return $(xml.parseNodes(selector));
             } else {
@@ -255,6 +259,33 @@ define(function (require, exports, module) {
             return this.each(function (idx, element) {
                 element.blur && element.blur();
             });
+        },
+
+        append: function (content) {
+            if (!this.size()) {
+                return this;
+            }
+            if (isHtmlString(content)) {
+                this.append($(content));
+                return this;
+            }
+
+            var element = this.get(0);
+            if (likeArray(content)) {
+                each(content, function (item) {
+                    element.appendChild(item);
+                });
+            } else {
+                //TODO: assert(content is Element)
+                element.appendChild(content);
+            }
+
+            return this;
+        },
+
+        appendTo: function (target) {
+            $(target).append(this);
+            return this;
         }
     };
 

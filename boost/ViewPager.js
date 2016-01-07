@@ -55,7 +55,25 @@ define(function (require, exports, module) {
          * @param [smooth] {boolean}
          */
         setCurrentItem: function (index, smooth) {
-            this.nativeObject.__callNative("setCurrentItem", [index, smooth || false]);
+            this.__config__.currentItem = index;
+            this.nativeObject.__callNative("", [index, smooth || true]);
+        },
+
+        __createWebElement: function (info) {
+            return document.createElement("div");
+        },
+        __addComposedChildAt: function (child, index) {
+            if (nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "visible"; //scrollView的子元素如果也是overflow:hidden，滚动时会卡
+            }
+            NativeElement.prototype.__addComposedChildAt.call(this, child, index);
+        },
+        __removeComposedChildAt: function (index) {
+            var child = this.__composedChildren__[index];
+            if (child && nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "hidden"; //恢复__addComposedChildAt中所改的值
+            }
+            NativeElement.prototype.__removeComposedChildAt.call(this, index);
         }
     });
     module.exports = ViewPager;

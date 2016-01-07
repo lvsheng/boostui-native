@@ -457,12 +457,14 @@ define(function (require, exports, module) {
             }
             this.__composedChildren__.splice(index, 0, child);
             child.__composedParent__ = this;
+            styleRender.apply(child);
         },
         __removeComposedChild: function (child) {
             var index = this.__composedChildren__.indexOf(child);
             if (index > -1) {
                 this.__removeComposedChildAt(index);
             }
+            styleRender.apply(child);
         },
         __removeComposedChildAt: function (index) {
             var child = this.__composedChildren__[index];

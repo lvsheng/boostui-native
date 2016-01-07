@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,initial-scale=1">
+    <title>hello, boost</title>
+    <script src="../release/boost.js"></script>
+</head>
+<body>
+
+<template id="main">
+    <style>
+        @font-face {
+            font-family: 'my-icon';
+            src: url("http://openapi.baidu.com/libs/o2o/ticket/ticket_1.ttf");
+        }
+        .hello {
+            font-size: 20px;
+            margin: 10px;
+        }
+        .container {
+            padding: 10px;
+        }
+        .input-container {
+            border-radius: 4px;
+            border-width: 1px;
+            border-color: #ccc;
+            height: 30px;
+            justify-content: center;
+        }
+        .item {
+            flex-direction: row;
+            margin-top: 5px;
+        }
+        .item .icon {
+            font-family: 'my-icon';
+            font-size: 19px;
+            color: #A2A2A2;
+            margin-right: 6px;
+        }
+    </style>
+    <text class="hello">hello, boost</text>
+    <scrollview>
+        <view class="container j-container">
+            <view class="input-container">
+                <textinput class="j-input" placeholder="搜点什么吧" type="search"></textinput>
+            </view>
+        </view>
+    </scrollview>
+</template>
+
+<template id="item">
+    <view class="item">
+        <text class="icon">&#xe606;</text>
+        <text class="j-content"></text>
+    </view>
+</template>
+
+<script>
+    //渲染内容
+    boost.documentElement.innerHTML = document.getElementById("main").innerHTML;
+
+    var $ = boost.$;
+    //监听事件
+    $(".j-input").on("submit", function () {
+        var $this = $(this);
+        var $newItem = $(document.getElementById("item").innerHTML);
+        $newItem.find(".j-content").val($this.val());
+        $newItem.appendTo(".j-container");
+        $this.val('');
+    });
+</script>
+
+</body>
+</html>

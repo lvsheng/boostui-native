@@ -147,7 +147,7 @@ require([
             '    height: 100%;' +
             '    overflow: hidden;' +
             '}' +
-            'div {' +
+            'div, input {' +
             '    box-sizing: border-box;' +
             '    position: relative;' +
             '    display: flex;' +
