@@ -43,5 +43,5 @@
 >体验方式：在android版百度地图中，打开“附近”->“看演出” 就是啦
 
 ## 开始使用！
-* [3分钟搞定hello, world](http://agroup.baidu.com/boost-native/md/article/35231)
-* [接口文档](http://agroup.baidu.com/boost-native/md/article/34825)
+* [3分钟搞定hello, world](hello-world)
+* [接口文档](api)
