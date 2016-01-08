@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Jan 05 2016 18:28:53 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atFri Jan 08 2016 11:07:39 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -533,6 +533,7 @@ define("boost/$",function(require, exports, module) {
     var type = require("base/type");
     var trim = require("base/trim");
     var assert = require("base/assert");
+    var each = require("base/each");
     var derive = require("base/derive");
     var isFunction = require("base/isFunction");
     var boost = require("boost/boost");
@@ -576,14 +577,17 @@ define("boost/$",function(require, exports, module) {
         });
     }
 
+    function isHtmlString (value) {
+        return type(value) === "string" && value[0] === "<";
+    }
+
     function $(selector, context) {
         var dom;
         if (!selector) {
             dom = [];
         } else if (typeof selector == 'string') {
             selector = trim(selector);
-            var isHtml = selector[0] === "<";
-            if (isHtml) {
+            if (isHtmlString(selector)) {
                 //html
                 return $(xml.parseNodes(selector));
             } else {
@@ -772,6 +776,44 @@ define("boost/$",function(require, exports, module) {
             } else {
                 return this[0].innerHTML;
             }
+        },
+
+        focus: function () {
+            return this.each(function (idx, element) {
+                element.focus && element.focus();
+            });
+        },
+        blur: function () {
+            return this.each(function (idx, element) {
+                element.blur && element.blur();
+            });
+        },
+
+        append: function (content) {
+            if (!this.size()) {
+                return this;
+            }
+            if (isHtmlString(content)) {
+                this.append($(content));
+                return this;
+            }
+
+            var element = this.get(0);
+            if (likeArray(content)) {
+                each(content, function (item) {
+                    element.appendChild(item);
+                });
+            } else {
+                //TODO: assert(content is Element)
+                element.appendChild(content);
+            }
+
+            return this;
+        },
+
+        appendTo: function (target) {
+            $(target).append(this);
+            return this;
         }
     };
 
@@ -1606,12 +1648,14 @@ define("boost/Element",function(require, exports, module) {
             }
             this.__composedChildren__.splice(index, 0, child);
             child.__composedParent__ = this;
+            styleRender.apply(child);
         },
         __removeComposedChild: function (child) {
             var index = this.__composedChildren__.indexOf(child);
             if (index > -1) {
                 this.__removeComposedChildAt(index);
             }
+            styleRender.apply(child);
         },
         __removeComposedChildAt: function (index) {
             var child = this.__composedChildren__[index];
@@ -1879,7 +1923,11 @@ define("boost/Element",function(require, exports, module) {
        */
         setAttribute: function (name, value) {
             if (typeof value !== "string") {
-                value = value.toString();
+                if (value === undefined || value === null) {
+                    value = "";
+                } else {
+                    value = value.toString();
+                }
             }
 
             switch (name.toLowerCase()) {
@@ -2647,6 +2695,10 @@ define("boost/RootView",function(require, exports, module) {
             var el = document.createElement("div");
             el.id = "BOOST_ROOT_VIEW_" + info.objId;
             el.style.height = "100%";
+            el.style.width = "100%";
+            el.style.position = "absolute";
+            el.style.top = "0";
+            el.style.left = "0";
             return el;
         }
     });
@@ -2675,7 +2727,11 @@ define("boost/ScrollView",function(require, exports, module) {
             switch (type) {
                 case "scroll":
                     var event = new Event(this, "scroll");
-                    event.data = e.data;
+                    event.data = {
+                        scrollLeft: e.data.scrollLeft,
+                        scrollTop: e.data.scrollTop,
+                        scrollTopPercent: e.data.scrollpercent
+                    };
                     event.stopPropagation();
                     this.dispatchEvent(event);
                     break;
@@ -2698,6 +2754,10 @@ define("boost/ScrollView",function(require, exports, module) {
             return el;
         },
         scrollTo: function (location) {
+            if (nativeVersion.shouldUseWeb()) {
+                this.nativeObject.__webElement__.scrollTop = location;
+                return;
+            }
             this.nativeObject.__callNative("scrollTo", [location]);
         },
         setLinkage: function (couple) {
@@ -3213,12 +3273,14 @@ define("boost/TextInput",function(require, exports, module) {
     var FocusEvent = require("boost/FocusEvent");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
+    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
     var TextInput = derive(NativeElement, function () {
         //this._super(NATIVE_VIEW_TYPE, "TextInput");
         NativeElement.call(this, TYPE_ID.TEXT_INPUT, "TextInput");
+        this.multiline = "false"; //FIXME: 由native设置默认值
     }, {
         __getStyle: function () {
             return new TextStyle();
@@ -3236,8 +3298,9 @@ define("boost/TextInput",function(require, exports, module) {
                     event = new Event(this, "change");
                     this.dispatchEvent(event);
                     break;
+                case "submit":
                 case "search":
-                    event = new Event(this, "search");
+                    event = new Event(this, "submit");
                     this.dispatchEvent(event);
                     break;
                 default:
@@ -3273,14 +3336,38 @@ define("boost/TextInput",function(require, exports, module) {
         "set multiline": function (value) {
             this.__update("multiline", validator.boolean(value));
         },
-        "get password": function () {
-            return this.__config__.password || false;
+        "set type": function (value) {
+            this.__config__.type = value;
+
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.type = value;
+                return;
+            }
+
+            switch (value) {
+                case "text":
+                    this.__update("keyboardType", validator.string("text"));
+                    break;
+                case "search":
+                    this.__update("keyboardType", validator.string("web-search"));
+                    break;
+                case "number":
+                    this.__update("keyboardType", validator.string("numeric"));
+                    break;
+                case "email":
+                    this.__update("keyboardType", validator.string("email-address"));
+                    break;
+                case "url":
+                    this.__update("keyboardType", validator.string("url"));
+                    break;
+
+                case "password":
+                    this.__update("password", validator.boolean(value));
+                    break;
+            }
         },
-        "set password": function (value) {
-            this.__update("password", validator.boolean(value));
-        },
-        "set keyboardType": function (value) {
-            this.__update("keyboardType", validator.string(value));
+        "get type": function () {
+            return this.__config__.type;
         },
         "set numberOfLines": function (value) {
             this.__update("numberOfLines", validator.number(value));
@@ -3299,15 +3386,44 @@ define("boost/TextInput",function(require, exports, module) {
             this.__update("placeholderTextColor", validator.color(value));
         },
         blur: function () {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.blur();
+            }
             this.__native__.__callNative("blur", []);
         },
         focus: function () {
+            if (nativeVersion.shouldUseWeb()) {
+                this.__native__.__webElement__.focus();
+            }
             this.__native__.__callNative("focus", []);
         },
 
         __createWebElement: function () {
             var input = document.createElement("input");
-            input.type = "text";
+
+            input.addEventListener("focus", generateBoostEventFromWeb);
+            input.addEventListener("blur", generateBoostEventFromWeb);
+            input.addEventListener("change", generateBoostEventFromWeb);
+            input.addEventListener("input", detectChange);
+            input.addEventListener("keyup", detectChange);
+            //input.addEventListener("propertychange", detectChange);
+            //input.addEventListener("change", detectChange);
+            //input.addEventListener("click", detectChange);
+            //input.addEventListener("paste", detectChange);
+            input.addEventListener("keyup", function (e) {
+                if (e.keyCode === 13) {
+                    generateBoostEventFromWeb(e, "submit");
+                }
+            });
+
+            function detectChange (e) {
+                var el = e.target;
+                if (el.getAttribute("data-oldValue") !== el.value) {
+                    el.setAttribute("data-oldValue", el.value);
+                    generateBoostEventFromWeb(e, "change");
+                }
+            }
+
             return input;
         }
     });
@@ -3557,7 +3673,25 @@ define("boost/ViewPager",function(require, exports, module) {
          * @param [smooth] {boolean}
          */
         setCurrentItem: function (index, smooth) {
-            this.nativeObject.__callNative("setCurrentItem", [index, smooth || false]);
+            this.__config__.currentItem = index;
+            this.nativeObject.__callNative("", [index, smooth || true]);
+        },
+
+        __createWebElement: function (info) {
+            return document.createElement("div");
+        },
+        __addComposedChildAt: function (child, index) {
+            if (nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "visible"; //scrollView的子元素如果也是overflow:hidden，滚动时会卡
+            }
+            NativeElement.prototype.__addComposedChildAt.call(this, child, index);
+        },
+        __removeComposedChildAt: function (index) {
+            var child = this.__composedChildren__[index];
+            if (child && nativeVersion.shouldUseWeb()) {
+                child.nativeObject.__webElement__.style.overflow = "hidden"; //恢复__addComposedChildAt中所改的值
+            }
+            NativeElement.prototype.__removeComposedChildAt.call(this, index);
         }
     });
     module.exports = ViewPager;
@@ -3641,7 +3775,8 @@ define("boost/boost",function(require, exports, module) {
             var rootView = this.createElement("RootView");
 
             if (nativeVersion.shouldUseWeb()) {
-                document.body.appendChild(rootView.nativeObject.__webElement__);
+                document.body.appendChild(rootView.__native__.__webElement__);
+                rootView.__native__.__webElement__.style.zIndex = zIndex;
             } else {
                 bridge.addLayer(rootView.tag, zIndex);
             }
@@ -3649,7 +3784,11 @@ define("boost/boost",function(require, exports, module) {
             return rootView;
         },
         removeLayer: function (layer) {
-            bridge.removeLayer(layer.tag);
+            if (nativeVersion.shouldUseWeb()) {
+                document.body.removeChild(layer.nativeObject.__webElement__);
+            } else {
+                bridge.removeLayer(layer.tag);
+            }
             layer.destroy();
         }
     };
@@ -4101,7 +4240,11 @@ define("boost/generateBoostEventFromWeb",function(require, exports, module) {
     var assert = require("base/assert");
     var BOOST_EVENT_TYPE = "boost";
 
-    module.exports = function generateBoostEventFromWeb(e) {
+    /**
+     * @param e
+     * @param [type] {string} 默认取e.type
+     */
+    module.exports = function generateBoostEventFromWeb(e, type) {
         //console.log("generateBoostEventFromWeb", e);
         var target = e.target;
         //touchend时e.target仍为touchstart的元素，故单独查找
@@ -4119,7 +4262,7 @@ define("boost/generateBoostEventFromWeb",function(require, exports, module) {
 
         var event = document.createEvent('Event');
         event.initEvent(BOOST_EVENT_TYPE, false, false);
-        event.boostEventType = e.type;
+        event.boostEventType = type || e.type;
         event.origin = originId;
         switch (event.boostEventType) {
             case "touchstart":
@@ -4134,7 +4277,13 @@ define("boost/generateBoostEventFromWeb",function(require, exports, module) {
                 assert(tagName === "scrollview" || tagName === "viewpager");
                 event.data = {
                     scrollLeft: this.scrollLeft,
-                    scrollTop: this.scrollTop
+                    scrollTop: this.scrollTop,
+                    scrollpercent: this.scrollTop / this.scrollHeight //这里与native保持一致 TODO: native也支持水平的scrollPercent
+                };
+                break;
+            case "change": //认为是input的change事件
+                event.data = {
+                    text: target.value
                 };
                 break;
         }
@@ -4182,7 +4331,7 @@ define("boost/mainModule",function(require, exports, module) {
     tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });
 define("boost/methodMap",function(require, exports, module) {
-    var inDebug = false;
+    var inDebug = true;
 
     var map = {
         add: 20,
@@ -6208,6 +6357,8 @@ require([
     "base/type",
     "base/derive",
     "base/each",
+    "base/copyProperties",
+
     "boost/nativeEventHandler",
     "boost/bridge",
     "boost/boost",
@@ -6230,7 +6381,8 @@ require([
     "boost/Toolbar",
     "boost/elementCreator"
 ], function (
-    assert, type, derive, each, nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
+    assert, type, derive, each, copyProperties,
+    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
 
     View,
     Element,
@@ -6276,6 +6428,7 @@ require([
         assert: assert,
         each: each,
         type: type,
+        copyProperties: copyProperties,
 
         $: $,
 
@@ -6316,6 +6469,8 @@ require([
     var exportBoost = new Boost();
     exportsMethod("createElement", boost);
     exportsMethod("getElementById", boost);
+    exportsMethod("addLayer", boost);
+    exportsMethod("removeLayer", boost);
     exportsMethod("getElementsByClassName", boost);
     exportsMethod("getElementsByTagName", boost);
     exportsMethod("querySelector", boost);
@@ -6324,6 +6479,8 @@ require([
     exportsMethod("setDocumentElementLayerZIndex", boost);
     exportsMethod("flush", bridge);
     exportsMethod("getLocatedCity", lightApi);
+    exportsMethod("showInputMethod", lightApi);
+    exportsMethod("hideInputMethod", lightApi);
 
     window.boost = exportBoost;
 
@@ -6340,7 +6497,7 @@ require([
             '    height: 100%;' +
             '    overflow: hidden;' +
             '}' +
-            'div {' +
+            'div, input {' +
             '    box-sizing: border-box;' +
             '    position: relative;' +
             '    display: flex;' +
@@ -6355,6 +6512,13 @@ require([
             '}' +
             'input {' +
             '    border: none;' +
+            '    outline: -webkit-focus-ring-color auto 0px;' +
+            '}' +
+            'input[type="search"]::-webkit-search-decoration,' +
+            'input[type="search"]::-webkit-search-cancel-button,' +
+            'input[type="search"]::-webkit-search-results-button,' +
+            'input[type="search"]::-webkit-search-results-decoration { ' +
+            '    display: none;' +
             '}';
         document.head.appendChild(styleEl);
     }
