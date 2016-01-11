@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atFri Jan 08 2016 16:45:56 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atFri Jan 08 2016 11:07:39 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1846,8 +1846,7 @@ define("boost/Element",function(require, exports, module) {
             if (match !== null) {
                 if ((m = match[1])) {
                     // ID selector
-                    var item = this.getElementById(m);
-                    item && results.push(item);
+                    results.push(this.getElementById(m));
                 } else if (match[2]) {
                     // Type selector
                     push.apply(results, this.getElementsByTagName(selector));
@@ -3631,7 +3630,6 @@ define("boost/ViewPager",function(require, exports, module) {
     var number = require("boost/validator").number;
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
-    var nativeVersion = require("boost/nativeVersion");
 
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");

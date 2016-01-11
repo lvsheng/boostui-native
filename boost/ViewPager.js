@@ -12,6 +12,7 @@ define(function (require, exports, module) {
     var number = require("boost/validator").number;
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");

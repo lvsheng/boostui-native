@@ -655,7 +655,8 @@ define(function (require, exports, module) {
             if (match !== null) {
                 if ((m = match[1])) {
                     // ID selector
-                    results.push(this.getElementById(m));
+                    var item = this.getElementById(m);
+                    item && results.push(item);
                 } else if (match[2]) {
                     // Type selector
                     push.apply(results, this.getElementsByTagName(selector));
