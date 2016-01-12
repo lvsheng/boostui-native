@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Jan 12 2016 20:25:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Jan 12 2016 20:40:42 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -3621,6 +3621,7 @@ define("boost/ViewPager",function(require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
+    var each = require("base/each");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
     var Event = require("boost/Event");
@@ -3632,11 +3633,12 @@ define("boost/ViewPager",function(require, exports, module) {
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
+    var boostEventGenerator = require("boost/boostEventGenerator");
 
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");
 
-        this.__curItemIndex = 0; //默认认为第一个元素被选中
+        this.__currentItem__ = 0; //默认认为第一个元素被选中
     }, {
         __onEvent: function (type, e) {
             switch (type) {
@@ -3645,7 +3647,7 @@ define("boost/ViewPager",function(require, exports, module) {
                     event.data = { position: e.data.position };
                     this.dispatchEvent(event);
 
-                    this.__curItemIndex = e.data.position;
+                    this.__currentItem__ = e.data.position;
                     break;
                 case "pagescroll":
                     var event = new Event(this, "pagescroll");
@@ -3674,19 +3676,22 @@ define("boost/ViewPager",function(require, exports, module) {
             assert(couple instanceof Couple);
             this.nativeObject.__callNative("setLinkage", [couple.tag]);
         },
+        getCurrentItem: function () {
+            return this.__currentItem__;
+        },
         /**
          * @param index {int}
          * @param [smooth] {boolean}
          */
         setCurrentItem: function (index, smooth) {
-            this.__config__.currentItem = index;
-
             if (nativeVersion.shouldUseWeb()) {
-                //web下自己派发选中事件，而native下由nativeObject派发
-
+                this.__showItemInWeb(index);
+                //选中事件在o2o下由native派发，而web下自己派发
+                boostEventGenerator.gen("selected", {position: index}, this.tag);
             } else {
                 this.nativeObject.__callNative("", [index, smooth || true]);
             }
+            //真正对this.__currentItem__的修改在__onEvent里统一对web与o2o下进行
         },
 
         __createWebElement: function (info) {
@@ -3694,16 +3699,25 @@ define("boost/ViewPager",function(require, exports, module) {
         },
         __addComposedChildAt: function (child, index) {
             if (nativeVersion.shouldUseWeb()) {
-                child.nativeObject.__webElement__.style.overflow = "visible"; //scrollView的子元素如果也是overflow:hidden，滚动时会卡
+                child.nativeObject.__webElement__.style.display = index === this.__currentItem__ ? "block" : "none";
             }
             NativeElement.prototype.__addComposedChildAt.call(this, child, index);
         },
         __removeComposedChildAt: function (index) {
             var child = this.__composedChildren__[index];
             if (child && nativeVersion.shouldUseWeb()) {
-                child.nativeObject.__webElement__.style.overflow = "hidden"; //恢复__addComposedChildAt中所改的值
+                child.nativeObject.__webElement__.style.display = "block";
             }
             NativeElement.prototype.__removeComposedChildAt.call(this, index);
+        },
+        __showItemInWeb: function (index) {
+            assert(index < this.__children__.length, "index of item to show could not exceed the amount of children");
+            assert(nativeVersion.shouldUseWeb());
+
+            each(this.__children__, function (child, childIndex) {
+                var childWebElement = child.__native__.__webElement__;
+                childWebElement.style.display = childIndex === index ? "block" : "none";
+            });
         }
     });
     module.exports = ViewPager;
