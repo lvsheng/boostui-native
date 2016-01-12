@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atFri Jan 08 2016 16:45:56 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Jan 12 2016 20:25:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -2714,7 +2714,7 @@ define("boost/ScrollView",function(require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
-    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
+    var boostEventGenerator = require("boost/boostEventGenerator");
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
@@ -2750,7 +2750,7 @@ define("boost/ScrollView",function(require, exports, module) {
             el.style.overflow = "auto";
 
             //因为scroll事件不冒泡，故只能在单个元素上监听
-            el.addEventListener("scroll", generateBoostEventFromWeb);
+            el.addEventListener("scroll", boostEventGenerator.genFromWebEvent);
 
             return el;
         },
@@ -3274,7 +3274,7 @@ define("boost/TextInput",function(require, exports, module) {
     var FocusEvent = require("boost/FocusEvent");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
-    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
+    var boostEventGenerator = require("boost/boostEventGenerator");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
@@ -3402,9 +3402,9 @@ define("boost/TextInput",function(require, exports, module) {
         __createWebElement: function () {
             var input = document.createElement("input");
 
-            input.addEventListener("focus", generateBoostEventFromWeb);
-            input.addEventListener("blur", generateBoostEventFromWeb);
-            input.addEventListener("change", generateBoostEventFromWeb);
+            input.addEventListener("focus", boostEventGenerator.genFromWebEvent);
+            input.addEventListener("blur", boostEventGenerator.genFromWebEvent);
+            input.addEventListener("change", boostEventGenerator.genFromWebEvent);
             input.addEventListener("input", detectChange);
             input.addEventListener("keyup", detectChange);
             //input.addEventListener("propertychange", detectChange);
@@ -3413,7 +3413,7 @@ define("boost/TextInput",function(require, exports, module) {
             //input.addEventListener("paste", detectChange);
             input.addEventListener("keyup", function (e) {
                 if (e.keyCode === 13) {
-                    generateBoostEventFromWeb(e, "submit");
+                    boostEventGenerator.genFromWebEvent(e, "submit");
                 }
             });
 
@@ -3421,7 +3421,7 @@ define("boost/TextInput",function(require, exports, module) {
                 var el = e.target;
                 if (el.getAttribute("data-oldValue") !== el.value) {
                     el.setAttribute("data-oldValue", el.value);
-                    generateBoostEventFromWeb(e, "change");
+                    boostEventGenerator.genFromWebEvent(e, "change");
                 }
             }
 
@@ -3635,6 +3635,8 @@ define("boost/ViewPager",function(require, exports, module) {
 
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");
+
+        this.__curItemIndex = 0; //默认认为第一个元素被选中
     }, {
         __onEvent: function (type, e) {
             switch (type) {
@@ -3642,6 +3644,8 @@ define("boost/ViewPager",function(require, exports, module) {
                     var event = new Event(this, "selected");
                     event.data = { position: e.data.position };
                     this.dispatchEvent(event);
+
+                    this.__curItemIndex = e.data.position;
                     break;
                 case "pagescroll":
                     var event = new Event(this, "pagescroll");
@@ -3676,7 +3680,13 @@ define("boost/ViewPager",function(require, exports, module) {
          */
         setCurrentItem: function (index, smooth) {
             this.__config__.currentItem = index;
-            this.nativeObject.__callNative("", [index, smooth || true]);
+
+            if (nativeVersion.shouldUseWeb()) {
+                //web下自己派发选中事件，而native下由nativeObject派发
+
+            } else {
+                this.nativeObject.__callNative("", [index, smooth || true]);
+            }
         },
 
         __createWebElement: function (info) {
@@ -3810,6 +3820,72 @@ define("boost/boost",function(require, exports, module) {
 
     var BoostDocument = derive(EventTarget, documentProto);
     module.exports = new BoostDocument();
+});
+define("boost/boostEventGenerator",function(require, exports, module) {
+    var tagMap = require("boost/tagMap");
+    var assert = require("base/assert");
+    var BOOST_EVENT_TYPE = "boost";
+
+    function gen (type, data, origin) {
+        var event = document.createEvent('Event');
+        event.initEvent(BOOST_EVENT_TYPE, false, false);
+        event.boostEventType = type;
+        event.origin = origin;
+        event.data = data;
+
+        document.dispatchEvent(event);
+    }
+
+    /**
+     * @param e
+     * @param [type] {string} 默认取e.type
+     */
+    function genFromWebEvent (e, type) {
+        var target = e.target;
+        if (e.type === "touchend") {
+            //touchend时e.target仍为touchstart的元素，故单独查找
+            target = document.elementFromPoint(
+                e.changedTouches[0].pageX,
+                e.changedTouches[0].pageY
+            );
+        }
+
+        var originId = target.__boost_origin__;
+        if (!originId) {
+            return;
+        }
+
+        var data;
+        var eventType = type || e.type;
+        switch (eventType) {
+            case "touchstart":
+            case "touchend":
+                data = {
+                    x: e.changedTouches[0].clientX,
+                    y: e.changedTouches[0].clientY
+                };
+                break;
+            case "scroll":
+                var tagName = tagMap.get(originId).__nativeElement__.tagName.toLowerCase();
+                assert(tagName === "scrollview" || tagName === "viewpager");
+                data = {
+                    scrollLeft: target.scrollLeft,
+                    scrollTop: target.scrollTop,
+                    scrollpercent: target.scrollTop / target.scrollHeight //这里与native保持一致 TODO: native也支持水平的scrollPercent
+                };
+                break;
+            case "change": //认为是input的change事件
+                data = {
+                    text: target.value
+                };
+                break;
+        }
+
+        gen(eventType, data, originId);
+    }
+
+    exports.genFromWebEvent = genFromWebEvent;
+    exports.gen = gen;
 });
 define("boost/bridge",function(require, exports, module) {
     "use strict";
@@ -4237,63 +4313,6 @@ define("boost/genQueue",function(require, exports, module) {
 
     module.exports = genQueue;
 });
-define("boost/generateBoostEventFromWeb",function(require, exports, module) {
-    var tagMap = require("boost/tagMap");
-    var assert = require("base/assert");
-    var BOOST_EVENT_TYPE = "boost";
-
-    /**
-     * @param e
-     * @param [type] {string} 默认取e.type
-     */
-    module.exports = function generateBoostEventFromWeb(e, type) {
-        //console.log("generateBoostEventFromWeb", e);
-        var target = e.target;
-        //touchend时e.target仍为touchstart的元素，故单独查找
-        if (e.type === "touchend") {
-            target = document.elementFromPoint(
-                e.changedTouches[0].pageX,
-                e.changedTouches[0].pageY
-            );
-        }
-
-        var originId = target.__boost_origin__;
-        if (!originId) {
-            return;
-        }
-
-        var event = document.createEvent('Event');
-        event.initEvent(BOOST_EVENT_TYPE, false, false);
-        event.boostEventType = type || e.type;
-        event.origin = originId;
-        switch (event.boostEventType) {
-            case "touchstart":
-            case "touchend":
-                event.data = {
-                    x: e.changedTouches[0].clientX,
-                    y: e.changedTouches[0].clientY
-                };
-                break;
-            case "scroll":
-                var tagName = tagMap.get(event.origin).__nativeElement__.tagName.toLowerCase();
-                assert(tagName === "scrollview" || tagName === "viewpager");
-                event.data = {
-                    scrollLeft: this.scrollLeft,
-                    scrollTop: this.scrollTop,
-                    scrollpercent: this.scrollTop / this.scrollHeight //这里与native保持一致 TODO: native也支持水平的scrollPercent
-                };
-                break;
-            case "change": //认为是input的change事件
-                event.data = {
-                    text: target.value
-                };
-                break;
-        }
-
-        console.log("generateBoostEventFromWeb, gen:", event);
-        document.dispatchEvent(event);
-    };
-});
 define("boost/mainFrontPage",function(require, exports, module) {
     "use strict";
 
@@ -4333,7 +4352,7 @@ define("boost/mainModule",function(require, exports, module) {
     tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });
 define("boost/methodMap",function(require, exports, module) {
-    var inDebug = true;
+    var inDebug = false;
 
     var map = {
         add: 20,
@@ -4559,7 +4578,7 @@ define("boost/nativeEventHandler",function(require, exports, module) {
     var lightApi = require("boost/nativeObject/lightApi");
     var bridge = require("boost/bridge");
     var assert = require("base/assert");
-    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
+    var boostEventGenerator = require("boost/boostEventGenerator");
 
     var BOOST_EVENT_TYPE = "boost";
     var BOOSTCALLBACK_EVENT_TYPE = "boostcallback";
@@ -4669,8 +4688,8 @@ define("boost/nativeEventHandler",function(require, exports, module) {
     // 页面加载时，先尝试删除所有 NativeView
     //bridge.destroyAll(); //因为服务导航与票务页面都加载js，如果后加载的一个destroyAll，会影响前一个页面的内容
 
-    document.addEventListener("touchstart", generateBoostEventFromWeb);
-    document.addEventListener("touchend", generateBoostEventFromWeb);
+    document.addEventListener("touchstart", boostEventGenerator.genFromWebEvent);
+    document.addEventListener("touchend", boostEventGenerator.genFromWebEvent);
 
     /**
      * 判断ancestor是否在descendant的祖先元素中

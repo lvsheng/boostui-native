@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
-    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
+    var boostEventGenerator = require("boost/boostEventGenerator");
     var Couple = require("boost/nativeObject/Couple");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
@@ -43,7 +43,7 @@ define(function (require, exports, module) {
             el.style.overflow = "auto";
 
             //因为scroll事件不冒泡，故只能在单个元素上监听
-            el.addEventListener("scroll", generateBoostEventFromWeb);
+            el.addEventListener("scroll", boostEventGenerator.genFromWebEvent);
 
             return el;
         },

@@ -16,6 +16,8 @@ define(function (require, exports, module) {
 
     var ViewPager = derive(NativeElement, function () {
         NativeElement.call(this, TYPE_ID.VIEW_PAGER, "ViewPager");
+
+        this.__curItemIndex = 0; //默认认为第一个元素被选中
     }, {
         __onEvent: function (type, e) {
             switch (type) {
@@ -23,6 +25,8 @@ define(function (require, exports, module) {
                     var event = new Event(this, "selected");
                     event.data = { position: e.data.position };
                     this.dispatchEvent(event);
+
+                    this.__curItemIndex = e.data.position;
                     break;
                 case "pagescroll":
                     var event = new Event(this, "pagescroll");
@@ -57,7 +61,13 @@ define(function (require, exports, module) {
          */
         setCurrentItem: function (index, smooth) {
             this.__config__.currentItem = index;
-            this.nativeObject.__callNative("", [index, smooth || true]);
+
+            if (nativeVersion.shouldUseWeb()) {
+                //web下自己派发选中事件，而native下由nativeObject派发
+
+            } else {
+                this.nativeObject.__callNative("", [index, smooth || true]);
+            }
         },
 
         __createWebElement: function (info) {

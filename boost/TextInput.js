@@ -11,7 +11,7 @@ define(function (require, exports, module) {
     var FocusEvent = require("boost/FocusEvent");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
-    var generateBoostEventFromWeb = require("boost/generateBoostEventFromWeb");
+    var boostEventGenerator = require("boost/boostEventGenerator");
 
     var TextStyle = derive(StyleSheet, TextStylePropTypes);
 
@@ -139,9 +139,9 @@ define(function (require, exports, module) {
         __createWebElement: function () {
             var input = document.createElement("input");
 
-            input.addEventListener("focus", generateBoostEventFromWeb);
-            input.addEventListener("blur", generateBoostEventFromWeb);
-            input.addEventListener("change", generateBoostEventFromWeb);
+            input.addEventListener("focus", boostEventGenerator.genFromWebEvent);
+            input.addEventListener("blur", boostEventGenerator.genFromWebEvent);
+            input.addEventListener("change", boostEventGenerator.genFromWebEvent);
             input.addEventListener("input", detectChange);
             input.addEventListener("keyup", detectChange);
             //input.addEventListener("propertychange", detectChange);
@@ -150,7 +150,7 @@ define(function (require, exports, module) {
             //input.addEventListener("paste", detectChange);
             input.addEventListener("keyup", function (e) {
                 if (e.keyCode === 13) {
-                    generateBoostEventFromWeb(e, "submit");
+                    boostEventGenerator.genFromWebEvent(e, "submit");
                 }
             });
 
@@ -158,7 +158,7 @@ define(function (require, exports, module) {
                 var el = e.target;
                 if (el.getAttribute("data-oldValue") !== el.value) {
                     el.setAttribute("data-oldValue", el.value);
-                    generateBoostEventFromWeb(e, "change");
+                    boostEventGenerator.genFromWebEvent(e, "change");
                 }
             }
 
