@@ -14,6 +14,7 @@ require([
     "boost/$",
     "boost/nativeObject/backgroundPage",
     "boost/nativeObject/lightApi",
+    "boost/nativeObject/Linkage",
 
     "boost/View",
     "boost/Element",
@@ -27,10 +28,11 @@ require([
     "boost/Slot",
     "boost/ViewPager",
     "boost/Toolbar",
+    "boost/Dialog",
     "boost/elementCreator"
 ], function (
     assert, type, derive, each, copyProperties,
-    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
+    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi, Linkage,
 
     View,
     Element,
@@ -44,6 +46,7 @@ require([
     Slot,
     ViewPager,
     Toolbar,
+    Dialog,
     elementCreator
 ) {
     console.log("boost/main.js module start");
@@ -78,6 +81,8 @@ require([
         copyProperties: copyProperties,
 
         $: $,
+        Linkage: Linkage,
+        Dialog: Dialog,
 
         "get documentElement": function () {
             return boost.documentElement;

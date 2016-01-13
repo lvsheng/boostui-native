@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Jan 13 2016 11:04:41 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed Jan 13 2016 11:06:06 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -6400,6 +6400,7 @@ require([
     "boost/$",
     "boost/nativeObject/backgroundPage",
     "boost/nativeObject/lightApi",
+    "boost/nativeObject/Linkage",
 
     "boost/View",
     "boost/Element",
@@ -6413,10 +6414,11 @@ require([
     "boost/Slot",
     "boost/ViewPager",
     "boost/Toolbar",
+    "boost/Dialog",
     "boost/elementCreator"
 ], function (
     assert, type, derive, each, copyProperties,
-    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi,
+    nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi, Linkage,
 
     View,
     Element,
@@ -6430,6 +6432,7 @@ require([
     Slot,
     ViewPager,
     Toolbar,
+    Dialog,
     elementCreator
 ) {
     console.log("boost/main.js module start");
@@ -6464,6 +6467,8 @@ require([
         copyProperties: copyProperties,
 
         $: $,
+        Linkage: Linkage,
+        Dialog: Dialog,
 
         "get documentElement": function () {
             return boost.documentElement;
