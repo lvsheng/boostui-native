@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Jan 13 2016 11:01:04 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed Jan 13 2016 11:04:41 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -4355,6 +4355,7 @@ define("boost/mainFrontPage",function(require, exports, module) {
 
     module.exports = new MainFrontPage();
 });
+//FIXME: 与main.js重复，目前本文件在服务导航中使用，后续若有必要，迁移时注意回归
 define("boost/mainModule",function(require, exports, module) {
     //加载必需被加载(其内监听事件、发起主动动作)的文件
     //FIXME: 换用boost/main.js 打包时打在一起
@@ -6384,9 +6385,7 @@ define("boost/xml",function(require, exports, module) {
     module.exports = xml;
 });
 //加载必需被加载(其内监听事件、发起主动动作)的文件
-console.timeEnd("define.boost");
 console.log("boost/main.js loaded");
-console.time("boost.main");
 require([
     "base/assert",
     "base/type",
@@ -6433,7 +6432,6 @@ require([
     Toolbar,
     elementCreator
 ) {
-    console.timeEnd("boost.main");
     console.log("boost/main.js module start");
     //console.log("no getMethodMapping");
     //bridge.getMethodMapping();// TODO: 为了性能，暂去掉getMethodMapping
