@@ -21,21 +21,21 @@ define(function (require, exports, module) {
      * @param conf.toColor {int}
      * @param conf.updateColor {boolean}
      */
-    var CoupleNativeObject = derive(NativeObject, function (conf) {
+    var LinkageNativeObject = derive(NativeObject, function (conf) {
         conf = copyProperties({}, conf);
         if (conf.target) {
             assert(conf.target instanceof NativeElement);
             conf.target = conf.target.nativeObject.tag;
         }
-        NativeObject.call(this, TYPE_ID.COUPLE, undefined, conf);
+        NativeObject.call(this, TYPE_ID.LINKAGE, undefined, conf);
 
         this._curIndex = 0;
     }, {
-        addCouple: function (couple) {
-            assert(couple instanceof  CoupleNativeObject);
-            this.__callNative("add", [couple.tag, this._curIndex++]);
+        addLinkage: function (linkage) {
+            assert(linkage instanceof  LinkageNativeObject);
+            this.__callNative("add", [linkage.tag, this._curIndex++]);
         }
     });
 
-    module.exports = CoupleNativeObject;
+    module.exports = LinkageNativeObject;
 });

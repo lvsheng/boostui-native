@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
     module.exports = {
-        COUPLE: 16,
+        LINKAGE: 16,
         FONT: 7,
 
         ANIMATION_SET: 12,

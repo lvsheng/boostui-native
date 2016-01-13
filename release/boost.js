@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Jan 12 2016 20:40:42 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed Jan 13 2016 11:01:04 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -2309,7 +2309,7 @@ define("boost/ListView",function(require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var xml = require("boost/xml");
     var bridge = require("boost/bridge");
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
 
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
@@ -2404,9 +2404,9 @@ define("boost/ListView",function(require, exports, module) {
             this.nativeObject.__callNative("scrollTo", [location]); //FIXME: native support
         },
 
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]); //FIXME: native support
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]); //FIXME: native support
         },
 
         /**
@@ -2715,7 +2715,7 @@ define("boost/ScrollView",function(require, exports, module) {
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var boostEventGenerator = require("boost/boostEventGenerator");
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
 
@@ -2761,9 +2761,9 @@ define("boost/ScrollView",function(require, exports, module) {
             }
             this.nativeObject.__callNative("scrollTo", [location]);
         },
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]);
         },
         __addComposedChildAt: function (child, index) {
             if (nativeVersion.shouldUseWeb()) {
@@ -3180,7 +3180,7 @@ define("boost/StyleSheet",function(require, exports, module) {
 });
 define("boost/TYPE_ID",function(require, exports, module) {
     module.exports = {
-        COUPLE: 16,
+        LINKAGE: 16,
         FONT: 7,
 
         ANIMATION_SET: 12,
@@ -3630,7 +3630,7 @@ define("boost/ViewPager",function(require, exports, module) {
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var boolean = require("boost/validator").boolean;
     var number = require("boost/validator").number;
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
     var boostEventGenerator = require("boost/boostEventGenerator");
@@ -3672,9 +3672,9 @@ define("boost/ViewPager",function(require, exports, module) {
         "set loopScrollDuration": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
         },
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]);
         },
         getCurrentItem: function () {
             return this.__currentItem__;
@@ -3689,7 +3689,7 @@ define("boost/ViewPager",function(require, exports, module) {
                 //选中事件在o2o下由native派发，而web下自己派发
                 boostEventGenerator.gen("selected", {position: index}, this.tag);
             } else {
-                this.nativeObject.__callNative("", [index, smooth || true]);
+                this.nativeObject.__callNative("setCurrentItem", [index, smooth || true]);
             }
             //真正对this.__currentItem__的修改在__onEvent里统一对web与o2o下进行
         },
@@ -4773,47 +4773,6 @@ define("boost/nativeEventHandler",function(require, exports, module) {
         return curA.parentNode;
     }
 });
-define("boost/nativeObject/Couple",function(require, exports, module) {
-    "use strict";
-
-    var derive = require("base/derive");
-    var assert = require("base/assert");
-    var each = require("base/each");
-    var copyProperties = require("base/copyProperties");
-    var NativeElement = require("boost/NativeElement");
-    var NativeObject = require("boost/nativeObject/NativeObject");
-    var TYPE_ID = require("boost/TYPE_ID");
-
-    /**
-     * 联动器
-     * @param conf.prop {string}
-     * @param conf.from {number}
-     * @param conf.to {number}
-     * @param conf.target {NativeElement}
-     * @param conf.duration {number}
-     * @param conf.type {"together"|"sequentially"}
-     * @param conf.fromColor {int} 应为validator.color返回值 TODO: 本方法内做color的转换
-     * @param conf.toColor {int}
-     * @param conf.updateColor {boolean}
-     */
-    var CoupleNativeObject = derive(NativeObject, function (conf) {
-        conf = copyProperties({}, conf);
-        if (conf.target) {
-            assert(conf.target instanceof NativeElement);
-            conf.target = conf.target.nativeObject.tag;
-        }
-        NativeObject.call(this, TYPE_ID.COUPLE, undefined, conf);
-
-        this._curIndex = 0;
-    }, {
-        addCouple: function (couple) {
-            assert(couple instanceof  CoupleNativeObject);
-            this.__callNative("add", [couple.tag, this._curIndex++]);
-        }
-    });
-
-    module.exports = CoupleNativeObject;
-});
 define("boost/nativeObject/Element",function(require, exports, module) {
     "use strict";
 
@@ -4902,6 +4861,47 @@ define("boost/nativeObject/Font",function(require, exports, module) {
     });
 
     module.exports = FontNativeObject;
+});
+define("boost/nativeObject/Linkage",function(require, exports, module) {
+    "use strict";
+
+    var derive = require("base/derive");
+    var assert = require("base/assert");
+    var each = require("base/each");
+    var copyProperties = require("base/copyProperties");
+    var NativeElement = require("boost/NativeElement");
+    var NativeObject = require("boost/nativeObject/NativeObject");
+    var TYPE_ID = require("boost/TYPE_ID");
+
+    /**
+     * 联动器
+     * @param conf.prop {string}
+     * @param conf.from {number}
+     * @param conf.to {number}
+     * @param conf.target {NativeElement}
+     * @param conf.duration {number}
+     * @param conf.type {"together"|"sequentially"}
+     * @param conf.fromColor {int} 应为validator.color返回值 TODO: 本方法内做color的转换
+     * @param conf.toColor {int}
+     * @param conf.updateColor {boolean}
+     */
+    var LinkageNativeObject = derive(NativeObject, function (conf) {
+        conf = copyProperties({}, conf);
+        if (conf.target) {
+            assert(conf.target instanceof NativeElement);
+            conf.target = conf.target.nativeObject.tag;
+        }
+        NativeObject.call(this, TYPE_ID.LINKAGE, undefined, conf);
+
+        this._curIndex = 0;
+    }, {
+        addLinkage: function (linkage) {
+            assert(linkage instanceof  LinkageNativeObject);
+            this.__callNative("add", [linkage.tag, this._curIndex++]);
+        }
+    });
+
+    module.exports = LinkageNativeObject;
 });
 define("boost/nativeObject/NativeObject",function(require, exports, module) {
     "use strict";

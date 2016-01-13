@@ -11,7 +11,7 @@ define(function (require, exports, module) {
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var boolean = require("boost/validator").boolean;
     var number = require("boost/validator").number;
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
     var boostEventGenerator = require("boost/boostEventGenerator");
@@ -53,9 +53,9 @@ define(function (require, exports, module) {
         "set loopScrollDuration": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
         },
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]);
         },
         getCurrentItem: function () {
             return this.__currentItem__;

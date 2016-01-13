@@ -11,7 +11,7 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var xml = require("boost/xml");
     var bridge = require("boost/bridge");
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
 
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
@@ -106,9 +106,9 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("scrollTo", [location]); //FIXME: native support
         },
 
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]); //FIXME: native support
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]); //FIXME: native support
         },
 
         /**

@@ -8,7 +8,7 @@ define(function (require, exports, module) {
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var boostEventGenerator = require("boost/boostEventGenerator");
-    var Couple = require("boost/nativeObject/Couple");
+    var Linkage = require("boost/nativeObject/Linkage");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
 
@@ -54,9 +54,9 @@ define(function (require, exports, module) {
             }
             this.nativeObject.__callNative("scrollTo", [location]);
         },
-        setLinkage: function (couple) {
-            assert(couple instanceof Couple);
-            this.nativeObject.__callNative("setLinkage", [couple.tag]);
+        setLinkage: function (linkage) {
+            assert(linkage instanceof Linkage);
+            this.nativeObject.__callNative("setLinkage", [linkage.tag]);
         },
         __addComposedChildAt: function (child, index) {
             if (nativeVersion.shouldUseWeb()) {
