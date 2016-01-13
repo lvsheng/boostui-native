@@ -84,6 +84,8 @@ require([
         Linkage: Linkage,
         Dialog: Dialog,
 
+        inO2O: !nativeVersion.shouldUseWeb(),
+
         "get documentElement": function () {
             return boost.documentElement;
         },
