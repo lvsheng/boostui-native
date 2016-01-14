@@ -16,41 +16,21 @@ define(function (require, exports, module) {
     var nativeVersion = require("boost/nativeVersion");
     var boostEventGenerator = require("boost/boostEventGenerator");
 
-    var ViewPager = derive(NativeElement, function () {
-        NativeElement.call(this, TYPE_ID.VIEW_PAGER, this.__getRealTagName());
-
-        this.__currentItem__ = 0; //默认认为第一个元素被选中
+    var ViewPager = require("boost/ViewPager");
+    var Carousel = derive(NativeElement, function () {
+        ViewPager.call(this);
     }, {
-        /**
-         * 子类扩展点
-         * @returns {string}
-         * @private
-         */
         __getRealTagName: function () {
-            return "ViewPager";
+            return "Carousel";
         },
-        __onEvent: function (type, e) {
-            switch (type) {
-                case "selected":
-                    var event = new Event(this, "selected");
-                    event.data = { position: e.data.position };
-                    this.dispatchEvent(event);
-
-                    this.__currentItem__ = e.data.position;
-                    break;
-                case "pagescroll":
-                    var event = new Event(this, "pagescroll");
-                    event.stopPropagation(); //scroll不冒泡与捕获
-                    event.data = {  }; //TODO
-                    this.dispatchEvent(event);
-                    break;
-                default:
-                    NativeElement.prototype.__onEvent.call(this, type, e);
-            }
-            return event && event.propagationStoped;
+        "set loop": function (value) {
+            this.__update("loop", boolean(value));
         },
-        __getStyle: function () {
-            return new ViewStyle();
+        "set speed": function (value) { //多久滚一次
+            this.__update("duration", number(value));
+        },
+        "set loopScrollDuration": function (value) { //一次要多久
+            this.__update("loopScrollDuration", number(value));
         },
         setLinkage: function (linkage) {
             assert(linkage instanceof Linkage);
@@ -100,5 +80,5 @@ define(function (require, exports, module) {
             });
         }
     });
-    module.exports = ViewPager;
+    module.exports = Carousel;
 });
