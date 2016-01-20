@@ -1,5 +1,5 @@
 define(function (require, exports, module) {
-    var inDebug = false;
+    var inDebug = true;
 
     var map = {
         add: 20,

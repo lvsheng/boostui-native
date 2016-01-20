@@ -6,8 +6,8 @@ define(function (require, exports, module) {
     var TYPE_ID = require("boost/TYPE_ID");
 
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
-    var RootView = derive(NativeElement, function() {
-        NativeElement.call(this, TYPE_ID.ROOT_VIEW, "RootView");
+    var RootView = derive(NativeElement, function(id) {
+        NativeElement.call(this, TYPE_ID.ROOT_VIEW, "RootView", id);
     }, {
         __getStyle: function () {
             return new ViewStyle();

@@ -7,9 +7,14 @@ define(function (require, exports, module) {
     exports.register = function (tagName, options) {
         tagMap[tagName.toUpperCase()] = options.constructor;
     };
-    exports.create = function (tagName) {
+    exports.create = function (tagName, extraData) { //TODO: remove when ios support multi layer, this is just for that
         tagName = tagName.toUpperCase();
         assert(hasOwnProperty(tagMap, tagName), "unknow tag \"" + tagName + "\"");
-        return new tagMap[tagName]();
+
+        if (extraData) {
+            return new tagMap[tagName](extraData);
+        } else {
+            return new tagMap[tagName]();
+        }
     };
 });

@@ -26,8 +26,13 @@ define(function (require, exports, module) {
             }
             return this.__docuemntElement__;
         },
-        createElement: function (tagName) {
-            var element = elementCreator.create(tagName);
+        /**
+         * @param tagName
+         * @param [extraData]
+         * @returns {Element}
+         */
+        createElement: function (tagName, extraData) {
+            var element = elementCreator.create(tagName, extraData);
 
             this.dispatchEvent({
                 type: "createElement",
@@ -44,7 +49,7 @@ define(function (require, exports, module) {
             this.__documentElementZIndex__ = zIndex;
         },
         addLayer: function (zIndex) {
-            var rootView = this.createElement("RootView");
+            var rootView = this.createElement("RootView", nativeVersion.inIOS() ? -8 : undefined); //TODO: support multi layer in ios
 
             if (nativeVersion.shouldUseWeb()) {
                 document.body.appendChild(rootView.__native__.__webElement__);
