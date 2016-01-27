@@ -83,6 +83,17 @@ define(function (require, exports, module) {
             } else {
                 this.__callNative("getLocationCityName", [], callback);
             }
+        },
+
+        /**
+         * 只应由背景页调用
+         * 用于通知native背景页ready了
+         * 背景：开始没网时，背景页与前景页都加载失败，但有网后点击刷新如果只刷新前景页则背景页仍然不出现导致前景页打开新页面等功能不能被响应
+         * 故背景页ready后通知native，native在刷新前景页且背景页没有ready时同时刷新背景页
+         * add at v2.3
+         */
+        setBackgroundPageReady: function () {
+            this.__callNative("setBackgroundPageReady", [true]);
         }
     });
 

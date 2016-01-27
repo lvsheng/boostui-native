@@ -52,7 +52,7 @@ define(function (require, exports, module) {
                 this.nativeObject.__webElement__.scrollTop = location;
                 return;
             }
-            this.nativeObject.__callNative("scrollTo", [location]);
+            this.nativeObject.__callNative("scrollTo", [location * window.devicePixelRatio]);
         },
         setLinkage: function (linkage) {
             assert(linkage instanceof Linkage);

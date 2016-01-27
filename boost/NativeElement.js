@@ -27,7 +27,7 @@ define(function(require, exports, module) {
             this.__createView(this.__type__, id);
 
             //scroll后一断时间内的touchstart、click、touchend都吞掉。scroll之后任意长时间的第一次没有touchstart的touchend也吞掉
-            var UN_CLICKABLE_TIME = 180;
+            var UN_CLICKABLE_TIME = 10;
             var lastScrollTime;
             var fingerStillOnScreenForScroll = false;
             this.addEventListener("scroll", recordScroll);

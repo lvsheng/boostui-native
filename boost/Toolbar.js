@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
+    var Event = require("boost/Event");
     var LayoutStyle = require("boost/LayoutStyle");
     var backgroundPage = require("boost/nativeObject/backgroundPage");
     var TYPE_ID = require("boost/TYPE_ID");
@@ -18,6 +19,9 @@ define(function (require, exports, module) {
                 case "openpage":
                     //外界不需关心，不向外派发，这里直接处理
                     backgroundPage.postMessage("openPage", e.data);
+                    break;
+                case "share":
+                    this.dispatchEvent(new Event(this, "share"));
                     break;
                 default:
                     NativeElement.prototype.__onEvent.call(this, type, e);
