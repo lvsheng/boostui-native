@@ -20,7 +20,9 @@ define(function (require, exports, module) {
         },
         "set src": function (value) {
             var url;
-            if (/^https?:\/\//.test(value)) {
+            if (!value) {
+                url = null;
+            } else if (/^https?:\/\//.test(value)) {
                 url = value;
             } else {
                 var host = location.protocol + "//" + location.hostname;

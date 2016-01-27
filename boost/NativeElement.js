@@ -20,7 +20,7 @@ define(function(require, exports, module) {
         this.__createView(this.__type__);
 
         //scroll后一断时间内的touchstart、click、touchend都吞掉。scroll之后任意长时间的第一次没有touchstart的touchend也吞掉
-        var UN_CLICKABLE_TIME = 180;
+        var UN_CLICKABLE_TIME = 10;
         var lastScrollTime;
         var fingerStillOnScreenForScroll = false;
         this.addEventListener("scroll", recordScroll);
@@ -42,6 +42,7 @@ define(function(require, exports, module) {
         this.addEventListener("click", stopEventIfNeed, true);
         function recordScroll (e) {
             lastScrollTime = e.timeStamp;
+            //console.info(lastScrollTime);
 
             // 这里只要scroll了，就假设手指还在屏幕上。
             // 在用户松手后还在惯性滚动的情况、以及touchstart->touchend->scroll事件序列下(用户松手了才开始滚)，此变量不准，由下次touchstart中进行修正

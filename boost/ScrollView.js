@@ -34,7 +34,7 @@ define(function (require, exports, module) {
             return new ViewStyle();
         },
         scrollTo: function (location) {
-            this.nativeObject.__callNative("scrollTo", [location]);
+            this.nativeObject.__callNative("scrollTo", [location * window.devicePixelRatio]);
         },
         setLinkage: function (couple) {
             assert(couple instanceof Couple);
