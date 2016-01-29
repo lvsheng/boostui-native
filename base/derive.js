@@ -140,7 +140,7 @@ define(function (require, exports, module) {
         //});
 
         subClass.prototype = subClassPrototype;
-        subClassPrototype.constructor = subClass;
+        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故去除
         return subClass;
     }
 

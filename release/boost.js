@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Jan 20 2016 22:50:28 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atFri Jan 29 2016 10:54:24 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -335,7 +335,7 @@ define("base/derive",function(require, exports, module) {
         //});
 
         subClass.prototype = subClassPrototype;
-        subClassPrototype.constructor = subClass;
+        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故去除
         return subClass;
     }
 
@@ -459,6 +459,21 @@ define("base/isPlainObject",function(require, exports, module) {
 
     module.exports = isPlainObject;
 });
+define("base/log",function(require, exports, module) {
+    var inDebug = localStorage.getItem("inDebug");
+
+    ["log", "info", "error", "warn"].forEach(function (name) {
+        exports[name] = function () {
+            //if (!localStorage.getItem("inDebug")) {
+            if (!inDebug) {
+                return;
+            }
+
+            console[name].apply(console, arguments);
+        };
+    });
+});
+
 define("base/slice",function(require, exports, module) {
     "use strict";
 
@@ -2301,7 +2316,9 @@ define("boost/Image",function(require, exports, module) {
         },
         "set src": function (value) {
             var url;
-            if (/^https?:\/\//.test(value)) {
+            if (!value) {
+                url = null;
+            } else if (/^https?:\/\//.test(value)) {
                 url = value;
             } else {
                 var host = location.protocol + "//" + location.hostname;
@@ -2597,7 +2614,7 @@ define("boost/NativeElement",function(require, exports, module) {
             this.__createView(this.__type__, id);
 
             //scroll后一断时间内的touchstart、click、touchend都吞掉。scroll之后任意长时间的第一次没有touchstart的touchend也吞掉
-            var UN_CLICKABLE_TIME = 180;
+            var UN_CLICKABLE_TIME = 10;
             var lastScrollTime;
             var fingerStillOnScreenForScroll = false;
             this.addEventListener("scroll", recordScroll);
@@ -2802,7 +2819,6 @@ define("boost/RootView",function(require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var StyleSheet = require("boost/StyleSheet");
     var ViewStylePropTypes = require("boost/ViewStylePropTypes");
-    var ElementNativeObject = require("boost/nativeObject/Element");
     var TYPE_ID = require("boost/TYPE_ID");
 
     var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
@@ -2879,7 +2895,7 @@ define("boost/ScrollView",function(require, exports, module) {
                 this.nativeObject.__webElement__.scrollTop = location;
                 return;
             }
-            this.nativeObject.__callNative("scrollTo", [location]);
+            this.nativeObject.__callNative("scrollTo", [location * window.devicePixelRatio]);
         },
         setLinkage: function (linkage) {
             assert(linkage instanceof Linkage);
@@ -3658,6 +3674,7 @@ define("boost/Toolbar",function(require, exports, module) {
     var derive = require("base/derive");
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
+    var Event = require("boost/Event");
     var LayoutStyle = require("boost/LayoutStyle");
     var backgroundPage = require("boost/nativeObject/backgroundPage");
     var TYPE_ID = require("boost/TYPE_ID");
@@ -3671,6 +3688,9 @@ define("boost/Toolbar",function(require, exports, module) {
                 case "openpage":
                     //外界不需关心，不向外派发，这里直接处理
                     backgroundPage.postMessage("openPage", e.data);
+                    break;
+                case "share":
+                    this.dispatchEvent(new Event(this, "share"));
                     break;
                 default:
                     NativeElement.prototype.__onEvent.call(this, type, e);
@@ -3899,8 +3919,13 @@ define("boost/boost",function(require, exports, module) {
             }
             return this.__docuemntElement__;
         },
-        createElement: function (tagName) {
-            var element = elementCreator.create(tagName);
+        /**
+         * @param tagName
+         * @param [extraData]
+         * @returns {Element}
+         */
+        createElement: function (tagName, extraData) {
+            var element = elementCreator.create(tagName, extraData);
 
             this.dispatchEvent({
                 type: "createElement",
@@ -3917,7 +3942,8 @@ define("boost/boost",function(require, exports, module) {
             this.__documentElementZIndex__ = zIndex;
         },
         addLayer: function (zIndex) {
-            var rootView = this.createElement("RootView", nativeVersion.inIOS() ? -8 : undefined); //TODO: support multi layer in ios
+            //var rootView = this.createElement("RootView", nativeVersion.inIOS() ? -8 : undefined); //TODO: support multi layer in ios
+            var rootView = this.createElement("RootView"); //TODO: support multi layer in ios
 
             if (nativeVersion.shouldUseWeb()) {
                 document.body.appendChild(rootView.__native__.__webElement__);
@@ -4327,7 +4353,7 @@ define("boost/elementCreator",function(require, exports, module) {
     exports.register = function (tagName, options) {
         tagMap[tagName.toUpperCase()] = options.constructor;
     };
-    exports.create = function (tagName, extraData) {
+    exports.create = function (tagName, extraData) { //TODO: remove when ios support multi layer, this is just for that
         tagName = tagName.toUpperCase();
         assert(hasOwnProperty(tagMap, tagName), "unknow tag \"" + tagName + "\"");
 
@@ -4491,7 +4517,7 @@ define("boost/mainModule",function(require, exports, module) {
     tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });
 define("boost/methodMap",function(require, exports, module) {
-    var inDebug = false;
+    var inDebug = true;
 
     var map = {
         add: 20,
@@ -5318,6 +5344,17 @@ define("boost/nativeObject/lightApi",function(require, exports, module) {
             } else {
                 this.__callNative("getLocationCityName", [], callback);
             }
+        },
+
+        /**
+         * 只应由背景页调用
+         * 用于通知native背景页ready了
+         * 背景：开始没网时，背景页与前景页都加载失败，但有网后点击刷新如果只刷新前景页则背景页仍然不出现导致前景页打开新页面等功能不能被响应
+         * 故背景页ready后通知native，native在刷新前景页且背景页没有ready时同时刷新背景页
+         * add at v2.3
+         */
+        setBackgroundPageReady: function () {
+            this.__callNative("setBackgroundPageReady", [true]);
         }
     });
 
@@ -5331,9 +5368,11 @@ define("boost/nativeVersion",function(require, exports, module) {
         version = regResult[1];
     }
 
-    //FIXME: this is for ios
-    var inIOS = false;
-    version = 2.3;
+    //FIXME: this is just for debug in ios
+    var inIOS = location.hash === "#ios";
+    if (inIOS) {
+        version = 2.3;
+    }
 
     /**
      * @returns {Number} 两位版本。若不在o2o下，返回0
