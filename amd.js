@@ -2,7 +2,7 @@ var require, define;
 (function () {
     var factoryMap = {};
     var moduleMap = {};
-    var watingModules = [];
+    var waitingModules = [];
     define = function (name, factory) {
         factoryMap[name] = factory;
     };
@@ -27,10 +27,10 @@ var require, define;
             throw "not existed module " + name;
         }
 
-        var index = watingModules.indexOf(name);
-        watingModules.push(name);
+        var index = waitingModules.indexOf(name);
+        waitingModules.push(name);
         if (index > -1) {
-            throw "循环依赖咯:" + watingModules.slice(index).join(" > ");
+            throw "循环依赖咯:" + waitingModules.slice(index).join(" > ");
         }
         var module = {
             exports: {}
@@ -40,6 +40,6 @@ var require, define;
             console.error("不支持return模块内容，请直接更改module.exports哦");
         }
         moduleMap[name] = module.exports;
-        watingModules.pop();
+        waitingModules.pop();
     }
 })();

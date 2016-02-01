@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atMon Feb 01 2016 11:32:28 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atMon Feb 01 2016 18:21:19 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -31,7 +31,7 @@
 (function () {
     var factoryMap = {};
     var moduleMap = {};
-    var watingModules = [];
+    var waitingModules = [];
     define = function (name, factory) {
         factoryMap[name] = factory;
     };
@@ -56,10 +56,10 @@
             throw "not existed module " + name;
         }
 
-        var index = watingModules.indexOf(name);
-        watingModules.push(name);
+        var index = waitingModules.indexOf(name);
+        waitingModules.push(name);
         if (index > -1) {
-            throw "循环依赖咯:" + watingModules.slice(index).join(" > ");
+            throw "循环依赖咯:" + waitingModules.slice(index).join(" > ");
         }
         var module = {
             exports: {}
@@ -69,7 +69,7 @@
             console.error("不支持return模块内容，请直接更改module.exports哦");
         }
         moduleMap[name] = module.exports;
-        watingModules.pop();
+        waitingModules.pop();
     }
 })();
 "use strict";
@@ -1145,11 +1145,11 @@ define("boost/BoostPage",function(require, exports, module) {
                 this.nativeObject.__callNative("canGoBackOrForward", [1], callback);
             }
         },
-        goBackOrForward: function (steps) {
-            this.nativeObject.__callNative("goBackOrForward", [steps]);
-        },
         goBack: function () {
             this.nativeObject.__callNative("goBack", []);
+        },
+        goForward: function () {
+            this.nativeObject.__callNative("goForward", []);
         },
         /**
          * @param type
