@@ -12,4 +12,8 @@ define(function (require, exports, module) {
     exports.get = function () {
         return parseFloat(version);
     };
+
+    exports.inBox = function () {
+        return this.get() == 2.3; //TODO: 暂时用此来判断2.3
+    };
 });
