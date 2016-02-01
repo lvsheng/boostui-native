@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atFri Jan 29 2016 10:54:24 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atMon Feb 01 2016 11:32:28 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1095,6 +1095,7 @@ define("boost/BoostPage",function(require, exports, module) {
     var LayoutPropTypes = require("boost/LayoutPropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var ViewStyle = derive(StyleSheet, LayoutPropTypes);
     var BoostPage = derive(NativeElement, function () {
@@ -1130,8 +1131,19 @@ define("boost/BoostPage",function(require, exports, module) {
         reload: function () {
             this.nativeObject.__callNative("reload", []);
         },
-        canGoBackOrForward: function (steps, callback) {
-            this.nativeObject.__callNative("canGoBackOrForward", [steps], callback);
+        canGoBack: function (callback) {
+            if (nativeVersion.inIOS()) {
+                this.nativeObject.__callNative("canGoBack", [], callback);
+            } else {
+                this.nativeObject.__callNative("canGoBackOrForward", [-1], callback);
+            }
+        },
+        canGoForward: function (callback) {
+            if (nativeVersion.inIOS()) {
+                this.nativeObject.__callNative("canGoForward", [], callback);
+            } else {
+                this.nativeObject.__callNative("canGoBackOrForward", [1], callback);
+            }
         },
         goBackOrForward: function (steps) {
             this.nativeObject.__callNative("goBackOrForward", [steps]);
@@ -5354,7 +5366,9 @@ define("boost/nativeObject/lightApi",function(require, exports, module) {
          * add at v2.3
          */
         setBackgroundPageReady: function () {
-            this.__callNative("setBackgroundPageReady", [true]);
+            if (nativeVersion.inAndroid()) {
+                this.__callNative("setBackgroundPageReady", [true]);
+            }
         }
     });
 

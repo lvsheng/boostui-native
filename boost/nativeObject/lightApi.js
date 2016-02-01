@@ -93,7 +93,9 @@ define(function (require, exports, module) {
          * add at v2.3
          */
         setBackgroundPageReady: function () {
-            this.__callNative("setBackgroundPageReady", [true]);
+            if (nativeVersion.inAndroid()) {
+                this.__callNative("setBackgroundPageReady", [true]);
+            }
         }
     });
 

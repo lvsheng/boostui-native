@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var LayoutPropTypes = require("boost/LayoutPropTypes");
     var StyleSheet = require("boost/StyleSheet");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var ViewStyle = derive(StyleSheet, LayoutPropTypes);
     var BoostPage = derive(NativeElement, function () {
@@ -43,8 +44,19 @@ define(function (require, exports, module) {
         reload: function () {
             this.nativeObject.__callNative("reload", []);
         },
-        canGoBackOrForward: function (steps, callback) {
-            this.nativeObject.__callNative("canGoBackOrForward", [steps], callback);
+        canGoBack: function (callback) {
+            if (nativeVersion.inIOS()) {
+                this.nativeObject.__callNative("canGoBack", [], callback);
+            } else {
+                this.nativeObject.__callNative("canGoBackOrForward", [-1], callback);
+            }
+        },
+        canGoForward: function (callback) {
+            if (nativeVersion.inIOS()) {
+                this.nativeObject.__callNative("canGoForward", [], callback);
+            } else {
+                this.nativeObject.__callNative("canGoBackOrForward", [1], callback);
+            }
         },
         goBackOrForward: function (steps) {
             this.nativeObject.__callNative("goBackOrForward", [steps]);
