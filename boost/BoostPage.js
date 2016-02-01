@@ -58,11 +58,11 @@ define(function (require, exports, module) {
                 this.nativeObject.__callNative("canGoBackOrForward", [1], callback);
             }
         },
-        goBackOrForward: function (steps) {
-            this.nativeObject.__callNative("goBackOrForward", [steps]);
-        },
         goBack: function () {
             this.nativeObject.__callNative("goBack", []);
+        },
+        goForward: function () {
+            this.nativeObject.__callNative("goForward", []);
         },
         /**
          * @param type
