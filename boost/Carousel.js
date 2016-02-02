@@ -447,21 +447,23 @@ define(function (require, exports, module) {
          * 屏幕旋转后的处理函数
          */
         _spin: function () {
-            //FIXME:
             var that = this;
-            var $ul = this.$ul;
-            var $li = this.$li;
+            var webContainer = getWebEl(this.containerEl);
+            var firstEl = webContainer.childNodes[0];
+            var lastEl = webContainer.childNodes[webContainer.childNodes.length - 1];
+            //var $li = this.$li;
             var options = this.options;
 
             this.paused();
             var widthOrHeight = options.axisX ? this._getWidth() : this._getHeight();
-            this._fnTranslate($ul.children().first(), widthOrHeight * -1);
-            this._fnTranslate($ul.children().last(), widthOrHeight * that.containerEl.childNodes.length);
+            this._fnTranslate($(firstEl), widthOrHeight * -1);
+            this._fnTranslate($(lastEl), widthOrHeight * that.containerEl.childNodes.length);
 
             // 给初始图片定位
-            $li.each(function (i) {
-                that._fnTranslate($(this), (options.axisX ? that._getWidth() : that._getHeight()) * i);
-            });
+            //$li.each(function (i) {
+            //    that._fnTranslate($(this), (options.axisX ? that._getWidth() : that._getHeight()) * i);
+            //});
+            this._locateItem();
             this.start();
             this.next();
         },
