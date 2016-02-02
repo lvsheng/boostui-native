@@ -19,12 +19,17 @@ define(function (require, exports, module) {
      */
     function genFromWebEvent (e, type) {
         var target = e.target;
+
         if (e.type === "touchend") {
             //touchend时e.target仍为touchstart的元素，故单独查找
             target = document.elementFromPoint(
                 e.changedTouches[0].pageX,
                 e.changedTouches[0].pageY
             );
+        }
+
+        if (!target) {
+            return;
         }
 
         var originId = target.__boost_origin__;
