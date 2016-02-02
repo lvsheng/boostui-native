@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Feb 02 2016 15:55:23 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Feb 02 2016 17:44:02 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1232,6 +1232,9 @@ define("boost/Carousel",function(require, exports, module) {
     var boostEventGenerator = require("boost/boostEventGenerator");
 
     var ViewPager = require("boost/ViewPager");
+    /**
+     * FIXME: 目前依赖于父元素上的宽高（后续使用shadow-dom解决）
+     */
     var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
         this._sliderWidget = new SliderWidget({
@@ -1256,25 +1259,33 @@ define("boost/Carousel",function(require, exports, module) {
             this.__update("loopScrollDuration", number(value));
         },
 
-        //__createWebElement: function (info) {
-        //    return document.createElement("div");
-        //},
+        __createWebElement: function (info) {
+            var webElement = document.createElement("div");
+            webElement.style.flexDirection = "row";
+            webElement.style.position = "absolute"; //FIXME: 为了不因flex由父元素影响自己的宽度
+            return webElement;
+        },
         __addComposedChildAt: function (child, index) {
-            var that = this;
             NativeElement.prototype.__addComposedChildAt.call(this, child, index);
-            setTimeout(function () { //FIXME: 为了能内部元素的样式也复制上，这里加个延时
-                that._sliderWidget._cloneIfNeed();
-                that._sliderWidget._locateItem();
-            }, 0);
+            var that = this;
+            this.__requestUpdateSliderWidget();
         },
         __removeComposedChildAt: function (index) {
-            var that = this;
             NativeElement.prototype.__removeComposedChildAt.call(this, index);
-            setTimeout(function () {
+            this.__requestUpdateSliderWidget();
+        },
+        __requestUpdateSliderWidget: function () {
+            if (this._updateSliderWidgetTimer) {
+                return;
+            }
+            var that = this;
+            that._updateSliderWidgetTimer = setTimeout(function () { //FIXME: 为了能内部元素的样式也复制上，这里加个延时、顺便批量只做一次
                 that._sliderWidget._cloneIfNeed();
                 that._sliderWidget._locateItem();
+
+                that._updateSliderWidgetTimer = null;
             }, 0);
-        },
+        }
         //__showItemInWeb: function (index) {
         //    assert(index < this.__children__.length, "index of item to show could not exceed the amount of children");
         //    assert(nativeVersion.shouldUseWeb());
@@ -1317,32 +1328,33 @@ define("boost/Carousel",function(require, exports, module) {
             var options = this.options;
 
             this.containerEl = options.container;
-            this.$container =
-                this.$ul = $(this.containerEl); //TODO
             var that = this;
 
             var whichEvent = ('orientationchange' in win) ? 'orientationchange' : 'resize';
             win.addEventListener(whichEvent, function () {
-                that._liWidth = getSizeInWeb(that.containerEl).width;
-                that._liHeight = getSizeInWeb(that.containerEl).height;
                 that._spin();
             }, false);
+        },
+        _getWidth: function () {
+            return getSizeInWeb(this.containerEl.parentNode).width; //FIXME: 不应从父元素上取
+        },
+        _getHeight: function () {
+            return getSizeInWeb(this.containerEl.parentNode).height; //FIXME: 不应从父元素上取
         },
         /**
          * _init 初始化的时候调用
          * @private
          */
         _init: function () {
-            var that = this;
-
-            that._liWidth = getSizeInWeb(that.containerEl).width;
-            that._liHeight = getSizeInWeb(that.containerEl).height;
-
             this.autoScroll = null;     // 自动播放interval对象
             this._index = 0;            // 当前幻灯片位置
 
-            //that._fnAutoSwipe();
+            this._fnAutoSwipe();
             this._initEvent();
+            var that = this;
+            setTimeout(function () {
+                that._fnScroll(0);
+            }, 0);
         },
         /**
          * FIXME: call on append/remove child...
@@ -1370,18 +1382,18 @@ define("boost/Carousel",function(require, exports, module) {
             containerWebEl.appendChild(this._clonedFirstEl);
             this._clonedLastEl = getWebEl(this.containerEl.childNodes[childLength - 1]).cloneNode(true);
             containerWebEl.insertBefore(this._clonedLastEl, containerWebEl.childNodes[0]);
-
-            var widthOrHeight = this.options.axisX ? this._liWidth : this._liHeight;
-            this._fnTranslate($(this._clonedFirstEl), widthOrHeight * -1);
-            this._fnTranslate($(this._clonedLastEl), widthOrHeight * this.containerEl.childNodes.length);
         },
         _locateItem: function () {
             var that = this;
             var opts = that.options;
+            var webContainer = getWebEl(this.containerEl);
             // 给初始图片定位
-            for (var i = 0; i < this.containerEl.childNodes.length; ++i) {
-                var child = this.containerEl.childNodes[i];
-                that._fnTranslate($(child), (opts.axisX ? that._liWidth : that._liHeight) * i);
+            //for (var i = 0; i < this.containerEl.childNodes.length; ++i) {
+            for (var i = 0; i < webContainer.childNodes.length; ++i) {
+                var child = webContainer.childNodes[i];
+                //that._fnTranslate($(getWebEl(child)), (opts.axisX ? that._getWidth() : that._getHeight()) * i);
+                child.style.width = that._getWidth() + "px";
+                child.style.height = that._getHeight() + "px";
             }
         },
 
@@ -1431,7 +1443,8 @@ define("boost/Carousel",function(require, exports, module) {
                 }
 
                 if (that.options.axisX && Math.abs(that.moveX) > Math.abs(that.moveY)) {
-                    that._fnTranslate($(getWebEl(that.containerEl)), -(that._liWidth * (parseInt(that._index, 10)) - that.moveX));
+                    var _index = that._index;
+                    that._fnTranslate($(getWebEl(that.containerEl)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
                 }
             }
 
@@ -1581,8 +1594,6 @@ define("boost/Carousel",function(require, exports, module) {
                 that._fnScroll(.3);
             }
 
-            that._setDotActive();
-
             // callback(_index);
         },
         /**
@@ -1591,27 +1602,15 @@ define("boost/Carousel",function(require, exports, module) {
          * @param  {number} num num
          */
         _fnScroll: function (num) {
-            var $ul = this.$ul;
             var _index = this._index;
-            var _liWidth = this._liWidth;
-            var _liHeight = this._liHeight;
             var opts = this.options;
 
-            this._transitionHandle($ul, num);
-            if (opts.axisX) {
-                this._fnTranslate($ul, -_index * _liWidth);
-            }
-            else {
-                this._fnTranslate($ul, -_index * _liHeight);
-            }
-        },
-        /**
-         * 设置圆点的状态
-         * @private
-         */
-        _setDotActive: function () {
-            this.$controlOl.find('li a').removeClass(NAMESPACE + 'slider-active');
-            this.$controlOl.find('li').eq(this._index).find('a').addClass(NAMESPACE + 'slider-active');
+            this._transitionHandle($(getWebEl(this.containerEl)), num);
+
+            var singleSize = opts.axisX ? this._getWidth() : this._getHeight();
+            var size = singleSize * -_index - singleSize;
+
+            this._fnTranslate($(getWebEl(this.containerEl)), size);
         },
         /**
          * judge the device
@@ -1634,19 +1633,20 @@ define("boost/Carousel",function(require, exports, module) {
          * 屏幕旋转后的处理函数
          */
         _spin: function () {
+            //FIXME:
             var that = this;
             var $ul = this.$ul;
             var $li = this.$li;
             var options = this.options;
 
             this.paused();
-            var widthOrHeight = options.axisX ? this._liWidth : this._liHeight;
+            var widthOrHeight = options.axisX ? this._getWidth() : this._getHeight();
             this._fnTranslate($ul.children().first(), widthOrHeight * -1);
             this._fnTranslate($ul.children().last(), widthOrHeight * that.containerEl.childNodes.length);
 
             // 给初始图片定位
             $li.each(function (i) {
-                that._fnTranslate($(this), (options.axisX ? that._liWidth : that._liHeight) * i);
+                that._fnTranslate($(this), (options.axisX ? that._getWidth() : that._getHeight()) * i);
             });
             this.start();
             this.next();
@@ -1657,7 +1657,6 @@ define("boost/Carousel",function(require, exports, module) {
          */
         next: function () {
             this._fnMoveNext();
-            return this.$container;
         },
         /**
          * 上一张幻灯片
@@ -1665,7 +1664,6 @@ define("boost/Carousel",function(require, exports, module) {
          */
         prev: function () {
             this._fnMovePrev();
-            return this.$container;
         },
         /**
          * 暂停
@@ -1673,12 +1671,10 @@ define("boost/Carousel",function(require, exports, module) {
          */
         paused: function () {
             clearInterval(this.autoScroll);
-            return this.$container;
         },
         start: function () {
             clearInterval(this.autoScroll);
             this._fnAutoSwipe();
-            return this.$container;
         }
     };
 
