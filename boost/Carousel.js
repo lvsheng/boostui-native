@@ -21,16 +21,19 @@ define(function (require, exports, module) {
      */
     var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
-        var that = this;
-        that._sliderWidget = new SliderWidget({
-            autoSwipe: false,
-            continuousScroll: false,
-            container: that
-        }, function (index) {
-            boostEventGenerator.gen("selected", {position: index}, that.tag);
-        }, function () {
-            boostEventGenerator.gen("pagescroll", {}, that.tag);
-        });
+
+        if (nativeVersion.shouldUseWeb()) {
+            var that = this;
+            that._sliderWidget = new SliderWidget({
+                autoSwipe: false,
+                continuousScroll: false,
+                container: that
+            }, function (index) {
+                boostEventGenerator.gen("selected", {position: index}, that.tag);
+            }, function () {
+                boostEventGenerator.gen("pagescroll", {}, that.tag);
+            });
+        }
     }, {
         __getRealTagName: function () {
             return "Carousel";
@@ -38,14 +41,18 @@ define(function (require, exports, module) {
         "set loop": function (value) {
             this.__update("loop", boolean(value));
 
-            this._sliderWidget.options.continuousScroll = value;
-            this._sliderWidget.options.autoSwipe = value;
+            if (nativeVersion.shouldUseWeb()) {
+                this._sliderWidget.options.continuousScroll = value;
+                this._sliderWidget.options.autoSwipe = value;
+            }
         },
         "set duration": function (value) { //多久滚一次
             this.__update("duration", number(value));
 
-            this._sliderWidget.options.speed = value;
-            this._sliderWidget._fnAutoSwipe();
+            if (nativeVersion.shouldUseWeb()) {
+                this._sliderWidget.options.speed = value;
+                this._sliderWidget._fnAutoSwipe();
+            }
         },
         "set speed": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
@@ -69,6 +76,9 @@ define(function (require, exports, module) {
             this.__requestUpdateSliderWidget();
         },
         __requestUpdateSliderWidget: function () {
+            if (!nativeVersion.shouldUseWeb()) {
+                return;
+            }
             if (this._updateSliderWidgetTimer) {
                 return;
             }
