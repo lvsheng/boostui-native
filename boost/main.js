@@ -135,6 +135,7 @@ require([
     exportsMethod("getLocatedCity", lightApi);
     exportsMethod("showInputMethod", lightApi);
     exportsMethod("hideInputMethod", lightApi);
+    exportsMethod("inBox", nativeVersion);
 
     window.boost = exportBoost;
 

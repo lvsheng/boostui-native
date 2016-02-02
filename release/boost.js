@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atMon Feb 01 2016 18:21:19 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atMon Feb 01 2016 18:28:33 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -5403,6 +5403,10 @@ define("boost/nativeVersion",function(require, exports, module) {
     exports.inAndroid = function () {
         return !this.shouldUseWeb() && !this.inIOS();
     };
+
+    exports.inBox = function () {
+        return this.get() == 2.3; //TODO: 暂时用此来判断2.3
+    };
 });
 define("boost/shadowDomUtil/compareElementOrder",function(require, exports, module) {
     var assert = require("base/assert");
@@ -6717,6 +6721,7 @@ require([
     exportsMethod("getLocatedCity", lightApi);
     exportsMethod("showInputMethod", lightApi);
     exportsMethod("hideInputMethod", lightApi);
+    exportsMethod("inBox", nativeVersion);
 
     window.boost = exportBoost;
 
