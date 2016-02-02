@@ -29,6 +29,7 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
+    "boost/Carousel",
     "boost/elementCreator"
 ], function (
     assert, type, derive, each, copyProperties,
@@ -47,6 +48,7 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
+    Carousel,
     elementCreator
 ) {
     console.log("boost/main.js module start");
@@ -65,7 +67,8 @@ require([
         "ViewPager": ViewPager,
         "Toolbar": Toolbar,
         "BoostPage": BoostPage,
-        "RootView": RootView
+        "RootView": RootView,
+        "Carousel": Carousel
     };
     each(TAG_MAP, function (constructor, tagName) {
         elementCreator.register(tagName, {

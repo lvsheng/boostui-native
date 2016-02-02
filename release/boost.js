@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atMon Feb 01 2016 18:28:33 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Feb 02 2016 12:51:17 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1211,9 +1211,6 @@ define("boost/Carousel",function(require, exports, module) {
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
     var Event = require("boost/Event");
-    var ViewStylePropTypes = require("boost/ViewStylePropTypes");
-    var StyleSheet = require("boost/StyleSheet");
-    var ViewStyle = derive(StyleSheet, ViewStylePropTypes);
     var boolean = require("boost/validator").boolean;
     var number = require("boost/validator").number;
     var Linkage = require("boost/nativeObject/Linkage");
@@ -1222,7 +1219,7 @@ define("boost/Carousel",function(require, exports, module) {
     var boostEventGenerator = require("boost/boostEventGenerator");
 
     var ViewPager = require("boost/ViewPager");
-    var Carousel = derive(NativeElement, function () {
+    var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
     }, {
         __getRealTagName: function () {
@@ -1231,32 +1228,11 @@ define("boost/Carousel",function(require, exports, module) {
         "set loop": function (value) {
             this.__update("loop", boolean(value));
         },
-        "set speed": function (value) { //多久滚一次
+        "set duration": function (value) { //多久滚一次
             this.__update("duration", number(value));
         },
-        "set loopScrollDuration": function (value) { //一次要多久
+        "set speed": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
-        },
-        setLinkage: function (linkage) {
-            assert(linkage instanceof Linkage);
-            this.nativeObject.__callNative("setLinkage", [linkage.tag]);
-        },
-        getCurrentItem: function () {
-            return this.__currentItem__;
-        },
-        /**
-         * @param index {int}
-         * @param [smooth] {boolean}
-         */
-        setCurrentItem: function (index, smooth) {
-            if (nativeVersion.shouldUseWeb()) {
-                this.__showItemInWeb(index);
-                //选中事件在o2o下由native派发，而web下自己派发
-                boostEventGenerator.gen("selected", {position: index}, this.tag);
-            } else {
-                this.nativeObject.__callNative("setCurrentItem", [index, smooth || true]);
-            }
-            //真正对this.__currentItem__的修改在__onEvent里统一对web与o2o下进行
         },
 
         __createWebElement: function (info) {
@@ -4013,12 +3989,17 @@ define("boost/boostEventGenerator",function(require, exports, module) {
      */
     function genFromWebEvent (e, type) {
         var target = e.target;
+
         if (e.type === "touchend") {
             //touchend时e.target仍为touchstart的元素，故单独查找
             target = document.elementFromPoint(
                 e.changedTouches[0].pageX,
                 e.changedTouches[0].pageY
             );
+        }
+
+        if (!target) {
+            return;
         }
 
         var originId = target.__boost_origin__;
@@ -6615,6 +6596,7 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
+    "boost/Carousel",
     "boost/elementCreator"
 ], function (
     assert, type, derive, each, copyProperties,
@@ -6633,6 +6615,7 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
+    Carousel,
     elementCreator
 ) {
     console.log("boost/main.js module start");
@@ -6651,7 +6634,8 @@ require([
         "ViewPager": ViewPager,
         "Toolbar": Toolbar,
         "BoostPage": BoostPage,
-        "RootView": RootView
+        "RootView": RootView,
+        "Carousel": Carousel
     };
     each(TAG_MAP, function (constructor, tagName) {
         elementCreator.register(tagName, {
