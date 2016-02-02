@@ -21,10 +21,15 @@ define(function (require, exports, module) {
      */
     var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
-        this._sliderWidget = new SliderWidget({
+        var that = this;
+        that._sliderWidget = new SliderWidget({
             autoSwipe: false,
             continuousScroll: false,
-            container: this
+            container: that
+        }, function (index) {
+            boostEventGenerator.gen("selected", {position: index}, that.tag);
+        }, function () {
+            boostEventGenerator.gen("pagescroll", {}, that.tag);
         });
     }, {
         __getRealTagName: function () {
@@ -38,9 +43,14 @@ define(function (require, exports, module) {
         },
         "set duration": function (value) { //多久滚一次
             this.__update("duration", number(value));
+
+            this._sliderWidget.options.speed = value;
+            this._sliderWidget._fnAutoSwipe();
         },
         "set speed": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
+
+            //FIXME: web下不能控制
         },
 
         __createWebElement: function (info) {
@@ -82,10 +92,13 @@ define(function (require, exports, module) {
     });
 
     //from https://github.com/Clouda-team/boostui/blob/master/widget/slider/slider.js
-    function SliderWidget (options) {
+    function SliderWidget (options, selectCallback, scrollCallback) {
         this.options = copyProperties({}, this.options, options);
         this._create();
         this._init();
+
+        this._selectCallback = selectCallback;
+        this._scrollCallback = scrollCallback;
     }
     SliderWidget.prototype = {
         /**
@@ -230,6 +243,8 @@ define(function (require, exports, module) {
                     var _index = that._index;
                     that._fnTranslate($(getWebEl(that.containerEl)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
                 }
+
+                that._scrollCallback();
             }
 
             function endHandler(evt) {
@@ -317,6 +332,7 @@ define(function (require, exports, module) {
         _fnMoveNext: function () {
             this._index++;
             this._fnMove();
+            this._selectCallback(this._index);
         },
         /**
          * 上一屏滚动
@@ -325,6 +341,7 @@ define(function (require, exports, module) {
         _fnMovePrev: function () {
             this._index--;
             this._fnMove();
+            this._selectCallback(this._index);
         },
         /**
          * 自动滑动
@@ -386,6 +403,7 @@ define(function (require, exports, module) {
          * @param  {number} num num
          */
         _fnScroll: function (num) {
+            var that = this;
             var _index = this._index;
             var opts = this.options;
 
@@ -395,6 +413,18 @@ define(function (require, exports, module) {
             var size = singleSize * -_index - singleSize;
 
             this._fnTranslate($(getWebEl(this.containerEl)), size);
+
+            if (num > 0) {
+                var start = +new Date();
+                var timer = setInterval(function () {
+                    var now = +new Date();
+                    if ((now - start) / 1000 > num) {
+                        clearInterval(timer);
+                        return;
+                    }
+                    that._scrollCallback();
+                }, 20);
+            }
         },
         /**
          * judge the device
