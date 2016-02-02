@@ -27,6 +27,9 @@ define(function (require, exports, module) {
     exports.inAndroid = function () {
         return !this.shouldUseWeb() && !this.inIOS();
     };
+    exports.inNative = function () {
+        return !this.shouldUseWeb();
+    };
 
     exports.inBox = function () {
         return this.get() == 2.3; //TODO: 暂时用此来判断2.3

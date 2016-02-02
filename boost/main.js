@@ -139,11 +139,15 @@ require([
     exportsMethod("showInputMethod", lightApi);
     exportsMethod("hideInputMethod", lightApi);
     exportsMethod("inBox", nativeVersion);
+    exportsMethod("inWeb", nativeVersion, "shouldUseWeb");
 
     window.boost = exportBoost;
 
-    function exportsMethod (methodName, obj) {
-        exportBoost[methodName] = $.proxy(obj[methodName], obj);
+    function exportsMethod (methodName, obj, fromMethodName) {
+        if (!fromMethodName) {
+            fromMethodName = methodName;
+        }
+        exportBoost[methodName] = $.proxy(obj[fromMethodName], obj);
     }
 
     if (nativeVersion.shouldUseWeb()) {
