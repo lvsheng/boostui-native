@@ -242,9 +242,9 @@ define(function (require, exports, module) {
                 if (that.options.axisX && Math.abs(that.moveX) > Math.abs(that.moveY)) {
                     var _index = that._index;
                     that._fnTranslate($(getWebEl(that.containerEl)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
-                }
 
-                that._scrollCallback();
+                    that._scrollCallback();
+                }
             }
 
             function endHandler(evt) {
@@ -260,10 +260,10 @@ define(function (require, exports, module) {
 
                 // 距离小
                 if (opts.axisX && Math.abs(that.moveY) > Math.abs(that.moveX)) {
-                    that._fnScroll(.3);
+                    that._fnScroll(.3, true);
                     that._fnAutoSwipe();
                 } else if (Math.abs(that.moveDistance) <= _touchDistance) {
-                    that._fnScroll(.3);
+                    that._fnScroll(.3, true);
                 } else {
                     // 距离大
                     // 手指触摸上一屏滚动
@@ -402,7 +402,7 @@ define(function (require, exports, module) {
          * @private
          * @param  {number} num num
          */
-        _fnScroll: function (num) {
+        _fnScroll: function (num, noScrollCallback) {
             var that = this;
             var _index = this._index;
             var opts = this.options;
@@ -414,7 +414,7 @@ define(function (require, exports, module) {
 
             this._fnTranslate($(getWebEl(this.containerEl)), size);
 
-            if (num > 0) {
+            if (num > 0 && !noScrollCallback) {
                 var start = +new Date();
                 var timer = setInterval(function () {
                     var now = +new Date();

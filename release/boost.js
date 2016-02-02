@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Feb 02 2016 17:58:28 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Feb 02 2016 18:22:59 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1458,9 +1458,9 @@ define("boost/Carousel",function(require, exports, module) {
                 if (that.options.axisX && Math.abs(that.moveX) > Math.abs(that.moveY)) {
                     var _index = that._index;
                     that._fnTranslate($(getWebEl(that.containerEl)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
-                }
 
-                that._scrollCallback();
+                    that._scrollCallback();
+                }
             }
 
             function endHandler(evt) {
@@ -1476,10 +1476,10 @@ define("boost/Carousel",function(require, exports, module) {
 
                 // 距离小
                 if (opts.axisX && Math.abs(that.moveY) > Math.abs(that.moveX)) {
-                    that._fnScroll(.3);
+                    that._fnScroll(.3, true);
                     that._fnAutoSwipe();
                 } else if (Math.abs(that.moveDistance) <= _touchDistance) {
-                    that._fnScroll(.3);
+                    that._fnScroll(.3, true);
                 } else {
                     // 距离大
                     // 手指触摸上一屏滚动
@@ -1618,7 +1618,7 @@ define("boost/Carousel",function(require, exports, module) {
          * @private
          * @param  {number} num num
          */
-        _fnScroll: function (num) {
+        _fnScroll: function (num, noScrollCallback) {
             var that = this;
             var _index = this._index;
             var opts = this.options;
@@ -1630,7 +1630,7 @@ define("boost/Carousel",function(require, exports, module) {
 
             this._fnTranslate($(getWebEl(this.containerEl)), size);
 
-            if (num > 0) {
+            if (num > 0 && !noScrollCallback) {
                 var start = +new Date();
                 var timer = setInterval(function () {
                     var now = +new Date();
@@ -1663,21 +1663,23 @@ define("boost/Carousel",function(require, exports, module) {
          * 屏幕旋转后的处理函数
          */
         _spin: function () {
-            //FIXME:
             var that = this;
-            var $ul = this.$ul;
-            var $li = this.$li;
+            var webContainer = getWebEl(this.containerEl);
+            var firstEl = webContainer.childNodes[0];
+            var lastEl = webContainer.childNodes[webContainer.childNodes.length - 1];
+            //var $li = this.$li;
             var options = this.options;
 
             this.paused();
             var widthOrHeight = options.axisX ? this._getWidth() : this._getHeight();
-            this._fnTranslate($ul.children().first(), widthOrHeight * -1);
-            this._fnTranslate($ul.children().last(), widthOrHeight * that.containerEl.childNodes.length);
+            this._fnTranslate($(firstEl), widthOrHeight * -1);
+            this._fnTranslate($(lastEl), widthOrHeight * that.containerEl.childNodes.length);
 
             // 给初始图片定位
-            $li.each(function (i) {
-                that._fnTranslate($(this), (options.axisX ? that._getWidth() : that._getHeight()) * i);
-            });
+            //$li.each(function (i) {
+            //    that._fnTranslate($(this), (options.axisX ? that._getWidth() : that._getHeight()) * i);
+            //});
+            this._locateItem();
             this.start();
             this.next();
         },
