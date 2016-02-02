@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Feb 02 2016 13:41:09 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Feb 02 2016 15:55:23 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -806,9 +806,20 @@ define("boost/$",function(require, exports, module) {
         },
 
         css: function (key, value) {
-            assert(arguments.length > 1, "目前只支持 css(key, value)");
+            assert(arguments.length > 1 || type(key) === "object", "目前只支持 css(key, value)或css(map)");
+
+            var map = {};
+            if (arguments.length > 1) {
+                map[key] = value;
+            } else {
+                assert(type(key) === "object");
+                map = key;
+            }
+
             return this.each(function (idx, element) {
-                element.style[key] = value;
+                each(map, function (value, key) {
+                    element.style[key] = value;
+                });
             });
         },
 
@@ -1206,6 +1217,7 @@ define("boost/BoostPage",function(require, exports, module) {
 define("boost/Carousel",function(require, exports, module) {
     "use strict";
 
+    var $ = require("boost/$");
     var derive = require("base/derive");
     var each = require("base/each");
     var assert = require("base/assert");
@@ -1224,7 +1236,8 @@ define("boost/Carousel",function(require, exports, module) {
         ViewPager.call(this);
         this._sliderWidget = new SliderWidget({
             autoSwipe: false,
-            continuousScroll: false
+            continuousScroll: false,
+            container: this
         });
     }, {
         __getRealTagName: function () {
@@ -1232,6 +1245,9 @@ define("boost/Carousel",function(require, exports, module) {
         },
         "set loop": function (value) {
             this.__update("loop", boolean(value));
+
+            this._sliderWidget.options.continuousScroll = value;
+            this._sliderWidget.options.autoSwipe = value;
         },
         "set duration": function (value) { //多久滚一次
             this.__update("duration", number(value));
@@ -1243,19 +1259,22 @@ define("boost/Carousel",function(require, exports, module) {
         //__createWebElement: function (info) {
         //    return document.createElement("div");
         //},
-        //__addComposedChildAt: function (child, index) {
-        //    if (nativeVersion.shouldUseWeb()) {
-        //        child.nativeObject.__webElement__.style.display = index === this.__currentItem__ ? "block" : "none";
-        //    }
-        //    NativeElement.prototype.__addComposedChildAt.call(this, child, index);
-        //},
-        //__removeComposedChildAt: function (index) {
-        //    var child = this.__composedChildren__[index];
-        //    if (child && nativeVersion.shouldUseWeb()) {
-        //        child.nativeObject.__webElement__.style.display = "block";
-        //    }
-        //    NativeElement.prototype.__removeComposedChildAt.call(this, index);
-        //},
+        __addComposedChildAt: function (child, index) {
+            var that = this;
+            NativeElement.prototype.__addComposedChildAt.call(this, child, index);
+            setTimeout(function () { //FIXME: 为了能内部元素的样式也复制上，这里加个延时
+                that._sliderWidget._cloneIfNeed();
+                that._sliderWidget._locateItem();
+            }, 0);
+        },
+        __removeComposedChildAt: function (index) {
+            var that = this;
+            NativeElement.prototype.__removeComposedChildAt.call(this, index);
+            setTimeout(function () {
+                that._sliderWidget._cloneIfNeed();
+                that._sliderWidget._locateItem();
+            }, 0);
+        },
         //__showItemInWeb: function (index) {
         //    assert(index < this.__children__.length, "index of item to show could not exceed the amount of children");
         //    assert(nativeVersion.shouldUseWeb());
@@ -1284,7 +1303,6 @@ define("boost/Carousel",function(require, exports, module) {
             transitionType: 'ease',     // 过渡类型
             // duration: 0.6,
             speed: 2000,                // 切换的时间间隔
-            theme: 'd2',
             // needDirection: false,    // 是否需要左右切换的按钮
             ratio: 'normal',    // normal/wide/square/small
             wrapWidth: document.body && document.body.clientWidth,
@@ -1295,135 +1313,78 @@ define("boost/Carousel",function(require, exports, module) {
          * @private
          */
         _create: function () {
-
             var win = window;
-            /**
-             * this.element 组件对应的单个 Zepto/jQuery 对象
-             */
-            var $el = this.element;
-            /**
-             * 经过继承的 options
-             */
             var options = this.options;
 
-            var ratioClass = NAMESPACE + 'slider-';
-            switch (options.ratio) {
-                case 'wide':
-                case 'square':
-                case 'middle':
-                case 'small':
-                    ratioClass += options.ratio;
-                    break;
-                default :
-                    ratioClass += 'normal';
-            }
-            $el.addClass(ratioClass);
-            // 添加背景图样式
-            if (options.bgImg) {
-                $el.addClass(NAMESPACE + "slider-bgImg");
-            }
-            $el.css("visibility", "visible");
-
-            this.$container = $el;
-            this.$ul = $el.find('.' + NAMESPACE + 'slides');
-            this.$li = $el.find('.' + NAMESPACE + 'slides li');
-
-            // this._liWidth = this.$li.width() ? this.$li.width() : options.wrapWidth;
-            // this._liHeight = this.$li.height();
-            // this._liLength = this.$li.length;
-            //
-            // this.autoScroll = null;     // 自动播放interval对象
-            // this._index = 0;            // 当前幻灯片位置
-            //
-            // if (typeof options.theme !== 'string') {
-            //     options.theme = 'default';
-            // }
-            //
-            // this._addComponents(options.theme);
-
+            this.containerEl = options.container;
+            this.$container =
+                this.$ul = $(this.containerEl); //TODO
             var that = this;
 
             var whichEvent = ('orientationchange' in win) ? 'orientationchange' : 'resize';
             win.addEventListener(whichEvent, function () {
-                // that._init();
-                that._liWidth = that.$li.width() ? that.$li.width() : opts.wrapWidth;
-                that._liHeight = that.$li.height();
+                that._liWidth = getSizeInWeb(that.containerEl).width;
+                that._liHeight = getSizeInWeb(that.containerEl).height;
                 that._spin();
             }, false);
-
-            return;
-
-            /*
-             * matchMedia.addListener() 在安卓手机上支持太差，先注释掉
-             if (typeof win.matchMedia !== 'undefined') {
-             var mql = win.matchMedia("(orientation: portrait)");
-             alert(mql);
-             mql.addListener(function(m) {
-             alert('matchMedia');
-             if(m.matches) {} else {}
-             });
-             }else{
-             var whichEvent = ('orientationchange' in win) ? 'orientationchange' : 'resize';
-             win.addEventListener(whichEvent, function(){
-             alert('orientationchange or resize ---');
-             },false);
-             }
-             */
-
         },
         /**
          * _init 初始化的时候调用
          * @private
          */
         _init: function () {
-
-
-            var opts = this.options;
             var that = this;
-            var $ul = this.$ul;
-            var $li = this.$li;
 
-
-            this._liWidth = $li.width() ? $li.width() : opts.wrapWidth;
-            this._liHeight = $li.height();
-            this._liLength = $li.length;
+            that._liWidth = getSizeInWeb(that.containerEl).width;
+            that._liHeight = getSizeInWeb(that.containerEl).height;
 
             this.autoScroll = null;     // 自动播放interval对象
             this._index = 0;            // 当前幻灯片位置
 
-            if (typeof opts.theme !== 'string') {
-                opts.theme = 'default';
-            }
-
-            this._addComponents(opts.theme);
-
-
-            // 如果speed是0, 不自动滚动
-            if (this.options.speed <= 0) {
-                this.options.autoSwipe = false;
-            }
-
-            /**
-             * 连续滚动，需要复制dom
-             */
-            if (opts.continuousScroll) {
-                $ul.prepend($li.last().clone()).append($li.first().clone());
-
-                var widthOrHeight = opts.axisX ? that._liWidth : that._liHeight;
-                that._fnTranslate($ul.children().first(), widthOrHeight * -1);
-                that._fnTranslate($ul.children().last(), widthOrHeight * that._liLength);
-
-            }
-
-            // 给初始图片定位
-            $li.each(function (i) {
-                that._fnTranslate($(this), (opts.axisX ? that._liWidth : that._liHeight) * i);
-            });
-
-            that._fnAutoSwipe();
+            //that._fnAutoSwipe();
             this._initEvent();
-
         },
+        /**
+         * FIXME: call on append/remove child...
+         * @private
+         */
+        _cloneIfNeed: function () {
+            if (this._clonedFirstEl) {
+                getWebEl(this.containerEl).removeChild(this._clonedFirstEl);
+                this._clonedFirstEl = null;
+            }
+            if (this._clonedLastEl) {
+                getWebEl(this.containerEl).removeChild(this._clonedLastEl);
+                this._clonedLastEl = null;
+            }
+            if (!this.options.continuousScroll) {
+                return;
+            }
+            var childLength = this.containerEl.childNodes.length;
+            if (!childLength) {
+                return;
+            }
+
+            var containerWebEl = getWebEl(this.containerEl);
+            this._clonedFirstEl = getWebEl(this.containerEl.childNodes[0]).cloneNode(true);
+            containerWebEl.appendChild(this._clonedFirstEl);
+            this._clonedLastEl = getWebEl(this.containerEl.childNodes[childLength - 1]).cloneNode(true);
+            containerWebEl.insertBefore(this._clonedLastEl, containerWebEl.childNodes[0]);
+
+            var widthOrHeight = this.options.axisX ? this._liWidth : this._liHeight;
+            this._fnTranslate($(this._clonedFirstEl), widthOrHeight * -1);
+            this._fnTranslate($(this._clonedLastEl), widthOrHeight * this.containerEl.childNodes.length);
+        },
+        _locateItem: function () {
+            var that = this;
+            var opts = that.options;
+            // 给初始图片定位
+            for (var i = 0; i < this.containerEl.childNodes.length; ++i) {
+                var child = this.containerEl.childNodes[i];
+                that._fnTranslate($(child), (opts.axisX ? that._liWidth : that._liHeight) * i);
+            }
+        },
+
         /**
          * 初始化事件绑定
          * @private
@@ -1434,21 +1395,21 @@ define("boost/Carousel",function(require, exports, module) {
             var evReady = true;
             var isPhone = (/AppleWebKit.*Mobile/i.test(navigator.userAgent) || /MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(navigator.userAgent));
             // 绑定触摸
-            that.$ul[0].addEventListener(device.startEvt, function (evt) {
+            getWebEl(that.containerEl).addEventListener(device.startEvt, function (evt) {
                 if (evReady) {
                     that.startX = device.hasTouch ? evt.targetTouches[0].pageX : evt.pageX;
                     that.startY = device.hasTouch ? evt.targetTouches[0].pageY : evt.pageY;
                     //evt.preventDefault();
 
-                    that.$ul[0].addEventListener(device.moveEvt, moveHandler, false);
-                    that.$ul[0].addEventListener(device.endEvt, endHandler, false);
+                    getWebEl(that.containerEl).addEventListener(device.moveEvt, moveHandler, false);
+                    getWebEl(that.containerEl).addEventListener(device.endEvt, endHandler, false);
 
                     evReady = false;
                 }
             }, false);
 
             function moveHandler(evt) {
-                $("#prevent").html("");
+                //$("#prevent").html("");
                 if (that.options.autoSwipe) {
                     clearInterval(that.autoScroll);
                 }
@@ -1459,7 +1420,7 @@ define("boost/Carousel",function(require, exports, module) {
                 that.moveX = that.curX - that.startX;
                 that.moveY = that.curY - that.startY;
 
-                that._transitionHandle(that.$ul, 0);
+                that._transitionHandle($(getWebEl(that.containerEl)), 0);
 
                 //横向滑动阻止默认事件
 
@@ -1470,10 +1431,9 @@ define("boost/Carousel",function(require, exports, module) {
                 }
 
                 if (that.options.axisX && Math.abs(that.moveX) > Math.abs(that.moveY)) {
-                    that._fnTranslate(that.$ul, -(that._liWidth * (parseInt(that._index, 10)) - that.moveX));
+                    that._fnTranslate($(getWebEl(that.containerEl)), -(that._liWidth * (parseInt(that._index, 10)) - that.moveX));
                 }
-
-            };
+            }
 
             function endHandler(evt) {
                 var opts = that.options;
@@ -1510,70 +1470,13 @@ define("boost/Carousel",function(require, exports, module) {
                 that.moveY = 0;
                 evReady = true;
 
-                that.$ul[0].removeEventListener(device.moveEvt, moveHandler, false);
-                that.$ul[0].removeEventListener(device.endEvt, endHandler, false);
+                getWebEl(that.containerEl).removeEventListener(device.moveEvt, moveHandler, false);
+                getWebEl(that.containerEl).removeEventListener(device.endEvt, endHandler, false);
                 if (!isPhone) {
                     evt.preventDefault();
                     return false;
                 }
-            };
-        },
-        /**
-         * 根据不同的theme添加组件和初始化样式
-         * @private
-         * @param {string} theme 幻灯片主题,目前支持有限的几个
-         */
-        _addComponents: function (theme) {
-
-            var $el = this.$container;
-
-            if (theme === 'a1') {
-                $el.addClass(NAMESPACE + 'slider-a1');
-                this._initControl();
             }
-            if (theme === 'a2') {
-                $el.addClass(NAMESPACE + 'slider-a2');
-                this._initControl();
-            }
-            if (theme === 'd1') {
-                $el.addClass(NAMESPACE + 'slider-title');
-            }
-            if (theme === 'd2') {
-                $el.addClass(NAMESPACE + 'slider-title');
-                this._initControl();
-            }
-            if (theme === 's1') {
-                $el.addClass(NAMESPACE + 'slider-special');
-                this._initControl();
-            }
-        },
-        /**
-         * 初始化control控件
-         * @private
-         */
-        _initControl: function () {
-
-            var $el = this.$container;
-            var liLength = this._liLength;
-
-            var html = '';
-            for (var i = 0; i < liLength; i++) {
-                html += (i === 0) ? '<li><a class="' + NAMESPACE + 'slider-active"></a></li>' : '<li><a></a></li>';
-            }
-
-            var $ol = $('<ol class="' + NAMESPACE + 'slider-control-nav">' + html + '</ol>');
-
-            $el.append($ol);
-
-            this.$controlOl = $ol;
-        },
-        /**
-         * 初始化title
-         * @private
-         */
-        _initTitle: function () {
-            // to do
-            // var $el = this.$container;
         },
         /*
          * css 过渡
@@ -1582,7 +1485,6 @@ define("boost/Carousel",function(require, exports, module) {
          * @param {number} num - transition number
          */
         _transitionHandle: function (dom, num) {
-
             var opts = this.options;
             dom.css({
                 '-webkit-transition': 'all ' + num + 's ' + opts.transitionType,
@@ -1596,7 +1498,6 @@ define("boost/Carousel",function(require, exports, module) {
          * @param  {number} result translate number
          */
         _fnTranslate: function (dom, result) {
-
             var opts = this.options;
 
             if (opts.axisX) {
@@ -1619,13 +1520,6 @@ define("boost/Carousel",function(require, exports, module) {
         _fnMoveNext: function () {
             this._index++;
             this._fnMove();
-            /*if(opts.lazyLoad){
-             if(opts.continuousScroll){
-             fnLazyLoad(_index+2);
-             }else{
-             fnLazyLoad(_index+1);
-             }
-             }*/
         },
         /**
          * 上一屏滚动
@@ -1634,18 +1528,6 @@ define("boost/Carousel",function(require, exports, module) {
         _fnMovePrev: function () {
             this._index--;
             this._fnMove();
-            // 第一次往右滚动懒加载图片
-            /*if(firstMovePrev && opts.lazyLoad){
-             var i = _liLength-1;
-             for(i; i <= (_liLength+1); i++){
-             fnLazyLoad(i);
-             }
-             firstMovePrev = false;
-             return;
-             }
-             if(!firstMovePrev && opts.lazyLoad){
-             fnLazyLoad(_index);
-             }*/
         },
         /**
          * 自动滑动
@@ -1669,11 +1551,9 @@ define("boost/Carousel",function(require, exports, module) {
         _fnMove: function () {
             var that = this;
             var opts = this.options;
-            // var _vars = this._vars;
-            // var _liLength = this._liLength;
 
             if (opts.continuousScroll) {
-                if (that._index >= that._liLength) {
+                if (that._index >= that.containerEl.childNodes.length) {
                     that._fnScroll(.3);
                     that._index = 0;
                     setTimeout(function () {
@@ -1682,7 +1562,7 @@ define("boost/Carousel",function(require, exports, module) {
                 }
                 else if (that._index < 0) {
                     that._fnScroll(.3);
-                    that._index = that._liLength - 1;
+                    that._index = that.containerEl.childNodes.length - 1;
                     setTimeout(function () {
                         that._fnScroll(0);
                     }, 300);
@@ -1692,11 +1572,11 @@ define("boost/Carousel",function(require, exports, module) {
                 }
             }
             else {
-                if (that._index >= that._liLength) {
+                if (that._index >= that.containerEl.childNodes.length) {
                     that._index = 0;
                 }
                 else if (that._index < 0) {
-                    that._index = that._liLength - 1;
+                    that._index = that.containerEl.childNodes.length - 1;
                 }
                 that._fnScroll(.3);
             }
@@ -1762,7 +1642,7 @@ define("boost/Carousel",function(require, exports, module) {
             this.paused();
             var widthOrHeight = options.axisX ? this._liWidth : this._liHeight;
             this._fnTranslate($ul.children().first(), widthOrHeight * -1);
-            this._fnTranslate($ul.children().last(), widthOrHeight * that._liLength);
+            this._fnTranslate($ul.children().last(), widthOrHeight * that.containerEl.childNodes.length);
 
             // 给初始图片定位
             $li.each(function (i) {
@@ -1801,6 +1681,14 @@ define("boost/Carousel",function(require, exports, module) {
             return this.$container;
         }
     };
+
+    function getWebEl (boostEl) {
+        return boostEl.__native__.__webElement__;
+    }
+
+    function getSizeInWeb (boostEl) {
+        return getWebEl(boostEl).getBoundingClientRect();
+    }
 
     module.exports = Carousel;
 });

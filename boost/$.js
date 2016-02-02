@@ -234,9 +234,20 @@ define(function (require, exports, module) {
         },
 
         css: function (key, value) {
-            assert(arguments.length > 1, "目前只支持 css(key, value)");
+            assert(arguments.length > 1 || type(key) === "object", "目前只支持 css(key, value)或css(map)");
+
+            var map = {};
+            if (arguments.length > 1) {
+                map[key] = value;
+            } else {
+                assert(type(key) === "object");
+                map = key;
+            }
+
             return this.each(function (idx, element) {
-                element.style[key] = value;
+                each(map, function (value, key) {
+                    element.style[key] = value;
+                });
             });
         },
 
