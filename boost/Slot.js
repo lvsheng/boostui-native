@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
+    var calculateComposedParent = require("boost/shadowDomUtil/calculateComposedParent");
     var TYPE_ID = require("boost/TYPE_ID");
 
     //FIXME: 与View中耦合了~
@@ -67,13 +68,13 @@ define(function (require, exports, module) {
             // 3. node.composedParent
             if (!nodeIsEffectiveSlot) {
                 assert(node.__composedParent__ === null, "should remove from old composedParent when unAssign");
-                var composedParent = self.__calculateComposedParent(node);
+                var composedParent = calculateComposedParent(node);
                 assert(!!composedParent);
                 composedParent.__addComposedChildAt(node, getIndexInComposedParent(node));
             } else { //有效slot的assignedSlot改变，其distributedNodes的composedParent都要变
                 node.__distributedNodes__.forEach(function (distributedNode) {
                     assert(distributedNode.__composedParent__ === null, "should remove from old composedParent when unAssign");
-                    var composedParent = self.__calculateComposedParent(distributedNode);
+                    var composedParent = calculateComposedParent(distributedNode);
                     assert(!!composedParent);
                     composedParent.__addComposedChildAt(distributedNode, getIndexInComposedParent(distributedNode));
                 });
@@ -125,7 +126,7 @@ define(function (require, exports, module) {
 
                 if (!willAssignAnother) {
                     node.__distributedNodes__.forEach(function (distributedNode) {
-                        var composedParent = self.__calculateComposedParent(distributedNode);
+                        var composedParent = calculateComposedParent(distributedNode);
                         assert(!!composedParent);
                         composedParent.__addComposedChildAt(distributedNode, getIndexInComposedParent(distributedNode));
                     });
@@ -134,7 +135,7 @@ define(function (require, exports, module) {
 
             // 4. self.composedParent
             if (!self.__isEffective()) { //从有效变为无效，作为普通元素渲染
-                var composedParent = self.__calculateComposedParent(self);
+                var composedParent = calculateComposedParent(self);
                 if (composedParent) { //自己有可能没有composedParent(没有assignedSlot)
                     var index = getIndexInComposedParent(self);
                     assert(index <= composedParent.__composedChildren__.length);

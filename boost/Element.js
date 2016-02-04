@@ -9,6 +9,8 @@ define(function (require, exports, module) {
     var each = require("base/each");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
+    var calculateComposedParent = require("boost/shadowDomUtil/calculateComposedParent");
+    var calculateAssignedSlot = require("boost/shadowDomUtil/calculateAssignedSlot");
     var xml = require("boost/xml");
     var push = [].push;
     var styleRender = require("boost/styleRender");
@@ -352,78 +354,14 @@ define(function (require, exports, module) {
             }
 
             // 2. 再计算添加的子树被添加到的composedTree中的位置
-            var childAssignedSlot = self.__calculateAssignedSlot(addedChild);
+            var childAssignedSlot = calculateAssignedSlot(addedChild);
             if (childAssignedSlot) {
                 childAssignedSlot.__assignNode(addedChild);
             }
-            var composedParent = self.__calculateComposedParent(addedChild);
+            var composedParent = calculateComposedParent(addedChild);
             if (composedParent) {
                 composedParent.__addComposedChildAt(addedChild, getIndexInComposedParent(addedChild));
             }
-        },
-
-        //TODO: 把工具方法移出至单独文件
-        /**
-         * @pre node.parentNode.shadowRoot.__descendantSlots__若存在，则其内slot以在树中的先序排序
-         * @param node
-         * @returns {null|Slot}
-         */
-        __calculateAssignedSlot: function (node) {
-            var shadowHost = node.parentNode;
-            if (!shadowHost) {
-                return null;
-            }
-
-            var shadowRoot = shadowHost.__shadowRoot__;
-            if (!shadowRoot) {
-                return null;
-            }
-
-            for (var i = 0; i < shadowRoot.__descendantSlots__.length; ++i) {
-                var slot = shadowRoot.__descendantSlots__[i];
-                if (slot.__name__ === node.__slot__) { //含默认的""的比较
-                    return slot;
-                }
-            }
-
-            return null;
-        },
-        __getRecursivelyAssignedSlot: function (node) {
-            var result = node;
-            while (result.__assignedSlot__) {
-                result = result.__assignedSlot__;
-            }
-            return result;
-        },
-        /**
-         * @pre
-         *  node.assignedSlot已经计算完毕
-         *  node.parentNode的shadowTree及其所有descendant tree中的slot的assignedSlot已经计算完毕
-         * @param node
-         */
-        __calculateComposedParent: function (node) {
-            var composedParent;
-            var nodeParent = node.parentNode;
-
-            if (node.tagName === "SHADOWROOT") {
-                composedParent = null; //shadowRoot不展示
-            } else if (node.tagName === "SLOT" && node.__isEffective()) {
-                composedParent = null; //有效的slot也不展示
-            } else if (!nodeParent) {
-                composedParent = null;
-            } else if (!nodeParent.__shadowRoot__) { //node不是shadowHost的子元素
-                composedParent = nodeParent;
-            } else if (!node.__assignedSlot__) { //是shadowHost的子元素，但没有assignedSlot
-                composedParent = null;
-            } else { //是shadowHost的子元素，并且有assignedSlot
-                composedParent = this.__getRecursivelyAssignedSlot(node).parentNode;
-            }
-
-            if (composedParent && composedParent.tagName === "SHADOWROOT") { //对于shadowRoot，取其host
-                composedParent = composedParent.host; //目前不允许shadowRoot再attachShadow，故只取一层即可
-            }
-
-            return composedParent;
         },
 
         __removeChildAt: function (index) {
