@@ -98,7 +98,6 @@ define(function (require, exports, module) {
                     }
                 });
             });
-            //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
             observer.observe(webContainer.getContainerElement(), {
                 childList: true,
                 attributes: true,

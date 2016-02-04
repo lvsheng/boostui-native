@@ -101,10 +101,6 @@ define(function (require, exports, module) {
             return this.__id__;
         },
         "set className": function (value) {
-            //if (value.indexOf("j-") < 0) { //FIXME: 票务临时方案
-            //    return;
-            //}
-
             this.__className__ = value;
             var classList = [];
             var list = value.split(" ");
@@ -126,8 +122,8 @@ define(function (require, exports, module) {
                 propagationStoped: true
             });
 
-            //TODO: just for debug
-            //this.nativeObject.__callNative("setContentDescription", [this.__className__]);
+            //TODO: for debug
+            //this.nativeObject.__callNative("setContentDescription", [this.__className__]); //此方法可在android端看到节点附加信息
         },
         "get className": function () {
             return this.__className__;

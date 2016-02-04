@@ -1,6 +1,5 @@
 define(function (require, exports, module) {
     var assert = require("base/assert");
-    //FIXME: 可与__calculateComposedParent合并逻辑
     /**
      * @pre curNode的assignedSlot链已计算完
      * @param node

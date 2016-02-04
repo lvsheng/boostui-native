@@ -32,7 +32,6 @@ define(function (require, exports, module) {
         setTimeout(function () {
             //构建子树
             //TODO: 打印树图出来
-            //FIXME: index溢出~__unAssignNode方法中的                    assert(index <= composedParent.__composedChildren__.length);
             var root = boost.createElement("View");
             root.style.backgroundColor = randomColor(0.1);
             var node00 = boost.createElement("View"); //高位为父元素编号，最低位为自己在兄弟节点中的编号

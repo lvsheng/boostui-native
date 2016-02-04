@@ -49,8 +49,7 @@ define(function (require, exports, module) {
             this.__documentElementZIndex__ = zIndex;
         },
         addLayer: function (zIndex) {
-            //var rootView = this.createElement("RootView", nativeVersion.inIOS() ? -8 : undefined); //TODO: support multi layer in ios
-            var rootView = this.createElement("RootView"); //TODO: support multi layer in ios
+            var rootView = this.createElement("RootView");
 
             if (nativeVersion.shouldUseWeb()) {
                 document.body.appendChild(rootView.__native__.__webElement__);

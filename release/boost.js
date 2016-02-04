@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atThu Feb 04 2016 18:16:13 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atThu Feb 04 2016 18:27:43 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1917,10 +1917,6 @@ define("boost/Element",function(require, exports, module) {
             return this.__id__;
         },
         "set className": function (value) {
-            //if (value.indexOf("j-") < 0) { //FIXME: 票务临时方案
-            //    return;
-            //}
-
             this.__className__ = value;
             var classList = [];
             var list = value.split(" ");
@@ -1942,8 +1938,8 @@ define("boost/Element",function(require, exports, module) {
                 propagationStoped: true
             });
 
-            //TODO: just for debug
-            //this.nativeObject.__callNative("setContentDescription", [this.__className__]);
+            //TODO: for debug
+            //this.nativeObject.__callNative("setContentDescription", [this.__className__]); //此方法可在android端看到节点附加信息
         },
         "get className": function () {
             return this.__className__;
@@ -4365,8 +4361,7 @@ define("boost/boost",function(require, exports, module) {
             this.__documentElementZIndex__ = zIndex;
         },
         addLayer: function (zIndex) {
-            //var rootView = this.createElement("RootView", nativeVersion.inIOS() ? -8 : undefined); //TODO: support multi layer in ios
-            var rootView = this.createElement("RootView"); //TODO: support multi layer in ios
+            var rootView = this.createElement("RootView");
 
             if (nativeVersion.shouldUseWeb()) {
                 document.body.appendChild(rootView.__native__.__webElement__);
@@ -5946,7 +5941,6 @@ define("boost/shadowDomUtil/compareElementOrder",function(require, exports, modu
 });
 define("boost/shadowDomUtil/getIndexInComposedParent",function(require, exports, module) {
     var assert = require("base/assert");
-    //FIXME: 可与__calculateComposedParent合并逻辑
     /**
      * @pre curNode的assignedSlot链已计算完
      * @param node
@@ -6769,7 +6763,6 @@ define("boost/webDebugger/webMonitor",function(require, exports, module) {
                     }
                 });
             });
-            //TODO: 增加一个特殊元素作为作用域，避免插件等的影响
             observer.observe(webContainer.getContainerElement(), {
                 childList: true,
                 attributes: true,
