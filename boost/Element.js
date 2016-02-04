@@ -7,11 +7,13 @@ define(function (require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
-    //var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var push = [].push;
 
+    // Easily-parseable/retrievable ID or TAG or CLASS selectors
+    var rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/;
+    var ShadowRoot; //FIXME: 为避免处理循环依赖，暂将ShadowRoot放于Element内部。。。
     var _super = EventTarget.prototype;
     var Element = derive(EventTarget, function (tagName) {
         //this._super();
@@ -57,9 +59,6 @@ define(function (require, exports, module) {
          * 暂未实现shadowRootInitDict参数
          */
         "attachShadow": function () {
-            assert(false, "todo");
-            return;
-
             var self = this;
             var NOT_SUPPORTED_TAGS = [
                 "TEXT",
@@ -70,7 +69,6 @@ define(function (require, exports, module) {
             assert(NOT_SUPPORTED_TAGS.indexOf(self.tagName) === -1, "Failed to execute 'attachShadow' on 'Element': Author-created shadow roots are disabled for this element.");
             assert(self.__shadowRoot__ === null, "Calling Element.attachShadow() for an element which already hosts a user-agent shadow root is deprecated.");
 
-            var ShadowRoot = shadowRoot.getShadowRoot();
             self.__shadowRoot__ = new ShadowRoot(self);
             // 自己变成了shadowHost，并且shadowTree中没有slot。故child元素的assignedSlot与composedParent都为null
             each(self.__children__, function (child) {
@@ -310,7 +308,6 @@ define(function (require, exports, module) {
          * @returns {null|Slot}
          */
         __calculateAssignedSlot: function (node) {
-            return null; //TODO
             var shadowHost = node.parentNode;
             if (!shadowHost) {
                 return null;
@@ -726,8 +723,18 @@ define(function (require, exports, module) {
         }
     });
 
-    // Easily-parseable/retrievable ID or TAG or CLASS selectors
-    var rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/;
+    /**
+     * shadowRoot不参与渲染，故只继承Element(w3c规范里是继承自DocumentFragment、又增加了innerHTML与styleSheets等属性)
+     */
+    ShadowRoot = derive(Element, function (host) {
+        //this._super("ShadowRoot");
+        Element.call(this, "ShadowRoot");
+        this.__host__ = host;
+    }, {
+        "get host": function () {
+            return this.__host__;
+        }
+    });
 
     module.exports = Element;
 });
