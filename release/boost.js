@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atThu Feb 04 2016 10:18:29 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atThu Feb 04 2016 10:27:29 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -425,6 +425,16 @@ define("base/hasOwnProperty",function(require, exports, module) {
         return native_hasOwnProperty.call(obj, key);
     };
 
+});
+define("base/htmlEscape",function(require, exports, module) {
+    module.exports = function htmlEscape(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    };
 });
 define("base/isFunction",function(require, exports, module) {
     "use strict";
@@ -3828,6 +3838,7 @@ define("boost/Text",function(require, exports, module) {
     "use strict";
 
     var derive = require("base/derive");
+    var htmlEscape = require("base/htmlEscape");
     var NativeElement = require("boost/NativeElement");
     var TextStylePropTypes = require("boost/TextStylePropTypes");
     var StyleSheet = require("boost/StyleSheet");
@@ -3849,7 +3860,8 @@ define("boost/Text",function(require, exports, module) {
         },
         "set value": function (value) {
             if (nativeVersion.shouldUseWeb()) {
-                this.__native__.__webElement__.innerText = value;
+                //这里为了与native统一，value中的空格与换行都按原样展示，用innerHTML并转义为html实体
+                this.__native__.__webElement__.innerHTML = escapeValueInWeb(value);
             }
             this.__update("value", value);
 
@@ -3858,7 +3870,13 @@ define("boost/Text",function(require, exports, module) {
                 attributeName: "value",
                 attributeValue: value,
                 propagationStoped: true
-            })
+            });
+
+            function escapeValueInWeb (value) {
+                return htmlEscape(value)
+                    .replace(/ /g, "&nbsp;")
+                    .replace(/\n/g, "<br/>");
+            }
         },
         "set numberOfLines": function (value) {
             this.__update("numberOfLines", validator.number(value));
