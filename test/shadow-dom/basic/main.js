@@ -1,5 +1,6 @@
 define(function (require, exports, module) {
     var createText = require("test/shadow-dom/createText");
+    var inform = require("test/shadow-dom/inform");
 
     var text = createText("hello, boost " + (+new Date) % 10);
     var container = boost.createElement("View");

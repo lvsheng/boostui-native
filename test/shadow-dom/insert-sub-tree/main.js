@@ -1,12 +1,13 @@
 define(function (require, exports, module) {
     var createText = require("test/shadow-dom/createText");
     var randomColor = require("test/shadow-dom/randomColor");
+    var inform = require("test/shadow-dom/inform");
 
     var shadowHost = boost.createElement("View");
     shadowHost.style.backgroundColor = randomColor(0.3);
     boost.documentElement.appendChild(shadowHost);
 
-    alert("创建t、t123");
+    inform("创建t、t123");
     var t = createText("t");
     shadowHost.appendChild(t);
     var t1 = createText("t1");
@@ -20,7 +21,7 @@ define(function (require, exports, module) {
     shadowHost.appendChild(t3);
 
     setTimeout(function () {
-        alert("创建s124、默认s\nt3将不被展现，s4作为普通元素展现");
+        inform("创建s124、默认s\nt3将不被展现，s4作为普通元素展现");
         var shadowRoot = shadowHost.attachShadow();
         shadowRoot.appendChild(createSlot("s1"));
         var s2 = createSlot("s2");
@@ -58,7 +59,7 @@ define(function (require, exports, module) {
             node0202.appendChild(createSlot("s5", "0202-s5"));
             node020.appendChild(node0202);
 
-            alert("s2前插入子树,子树中有默认s,s1235\nt1仍在旧s1中，t,t2移至新s,s2中，t3展现在新s3中，新s5作为普通节点展现");
+            inform("s2前插入子树,子树中有默认s,s1235\nt1仍在旧s1中，t,t2移至新s,s2中，t3展现在新s3中，新s5作为普通节点展现");
             shadowRoot.insertBefore(root, s2);
         });
     });
