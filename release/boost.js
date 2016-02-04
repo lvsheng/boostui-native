@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Feb 02 2016 18:22:59 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atThu Feb 04 2016 10:18:29 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1237,16 +1237,19 @@ define("boost/Carousel",function(require, exports, module) {
      */
     var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
-        var that = this;
-        that._sliderWidget = new SliderWidget({
-            autoSwipe: false,
-            continuousScroll: false,
-            container: that
-        }, function (index) {
-            boostEventGenerator.gen("selected", {position: index}, that.tag);
-        }, function () {
-            boostEventGenerator.gen("pagescroll", {}, that.tag);
-        });
+
+        if (nativeVersion.shouldUseWeb()) {
+            var that = this;
+            that._sliderWidget = new SliderWidget({
+                autoSwipe: false,
+                continuousScroll: false,
+                container: that
+            }, function (index) {
+                boostEventGenerator.gen("selected", {position: index}, that.tag);
+            }, function () {
+                boostEventGenerator.gen("pagescroll", {}, that.tag);
+            });
+        }
     }, {
         __getRealTagName: function () {
             return "Carousel";
@@ -1254,14 +1257,18 @@ define("boost/Carousel",function(require, exports, module) {
         "set loop": function (value) {
             this.__update("loop", boolean(value));
 
-            this._sliderWidget.options.continuousScroll = value;
-            this._sliderWidget.options.autoSwipe = value;
+            if (nativeVersion.shouldUseWeb()) {
+                this._sliderWidget.options.continuousScroll = value;
+                this._sliderWidget.options.autoSwipe = value;
+            }
         },
         "set duration": function (value) { //多久滚一次
             this.__update("duration", number(value));
 
-            this._sliderWidget.options.speed = value;
-            this._sliderWidget._fnAutoSwipe();
+            if (nativeVersion.shouldUseWeb()) {
+                this._sliderWidget.options.speed = value;
+                this._sliderWidget._fnAutoSwipe();
+            }
         },
         "set speed": function (value) { //一次要多久
             this.__update("loopScrollDuration", number(value));
@@ -1285,6 +1292,9 @@ define("boost/Carousel",function(require, exports, module) {
             this.__requestUpdateSliderWidget();
         },
         __requestUpdateSliderWidget: function () {
+            if (!nativeVersion.shouldUseWeb()) {
+                return;
+            }
             if (this._updateSliderWidgetTimer) {
                 return;
             }
@@ -1727,6 +1737,7 @@ define("boost/Dialog",function(require, exports, module) {
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
@@ -1741,9 +1752,22 @@ define("boost/Dialog",function(require, exports, module) {
     }, {
         show: function () {
             this.nativeObject.__callNative("show", []);
+
+            if (nativeVersion.shouldUseWeb()) {
+                this._webDialogLayer = boost.addLayer(10);
+                this._webDialogLayer.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+                this._updateWebLocation();
+                this._webDialogLayer.appendChild(this);
+            }
         },
         close: function () {
             this.nativeObject.__callNative("dismiss", []);
+
+            if (nativeVersion.shouldUseWeb()) {
+                this._webDialogLayer.removeChild(this);
+                boost.removeLayer(this._webDialogLayer);
+                this._webDialogLayer = null;
+            }
         },
         "get gravityVertical": function () {
             return this.__config__.gravityVertical;
@@ -1754,10 +1778,28 @@ define("boost/Dialog",function(require, exports, module) {
         "set gravityVertical": function (value) {
             assert(value === "top" || value === "center" || value === "bottom", "gravityVertical只能为top|center|bottom");
             this.__update("gravityVertical", value);
+            this._updateWebLocation();
         },
         "set gravityHorizontal": function (value) {
             assert(value === "left" || value === "center" || value === "right", "gravityHorizontal只能为left|center|right");
             this.__update("gravityHorizontal", value);
+            this._updateWebLocation();
+        },
+
+        _updateWebLocation: function () {
+            if (!this._webDialogLayer) {
+                return;
+            }
+
+            var gravityToFlexLocation = {
+                "top": "flex-start",
+                "left": "flex-start",
+                "bottom": "flex-end",
+                "right": "flex-end",
+                "center": "center"
+            };
+            this._webDialogLayer.style.alignItems = gravityToFlexLocation[this.gravityVertical] || "center";
+            this._webDialogLayer.style.justifyContent = gravityToFlexLocation[this.gravityHorizontal] || "center";
         }
     });
     module.exports = Dialog;
@@ -7167,6 +7209,7 @@ require([
     exportsMethod("hideInputMethod", lightApi);
     exportsMethod("inBox", nativeVersion);
     exportsMethod("inWeb", nativeVersion, "shouldUseWeb");
+    exportsMethod("inAndroid", nativeVersion);
 
     window.boost = exportBoost;
 

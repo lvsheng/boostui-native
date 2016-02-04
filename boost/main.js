@@ -140,6 +140,7 @@ require([
     exportsMethod("hideInputMethod", lightApi);
     exportsMethod("inBox", nativeVersion);
     exportsMethod("inWeb", nativeVersion, "shouldUseWeb");
+    exportsMethod("inAndroid", nativeVersion);
 
     window.boost = exportBoost;
 

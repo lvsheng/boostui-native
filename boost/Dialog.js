@@ -5,6 +5,7 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var NativeElement = require("boost/NativeElement");
     var TYPE_ID = require("boost/TYPE_ID");
+    var nativeVersion = require("boost/nativeVersion");
 
     var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
@@ -19,9 +20,22 @@ define(function (require, exports, module) {
     }, {
         show: function () {
             this.nativeObject.__callNative("show", []);
+
+            if (nativeVersion.shouldUseWeb()) {
+                this._webDialogLayer = boost.addLayer(10);
+                this._webDialogLayer.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+                this._updateWebLocation();
+                this._webDialogLayer.appendChild(this);
+            }
         },
         close: function () {
             this.nativeObject.__callNative("dismiss", []);
+
+            if (nativeVersion.shouldUseWeb()) {
+                this._webDialogLayer.removeChild(this);
+                boost.removeLayer(this._webDialogLayer);
+                this._webDialogLayer = null;
+            }
         },
         "get gravityVertical": function () {
             return this.__config__.gravityVertical;
@@ -32,10 +46,28 @@ define(function (require, exports, module) {
         "set gravityVertical": function (value) {
             assert(value === "top" || value === "center" || value === "bottom", "gravityVertical只能为top|center|bottom");
             this.__update("gravityVertical", value);
+            this._updateWebLocation();
         },
         "set gravityHorizontal": function (value) {
             assert(value === "left" || value === "center" || value === "right", "gravityHorizontal只能为left|center|right");
             this.__update("gravityHorizontal", value);
+            this._updateWebLocation();
+        },
+
+        _updateWebLocation: function () {
+            if (!this._webDialogLayer) {
+                return;
+            }
+
+            var gravityToFlexLocation = {
+                "top": "flex-start",
+                "left": "flex-start",
+                "bottom": "flex-end",
+                "right": "flex-end",
+                "center": "center"
+            };
+            this._webDialogLayer.style.alignItems = gravityToFlexLocation[this.gravityVertical] || "center";
+            this._webDialogLayer.style.justifyContent = gravityToFlexLocation[this.gravityHorizontal] || "center";
         }
     });
     module.exports = Dialog;
