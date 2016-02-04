@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atThu Feb 04 2016 10:27:29 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atThu Feb 04 2016 15:41:55 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1823,7 +1823,7 @@ define("boost/Element",function(require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
-    //var shadowRoot = require("boost/ShadowRoot");
+    var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var xml = require("boost/xml");
@@ -1877,9 +1877,6 @@ define("boost/Element",function(require, exports, module) {
          * 暂未实现shadowRootInitDict参数
          */
         "attachShadow": function () {
-            assert(false, "todo");
-            return;
-
             var self = this;
             var NOT_SUPPORTED_TAGS = [
                 "TEXT",
@@ -2187,7 +2184,6 @@ define("boost/Element",function(require, exports, module) {
          * @returns {null|Slot}
          */
         __calculateAssignedSlot: function (node) {
-            return null; //TODO
             var shadowHost = node.parentNode;
             if (!shadowHost) {
                 return null;
