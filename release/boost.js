@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atThu Feb 04 2016 15:41:55 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atThu Feb 04 2016 16:11:07 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1823,13 +1823,15 @@ define("boost/Element",function(require, exports, module) {
     var StyleSheet = require("boost/StyleSheet");
     var trim = require("base/trim");
     var each = require("base/each");
-    var shadowRoot = require("boost/ShadowRoot");
     var compareElementOrder = require("boost/shadowDomUtil/compareElementOrder");
     var getIndexInComposedParent = require("boost/shadowDomUtil/getIndexInComposedParent");
     var xml = require("boost/xml");
     var push = [].push;
     var styleRender = require("boost/styleRender");
 
+    // Easily-parseable/retrievable ID or TAG or CLASS selectors
+    var rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/;
+    var ShadowRoot; //FIXME: 为避免处理循环依赖，暂将ShadowRoot放于Element内部。。。
     var _super = EventTarget.prototype;
     var Element = derive(EventTarget, function (tagName) {
         //this._super();
@@ -1887,7 +1889,6 @@ define("boost/Element",function(require, exports, module) {
             assert(NOT_SUPPORTED_TAGS.indexOf(self.tagName) === -1, "Failed to execute 'attachShadow' on 'Element': Author-created shadow roots are disabled for this element.");
             assert(self.__shadowRoot__ === null, "Calling Element.attachShadow() for an element which already hosts a user-agent shadow root is deprecated.");
 
-            var ShadowRoot = shadowRoot.getShadowRoot();
             self.__shadowRoot__ = new ShadowRoot(self);
             // 自己变成了shadowHost，并且shadowTree中没有slot。故child元素的assignedSlot与composedParent都为null
             each(self.__children__, function (child) {
@@ -2643,8 +2644,18 @@ define("boost/Element",function(require, exports, module) {
         }
     });
 
-    // Easily-parseable/retrievable ID or TAG or CLASS selectors
-    var rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/;
+    /**
+     * shadowRoot不参与渲染，故只继承Element(w3c规范里是继承自DocumentFragment、又增加了innerHTML与styleSheets等属性)
+     */
+    ShadowRoot = derive(Element, function (host) {
+        //this._super("ShadowRoot");
+        Element.call(this, "ShadowRoot");
+        this.__host__ = host;
+    }, {
+        "get host": function () {
+            return this.__host__;
+        }
+    });
 
     module.exports = Element;
 });
@@ -3493,31 +3504,6 @@ define("boost/Selector",function(require, exports, module) {
     };
 
     module.exports = Selector;
-});
-define("boost/ShadowRoot",function(require, exports, module) {
-    var derive = require("base/derive");
-    require("boost/Element");
-
-    var ShadowRoot;
-    exports.getShadowRoot = function () {
-        //FIXME: 因与Element有循环依赖，故暂时封一个方法而非直接exports
-        if (!ShadowRoot) {
-            var Element = require("boost/Element");
-            /**
-             * shadowRoot不参与渲染，故只继承Element(w3c规范里是继承自DocumentFragment、又增加了innerHTML与styleSheets等属性)
-             */
-            ShadowRoot = derive(Element, function (host) {
-                //this._super("ShadowRoot");
-                Element.call(this, "ShadowRoot");
-                this.__host__ = host;
-            }, {
-                "get host": function () {
-                    return this.__host__;
-                }
-            });
-        }
-        return ShadowRoot;
-    };
 });
 define("boost/Slider",function(require, exports, module) {
     "use strict";

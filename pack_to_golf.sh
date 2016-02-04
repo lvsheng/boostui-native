@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-node release.js
+sh release.sh
 cp release/boost.js /Users/lvsheng/work/clouda/golf/lib/boost.js
 
 cd /Users/lvsheng/work/clouda/golf/

@@ -1,5 +1,4 @@
 define(function (require, exports, module) {
-    var boost = require("boost/boost");
     var createText = require("test/shadow-dom/createText");
     var randomColor = require("test/shadow-dom/randomColor");
 

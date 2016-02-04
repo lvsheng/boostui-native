@@ -1,5 +1,4 @@
 define(function (require, exports, module) {
-    var boost = require("boost/boost");
     var createText = require("test/shadow-dom/createText");
 
     var text = createText("hello, boost " + (+new Date) % 10);
