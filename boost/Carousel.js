@@ -17,17 +17,29 @@ define(function (require, exports, module) {
 
     var ViewPager = require("boost/ViewPager");
     /**
-     * FIXME: 目前依赖于父元素上的宽高（后续使用shadow-dom解决）
+     * 轮播组件(可用于实现如轮播图效果)
      */
     var Carousel = derive(ViewPager, function () {
         ViewPager.call(this);
 
         if (nativeVersion.shouldUseWeb()) {
             var that = this;
+
+            var container = that; //整体容器，尺寸由外界控制
+            container.style.alignItems = "flex-start"; //而非默认的stretch以免影响itemsContainer的宽度（而希望由其内容自己撑起来）
+            var shadowRoot = container.attachShadow();
+            //用shadow-dom创建一个列表项容器供轮播时的移动，同时其不必暴露给外界。外界向carousel添加的子元素最终通过shadow-dom添加入列表项容器
+            var itemsContainer = boost.createElement("view");
+            itemsContainer.style.flexDirection = "row";
+            shadowRoot.appendChild(itemsContainer);
+            var itemsSlot = boost.createElement("slot"); //目前只此一个插入点，故不具名、作为默认slot即可
+            itemsContainer.appendChild(itemsSlot);
+
             that._sliderWidget = new SliderWidget({
                 autoSwipe: false,
                 continuousScroll: false,
-                container: that
+                container: container, //取宽高、绑事件、取子元素
+                itemsContainer: itemsContainer //移动
             }, function (index) {
                 boostEventGenerator.gen("selected", {position: index}, that.tag);
             }, function () {
@@ -61,10 +73,7 @@ define(function (require, exports, module) {
         },
 
         __createWebElement: function (info) {
-            var webElement = document.createElement("div");
-            webElement.style.flexDirection = "row";
-            webElement.style.position = "absolute"; //FIXME: 为了不因flex由父元素影响自己的宽度
-            return webElement;
+            return document.createElement("div");
         },
         __addComposedChildAt: function (child, index) {
             NativeElement.prototype.__addComposedChildAt.call(this, child, index);
@@ -90,7 +99,7 @@ define(function (require, exports, module) {
                 that._updateSliderWidgetTimer = null;
             }, 0);
         }
-        //__showItemInWeb: function (index) {
+        //__showItemInWeb: function (index) { TODO: 增加外界可控制的此接口
         //    assert(index < this.__children__.length, "index of item to show could not exceed the amount of children");
         //    assert(nativeVersion.shouldUseWeb());
         //
@@ -101,7 +110,7 @@ define(function (require, exports, module) {
         //}
     });
 
-    //from https://github.com/Clouda-team/boostui/blob/master/widget/slider/slider.js
+    //修改自 https://github.com/Clouda-team/boostui/blob/master/widget/slider/slider.js
     function SliderWidget (options, selectCallback, scrollCallback) {
         this.options = copyProperties({}, this.options, options);
         this._create();
@@ -134,7 +143,8 @@ define(function (require, exports, module) {
             var win = window;
             var options = this.options;
 
-            this.containerEl = options.container;
+            this.container = options.container;
+            this.itemsContainer = options.itemsContainer;
             var that = this;
 
             var whichEvent = ('orientationchange' in win) ? 'orientationchange' : 'resize';
@@ -143,10 +153,10 @@ define(function (require, exports, module) {
             }, false);
         },
         _getWidth: function () {
-            return getSizeInWeb(this.containerEl.parentNode).width; //FIXME: 不应从父元素上取
+            return getSizeInWeb(this.container).width;
         },
         _getHeight: function () {
-            return getSizeInWeb(this.containerEl.parentNode).height; //FIXME: 不应从父元素上取
+            return getSizeInWeb(this.container).height;
         },
         /**
          * _init 初始化的时候调用
@@ -163,42 +173,38 @@ define(function (require, exports, module) {
                 that._fnScroll(0);
             }, 0);
         },
-        /**
-         * FIXME: call on append/remove child...
-         * @private
-         */
         _cloneIfNeed: function () {
+            var container = this.container;
             if (this._clonedFirstEl) {
-                getWebEl(this.containerEl).removeChild(this._clonedFirstEl);
+                container.removeChild(this._clonedFirstEl);
                 this._clonedFirstEl = null;
             }
             if (this._clonedLastEl) {
-                getWebEl(this.containerEl).removeChild(this._clonedLastEl);
+                container.removeChild(this._clonedLastEl);
                 this._clonedLastEl = null;
             }
             if (!this.options.continuousScroll) {
                 return;
             }
-            var childLength = this.containerEl.childNodes.length;
+            var childLength = container.childNodes.length;
             if (!childLength) {
                 return;
             }
 
-            var containerWebEl = getWebEl(this.containerEl);
-            this._clonedFirstEl = getWebEl(this.containerEl.childNodes[0]).cloneNode(true);
-            containerWebEl.appendChild(this._clonedFirstEl);
-            this._clonedLastEl = getWebEl(this.containerEl.childNodes[childLength - 1]).cloneNode(true);
-            containerWebEl.insertBefore(this._clonedLastEl, containerWebEl.childNodes[0]);
+            this._clonedFirstEl = this.container.childNodes[0].cloneNode(true);
+            container.appendChild(this._clonedFirstEl);
+            this._clonedLastEl = this.container.childNodes[childLength - 1].cloneNode(true);
+            container.insertBefore(this._clonedLastEl, container.childNodes[0]);
         },
         _locateItem: function () {
             var that = this;
             var opts = that.options;
-            var webContainer = getWebEl(this.containerEl);
+            var container = this.container;
             // 给初始图片定位
-            //for (var i = 0; i < this.containerEl.childNodes.length; ++i) {
-            for (var i = 0; i < webContainer.childNodes.length; ++i) {
-                var child = webContainer.childNodes[i];
-                //that._fnTranslate($(getWebEl(child)), (opts.axisX ? that._getWidth() : that._getHeight()) * i);
+            //for (var i = 0; i < this.container.childNodes.length; ++i) {
+            for (var i = 0; i < container.childNodes.length; ++i) {
+                var child = container.childNodes[i];
+                //that._fnTranslate($(child), (opts.axisX ? that._getWidth() : that._getHeight()) * i);
                 child.style.width = that._getWidth() + "px";
                 child.style.height = that._getHeight() + "px";
             }
@@ -214,14 +220,14 @@ define(function (require, exports, module) {
             var evReady = true;
             var isPhone = (/AppleWebKit.*Mobile/i.test(navigator.userAgent) || /MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(navigator.userAgent));
             // 绑定触摸
-            getWebEl(that.containerEl).addEventListener(device.startEvt, function (evt) {
+            getWebEl(that.container).addEventListener(device.startEvt, function (evt) {
                 if (evReady) {
                     that.startX = device.hasTouch ? evt.targetTouches[0].pageX : evt.pageX;
                     that.startY = device.hasTouch ? evt.targetTouches[0].pageY : evt.pageY;
                     //evt.preventDefault();
 
-                    getWebEl(that.containerEl).addEventListener(device.moveEvt, moveHandler, false);
-                    getWebEl(that.containerEl).addEventListener(device.endEvt, endHandler, false);
+                    getWebEl(that.container).addEventListener(device.moveEvt, moveHandler, false);
+                    getWebEl(that.container).addEventListener(device.endEvt, endHandler, false);
 
                     evReady = false;
                 }
@@ -239,7 +245,7 @@ define(function (require, exports, module) {
                 that.moveX = that.curX - that.startX;
                 that.moveY = that.curY - that.startY;
 
-                that._transitionHandle($(getWebEl(that.containerEl)), 0);
+                that._transitionHandle($(getWebEl(that.itemsContainer)), 0);
 
                 //横向滑动阻止默认事件
 
@@ -251,7 +257,7 @@ define(function (require, exports, module) {
 
                 if (that.options.axisX && Math.abs(that.moveX) > Math.abs(that.moveY)) {
                     var _index = that._index;
-                    that._fnTranslate($(getWebEl(that.containerEl)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
+                    that._fnTranslate($(getWebEl(that.itemsContainer)), -(that._getWidth() * (parseInt(_index, 10)) - that.moveX) - that._getWidth());
 
                     that._scrollCallback();
                 }
@@ -292,8 +298,8 @@ define(function (require, exports, module) {
                 that.moveY = 0;
                 evReady = true;
 
-                getWebEl(that.containerEl).removeEventListener(device.moveEvt, moveHandler, false);
-                getWebEl(that.containerEl).removeEventListener(device.endEvt, endHandler, false);
+                getWebEl(that.container).removeEventListener(device.moveEvt, moveHandler, false);
+                getWebEl(that.container).removeEventListener(device.endEvt, endHandler, false);
                 if (!isPhone) {
                     evt.preventDefault();
                     return false;
@@ -375,9 +381,16 @@ define(function (require, exports, module) {
         _fnMove: function () {
             var that = this;
             var opts = this.options;
+            var itemAmount = that.container.childNodes.length;
+            if (this._clonedFirstEl) {
+                --itemAmount;
+            }
+            if (this._clonedLastEl) {
+                --itemAmount;
+            }
 
             if (opts.continuousScroll) {
-                if (that._index >= that.containerEl.childNodes.length) {
+                if (that._index >= itemAmount) {
                     that._fnScroll(.3);
                     that._index = 0;
                     setTimeout(function () {
@@ -386,7 +399,7 @@ define(function (require, exports, module) {
                 }
                 else if (that._index < 0) {
                     that._fnScroll(.3);
-                    that._index = that.containerEl.childNodes.length - 1;
+                    that._index = itemAmount - 1;
                     setTimeout(function () {
                         that._fnScroll(0);
                     }, 300);
@@ -396,11 +409,11 @@ define(function (require, exports, module) {
                 }
             }
             else {
-                if (that._index >= that.containerEl.childNodes.length) {
+                if (that._index >= itemAmount) {
                     that._index = 0;
                 }
                 else if (that._index < 0) {
-                    that._index = that.containerEl.childNodes.length - 1;
+                    that._index = itemAmount - 1;
                 }
                 that._fnScroll(.3);
             }
@@ -417,12 +430,12 @@ define(function (require, exports, module) {
             var _index = this._index;
             var opts = this.options;
 
-            this._transitionHandle($(getWebEl(this.containerEl)), num);
+            this._transitionHandle($(getWebEl(this.itemsContainer)), num);
 
             var singleSize = opts.axisX ? this._getWidth() : this._getHeight();
             var size = singleSize * -_index - singleSize;
 
-            this._fnTranslate($(getWebEl(this.containerEl)), size);
+            this._fnTranslate($(getWebEl(this.itemsContainer)), size);
 
             if (num > 0 && !noScrollCallback) {
                 var start = +new Date();
@@ -458,16 +471,16 @@ define(function (require, exports, module) {
          */
         _spin: function () {
             var that = this;
-            var webContainer = getWebEl(this.containerEl);
-            var firstEl = webContainer.childNodes[0];
-            var lastEl = webContainer.childNodes[webContainer.childNodes.length - 1];
+            var webEl = getWebEl(this.container);
+            var firstEl = webEl.childNodes[0];
+            var lastEl = webEl.childNodes[webEl.childNodes.length - 1];
             //var $li = this.$li;
             var options = this.options;
 
             this.paused();
             var widthOrHeight = options.axisX ? this._getWidth() : this._getHeight();
             this._fnTranslate($(firstEl), widthOrHeight * -1);
-            this._fnTranslate($(lastEl), widthOrHeight * that.containerEl.childNodes.length);
+            this._fnTranslate($(lastEl), widthOrHeight * that.container.childNodes.length);
 
             // 给初始图片定位
             //$li.each(function (i) {

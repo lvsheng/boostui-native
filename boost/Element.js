@@ -254,6 +254,11 @@ define(function (require, exports, module) {
         "get nodeType": function () {
             return 1; //ELEMENT_NODE;
         },
+
+        cloneNode: function (recursively) {
+            assert(recursively, "目前只支持递归复制");
+            return xml.parse(this.outerHTML);
+        },
         __getStyle: function () {
             return new StyleSheet();
         },
