@@ -294,18 +294,29 @@ define(function (require, exports, module) {
             self.__children__.splice(index, 0, addedChild);
             addedChild.__parent__ = self;
 
-            // 1. 先计算添加的子树中slot接收的节点
+            // 1. 先计算添加的子树被添加到的composedTree中的位置（先决定根的位置，因为根的位置可能影响到子slot接收节点的位置，比如根自己接收的节点的位置）
+            var childAssignedSlot = calculateAssignedSlot(addedChild);
+            if (childAssignedSlot) {
+                childAssignedSlot.__assignNode(addedChild);
+            }
+            var composedParent = calculateComposedParent(addedChild);
+            if (composedParent) {
+                composedParent.__addComposedChildAt(addedChild, getIndexInComposedParent(addedChild));
+            }
+
+            // 2. 再计算添加的子树中slot接收的节点
             var hasNewSlot = addedChild.__descendantSlots__.length > 0;
             if (hasNewSlot) {
                 var root = self.__getRoot();
                 var oldSlots = root.__descendantSlots__.slice();
                 var newSlots = addedChild.__descendantSlots__.slice();
 
+                //维护__descendantSlots__
                 addedChild.__descendantSlots__ = null; //已经不再是root，不需再维护
-
                 //维持先序：找到第一个后序元素，插入其前
                 for (var i = 0; i < oldSlots.length && compareElementOrder(newSlots[0], oldSlots[i]) !== -1; ++i) {}
                 root.__descendantSlots__ = oldSlots.slice(0, i).concat(newSlots).concat(oldSlots.slice(i));
+                //~维护__descendantSlots__
 
                 var inShadowTree = root.tagName === "SHADOWROOT";
                 // 下面为计算新增子树中的slot对host的子的assignedSlot的影响
@@ -345,22 +356,12 @@ define(function (require, exports, module) {
                             if(newSlotEffect) {
                                 sameNameOldSlot.__assignNodes__.forEach(function (node) {
                                     assert(node.__assignedSlot__ === sameNameOldSlot);
-                                    newSlot.__assignNode(node);
+                                    newSlot.__assignNode(node); //__assignNode内部会进行unassign操作
                                 });
                             }
                         }
                     });
                 }
-            }
-
-            // 2. 再计算添加的子树被添加到的composedTree中的位置
-            var childAssignedSlot = calculateAssignedSlot(addedChild);
-            if (childAssignedSlot) {
-                childAssignedSlot.__assignNode(addedChild);
-            }
-            var composedParent = calculateComposedParent(addedChild);
-            if (composedParent) {
-                composedParent.__addComposedChildAt(addedChild, getIndexInComposedParent(addedChild));
             }
         },
 
@@ -385,6 +386,7 @@ define(function (require, exports, module) {
                 assert(child.__descendantSlots__.indexOf(child) === 0, "__descendantSlots__ of root SLOT should include itself, and should be first");
             }
         },
+
         __addComposedChildAt: function (child, index) {
             var childParentNode = child.__composedParent__;
             if (childParentNode !== null) {
@@ -406,6 +408,7 @@ define(function (require, exports, module) {
             this.__composedChildren__.splice(index, 1);
             child.__composedParent__ = null;
         },
+
         appendChild: function (child) {
             this.__addChildAt(child, this.__children__.length);
 

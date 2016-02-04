@@ -30,6 +30,6 @@ define(function (require, exports, module) {
             return 1;
         }
 
-        return node.__distributedNodes__.length;
+        return node.getDistributedNodes().length;
     }
 });
