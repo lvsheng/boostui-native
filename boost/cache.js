@@ -6,7 +6,7 @@ define(function (require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var nativeVersion = require("boost/nativeVersion");
 
-    var SUPPORT_VERSION = 2.4; //TODO: 目前2.3开发中，还未支持，故先写为2.4
+    var isSupport = false; //TODO: 目前还未支持
     var TYPE_ID = -10; //TODO: edit
     /**
      * 提供离线缓存的能力
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
          * @param rule {string}
          */
         addRule: function (rule) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("addRule", [ruleToRegStr(rule)]);
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
          * @param rule
          */
         removeRule: function (rule) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeRule", [ruleToRegStr(rule)]);
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
          * @param url
          */
         updateContent: function (url) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("updateContent", [url]);
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
          * @param url
          */
         removeContent: function (url) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeContent", [url]);
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
          * 注：目前会删除其他页面缓存的内容。后续需改良缓存方案以解决此问题
          */
         removeAllContent: function () {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeAllContent", []);
