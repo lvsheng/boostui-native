@@ -27,6 +27,11 @@ define(function (require, exports, module) {
                 case "resume":
                     this.dispatchEvent(new Event(this, "resume"));
                     break;
+                case "stat":
+                    var event = new Event(this, "stat");
+                    event.data = e.data;
+                    this.dispatchEvent(event);
+                    break;
                 default:
                     console.log("unknow event:" + type, e);
             }
