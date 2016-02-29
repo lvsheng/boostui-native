@@ -29,6 +29,7 @@
         if (isReady) {
             console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
             window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
+            window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
             queue = [];
         }
     }
