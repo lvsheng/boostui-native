@@ -9,8 +9,8 @@
 
     var queue = [];
     var isReady = false;
-    var inAndroid = navigator.userAgent.indexOf("BaiduRuntimeO2OZone") > -1; //FIXME
-    if (inAndroid) {
+    var inIOS = navigator.userAgent.indexOf("BaiduRuntimeO2OZone") === -1; //FIXME
+    if (!inIOS) {
         isReady = true;
     } else {
         window.addEventListener("load", function () {
