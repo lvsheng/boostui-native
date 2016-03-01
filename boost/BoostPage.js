@@ -32,11 +32,6 @@ define(function (require, exports, module) {
                     type: "resume",
                     data: event.data
                 });
-            } else if (type === "stat") {
-                this.dispatchEvent({
-                    type: "stat",
-                    data: event.data
-                });
             }
             return event && event.propagationStoped;
         },
