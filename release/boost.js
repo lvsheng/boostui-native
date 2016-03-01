@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atThu Feb 04 2016 19:57:52 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Mar 01 2016 16:06:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -83,8 +83,8 @@
 
     var queue = [];
     var isReady = false;
-    var inAndroid = navigator.userAgent.indexOf("BaiduRuntimeO2OZone") > -1; //FIXME
-    if (inAndroid) {
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);
+    if (!inIOS) {
         isReady = true;
     } else {
         window.addEventListener("load", function () {
@@ -103,6 +103,7 @@
         if (isReady) {
             console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
             window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
+            window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
             queue = [];
         }
     }
@@ -4658,7 +4659,7 @@ define("boost/cache",function(require, exports, module) {
     var NativeObject = require("boost/nativeObject/NativeObject");
     var nativeVersion = require("boost/nativeVersion");
 
-    var SUPPORT_VERSION = 2.4; //TODO: 目前2.3开发中，还未支持，故先写为2.4
+    var isSupport = false; //TODO: 目前还未支持
     var OBJ_ID = -10; //TODO: edit
     /**
      * 提供离线缓存的能力
@@ -4676,7 +4677,7 @@ define("boost/cache",function(require, exports, module) {
          * @param rule {string}
          */
         addRule: function (rule) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("addRule", [ruleToRegStr(rule)]);
@@ -4686,7 +4687,7 @@ define("boost/cache",function(require, exports, module) {
          * @param rule
          */
         removeRule: function (rule) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeRule", [ruleToRegStr(rule)]);
@@ -4696,7 +4697,7 @@ define("boost/cache",function(require, exports, module) {
          * @param url
          */
         updateContent: function (url) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("updateContent", [url]);
@@ -4706,7 +4707,7 @@ define("boost/cache",function(require, exports, module) {
          * @param url
          */
         removeContent: function (url) {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeContent", [url]);
@@ -4716,7 +4717,7 @@ define("boost/cache",function(require, exports, module) {
          * 注：目前会删除其他页面缓存的内容。后续需改良缓存方案以解决此问题
          */
         removeAllContent: function () {
-            if (nativeVersion.get() < SUPPORT_VERSION) {
+            if (!isSupport) {
                 return;
             }
             this.__callNative("removeAllContent", []);
@@ -5638,6 +5639,11 @@ define("boost/nativeObject/backgroundPage",function(require, exports, module) {
                 case "resume":
                     this.dispatchEvent(new Event(this, "resume"));
                     break;
+                case "stat":
+                    var event = new Event(this, "stat");
+                    event.data = e.data;
+                    this.dispatchEvent(event);
+                    break;
                 default:
                     console.log("unknow event:" + type, e);
             }
@@ -5811,11 +5817,7 @@ define("boost/nativeVersion",function(require, exports, module) {
         version = regResult[1];
     }
 
-    //FIXME: this is just for debug in ios
-    var inIOS = location.hash === "#ios";
-    if (inIOS) {
-        version = 2.3;
-    }
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/) && version > 0;
 
     /**
      * @returns {Number} 两位版本。若不在o2o下，返回0

@@ -9,7 +9,7 @@
 
     var queue = [];
     var isReady = false;
-    var inIOS = navigator.userAgent.indexOf("BaiduRuntimeO2OZone") === -1; //FIXME
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);
     if (!inIOS) {
         isReady = true;
     } else {

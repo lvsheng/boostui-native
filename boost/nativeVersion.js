@@ -6,11 +6,7 @@ define(function (require, exports, module) {
         version = regResult[1];
     }
 
-    //FIXME: this is just for debug in ios
-    var inIOS = location.hash === "#ios";
-    if (inIOS) {
-        version = 2.3;
-    }
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/) && version > 0;
 
     /**
      * @returns {Number} 两位版本。若不在o2o下，返回0
