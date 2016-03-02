@@ -7,8 +7,9 @@ var BOOST_DIR = [
 ];
 var BOOST_MAIN = "boost/main.js";
 var BOOST_DEPENDENCY = [
-    "amd.js",
-    "bridge.js"
+    "amd.js"
+    //,
+    //"bridge.js" //为防止主页面与服务导航全局变量冲突。bridge.js合入boost/bridge.js中了
 ];
 var OUT_PUT = {
     boost: "release/boost.js"

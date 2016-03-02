@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Mar 01 2016 16:06:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Mar 01 2016 18:32:58 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -72,45 +72,6 @@
         waitingModules.pop();
     }
 })();
-"use strict";
-(function(window) {
-    var INJECT_PREFIX = 'O2OZone#YIFMWBUIQ98S38FR:';
-    var lc_bridge = window.lc_bridge = window.lc_bridge || {};
-    var console = window.console;
-    lc_bridge.callQueue = function(list) {
-        send(list);
-    };
-
-    var queue = [];
-    var isReady = false;
-    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);
-    if (!inIOS) {
-        isReady = true;
-    } else {
-        window.addEventListener("load", function () {
-            setTimeout(function () {
-                isReady = true;
-                send();
-            }, 1);
-        });
-    }
-
-    function send (cmds) {
-        if (cmds) {
-            queue = queue.concat(cmds);
-        }
-
-        if (isReady) {
-            console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
-            window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
-            window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
-            queue = [];
-        }
-    }
-
-    function sendIOSData (data) {
-    }
-})(window);
 define("base/assert",function(require, exports, module) {
     "use strict";
 
@@ -4498,6 +4459,47 @@ define("boost/bridge",function(require, exports, module) {
     var methodMap = require("boost/methodMap");
     var nativeCallbackMap = require("boost/nativeCallbackMap");
 
+    var lc_bridge = (function () {
+        var INJECT_PREFIX = 'O2OZone#YIFMWBUIQ98S38FR:';
+        var lc_bridge = {};
+        var console = window.console;
+        lc_bridge.callQueue = function(list) {
+            send(list);
+        };
+
+        var queue = [];
+        var isReady = false;
+        var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);
+        if (!inIOS) {
+            isReady = true;
+        } else {
+            //window.addEventListener("load", function () {
+            setTimeout(function () {
+                isReady = true;
+                send();
+            }, 1000);
+            //});
+        }
+
+        function send (cmds) {
+            if (cmds) {
+                queue = queue.concat(cmds);
+            }
+
+            if (isReady) {
+                console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
+                window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
+                window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
+                queue = [];
+            }
+        }
+
+        function sendIOSData (data) {
+        }
+
+        return lc_bridge
+    })();
+
     var queue = genQueue(function (list) {
         lc_bridge.callQueue(list);
     });
@@ -5817,7 +5819,10 @@ define("boost/nativeVersion",function(require, exports, module) {
         version = regResult[1];
     }
 
-    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/) && version > 0;
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);// && version > 0;
+    if (inIOS) {
+        version = 2.3;
+    }
 
     /**
      * @returns {Number} 两位版本。若不在o2o下，返回0
