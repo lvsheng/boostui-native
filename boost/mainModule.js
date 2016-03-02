@@ -4,6 +4,7 @@ define(function (require, exports, module) {
     //FIXME: 换用boost/main.js 打包时打在一起
     require("boost/nativeEventHandler");
     require("boost/bridge");
+    require("boost/registerTag");
 
     var tagMap = require("boost/tagMap");
     var mainFrontPage = require("boost/mainFrontPage");

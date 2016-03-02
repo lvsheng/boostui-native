@@ -29,8 +29,7 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
-    "boost/Carousel",
-    "boost/elementCreator"
+    "boost/registerTag"
 ], function (
     assert, type, derive, each, copyProperties,
     nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi, Linkage,
@@ -48,33 +47,11 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
-    Carousel,
-    elementCreator
+    registerTag
 ) {
     console.log("boost/main.js module start");
     //console.log("no getMethodMapping");
     //bridge.getMethodMapping();// TODO: 为了性能，暂去掉getMethodMapping
-
-    var TAG_MAP = {
-        "View": View,
-        "Text": Text,
-        "TextInput": TextInput,
-        "Image": Image,
-        "Img": Image,
-        "ScrollView": ScrollView,
-        "Slider": Slider,
-        "Slot": Slot,
-        "ViewPager": ViewPager,
-        "Toolbar": Toolbar,
-        "BoostPage": BoostPage,
-        "RootView": RootView,
-        "Carousel": Carousel
-    };
-    each(TAG_MAP, function (constructor, tagName) {
-        elementCreator.register(tagName, {
-            constructor: constructor
-        });
-    });
 
     var Boost = derive(Object, {
         //base
