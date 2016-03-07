@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Mar 01 2016 18:32:58 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atMon Mar 07 2016 16:23:51 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1109,6 +1109,17 @@ define("boost/BoostPage",function(require, exports, module) {
             return new ViewStyle();
         },
         loadUrl: function (url) {
+            if (nativeVersion.inIOS()) {
+                //ios中不能存在特殊字符，见URLWithString方法：
+                //  故需前端encodeUri，并需与浏览器行为保持一致：浏览器会逐字符按需进行转义。
+                //  如`location.href = "http://baidu.com?a=中%E4%B8%AD"`，执行后浏览器在发送请求前会将中字同样转义而已转义内容不重复进行转义
+                var replacerOfPercent = "__aslfdko23r128__"; //随机输入，作为%的替代，防止encodeURI时重复转义
+                url = url.replace(/%([A-Z0-9]{2})/g, function (all, code) {
+                    return replacerOfPercent + code;
+                });
+                url = encodeURI(url);
+                url = url.replace(new RegExp(replacerOfPercent, "g"), "%");
+            }
             this.nativeObject.__callNative("loadUrl", [url]);
         },
         reload: function () {
@@ -1142,8 +1153,9 @@ define("boost/BoostPage",function(require, exports, module) {
          */
         dispatchEventToWebView: function (type, data, e, sendTo) {
             sendTo = sendTo || "window";
+            var inIOS = nativeVersion.inIOS();
             var javascriptUrl = [
-                "javascript:  (function(){",
+                (inIOS ? "" : "javascript:") + "(function(){",
                 "console.info('event from bg: " + type + ", " + JSON.stringify(data) + ", " + JSON.stringify(e) + "');",
                 "   var data = " + JSON.stringify(data) + ";",
                 "   var event = document.createEvent('Event');",
@@ -1162,7 +1174,11 @@ define("boost/BoostPage",function(require, exports, module) {
                 "   " + sendTo + ".dispatchEvent(event);" +
                 "})();"
             ].join('');
-            this.loadUrl(javascriptUrl);
+            if (inIOS) { //ios下loadUrl不能传输javascript，故设立单独接口
+                this.nativeObject.__callNative("loadJavaScript", [javascriptUrl]);
+            } else {
+                this.loadUrl(javascriptUrl);
+            }
             console.info("loadUrl of boostPage: ", javascriptUrl);
         },
 
@@ -3870,6 +3886,10 @@ define("boost/TextInput",function(require, exports, module) {
             return this.__config__.multiline || true;
         },
         "set multiline": function (value) {
+            if (nativeVersion.inIOS()) {
+                console.warn("ios下TextInput目前不支持multiline");
+                return;
+            }
             this.__update("multiline", validator.boolean(value));
         },
         "set type": function (value) {
@@ -4473,12 +4493,12 @@ define("boost/bridge",function(require, exports, module) {
         if (!inIOS) {
             isReady = true;
         } else {
-            //window.addEventListener("load", function () {
-            setTimeout(function () {
-                isReady = true;
-                send();
-            }, 1000);
-            //});
+            window.addEventListener("load", function () {
+                setTimeout(function () {
+                    isReady = true;
+                    send();
+                }, 1);
+            });
         }
 
         function send (cmds) {
@@ -4955,6 +4975,7 @@ define("boost/mainModule",function(require, exports, module) {
     //FIXME: 换用boost/main.js 打包时打在一起
     require("boost/nativeEventHandler");
     require("boost/bridge");
+    require("boost/registerTag");
 
     var tagMap = require("boost/tagMap");
     var mainFrontPage = require("boost/mainFrontPage");
@@ -5776,6 +5797,9 @@ define("boost/nativeObject/lightApi",function(require, exports, module) {
         },
 
         showInputMethod: function () {
+            if (nativeVersion.inIOS()) { //ios下focus即展示，不能直接弹起键盘
+                return;
+            }
             this.__callNative("showInputMethod", []);
         },
         hideInputMethod: function () {
@@ -5803,9 +5827,7 @@ define("boost/nativeObject/lightApi",function(require, exports, module) {
          * add at v2.3
          */
         setBackgroundPageReady: function () {
-            if (nativeVersion.inAndroid()) {
-                this.__callNative("setBackgroundPageReady", [true]);
-            }
+            this.__callNative("setBackgroundPageReady", [true]);
         }
     });
 
@@ -5819,10 +5841,7 @@ define("boost/nativeVersion",function(require, exports, module) {
         version = regResult[1];
     }
 
-    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/);// && version > 0;
-    if (inIOS) {
-        version = 2.3;
-    }
+    var inIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/) && version > 0;
 
     /**
      * @returns {Number} 两位版本。若不在o2o下，返回0
@@ -5846,6 +5865,45 @@ define("boost/nativeVersion",function(require, exports, module) {
     exports.inBox = function () {
         return this.get() == 2.3; //TODO: 暂时用此来判断2.3
     };
+});
+define("boost/registerTag",function(require, exports, module) {
+    var each = require("base/each");
+    var View = require("boost/View");
+    var Element = require("boost/Element");
+    var Text = require("boost/Text");
+    var TextInput = require("boost/TextInput");
+    var Image = require("boost/Image");
+    var ScrollView = require("boost/ScrollView");
+    var BoostPage = require("boost/BoostPage");
+    var Slider = require("boost/Slider");
+    var RootView = require("boost/RootView");
+    var Slot = require("boost/Slot");
+    var ViewPager = require("boost/ViewPager");
+    var Toolbar = require("boost/Toolbar");
+    var Dialog = require("boost/Dialog");
+    var Carousel = require("boost/Carousel");
+    var elementCreator = require("boost/elementCreator");
+
+    var TAG_MAP = {
+        "View": View,
+        "Text": Text,
+        "TextInput": TextInput,
+        "Image": Image,
+        "Img": Image,
+        "ScrollView": ScrollView,
+        "Slider": Slider,
+        "Slot": Slot,
+        "ViewPager": ViewPager,
+        "Toolbar": Toolbar,
+        "BoostPage": BoostPage,
+        "RootView": RootView,
+        "Carousel": Carousel
+    };
+    each(TAG_MAP, function (constructor, tagName) {
+        elementCreator.register(tagName, {
+            constructor: constructor
+        });
+    });
 });
 define("boost/shadowDomUtil/calculateAssignedSlot",function(require, exports, module) {
     /**
@@ -7122,8 +7180,7 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
-    "boost/Carousel",
-    "boost/elementCreator"
+    "boost/registerTag"
 ], function (
     assert, type, derive, each, copyProperties,
     nativeEventHandler, bridge, boost, nativeVersion, $, backgroundPage, lightApi, Linkage,
@@ -7141,33 +7198,11 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
-    Carousel,
-    elementCreator
+    registerTag
 ) {
     console.log("boost/main.js module start");
     //console.log("no getMethodMapping");
     //bridge.getMethodMapping();// TODO: 为了性能，暂去掉getMethodMapping
-
-    var TAG_MAP = {
-        "View": View,
-        "Text": Text,
-        "TextInput": TextInput,
-        "Image": Image,
-        "Img": Image,
-        "ScrollView": ScrollView,
-        "Slider": Slider,
-        "Slot": Slot,
-        "ViewPager": ViewPager,
-        "Toolbar": Toolbar,
-        "BoostPage": BoostPage,
-        "RootView": RootView,
-        "Carousel": Carousel
-    };
-    each(TAG_MAP, function (constructor, tagName) {
-        elementCreator.register(tagName, {
-            constructor: constructor
-        });
-    });
 
     var Boost = derive(Object, {
         //base

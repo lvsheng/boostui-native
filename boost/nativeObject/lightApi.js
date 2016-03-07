@@ -66,6 +66,9 @@ define(function (require, exports, module) {
         },
 
         showInputMethod: function () {
+            if (nativeVersion.inIOS()) { //ios下focus即展示，不能直接弹起键盘
+                return;
+            }
             this.__callNative("showInputMethod", []);
         },
         hideInputMethod: function () {
@@ -93,9 +96,7 @@ define(function (require, exports, module) {
          * add at v2.3
          */
         setBackgroundPageReady: function () {
-            if (nativeVersion.inAndroid()) {
-                this.__callNative("setBackgroundPageReady", [true]);
-            }
+            this.__callNative("setBackgroundPageReady", [true]);
         }
     });
 

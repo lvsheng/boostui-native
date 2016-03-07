@@ -72,6 +72,10 @@ define(function (require, exports, module) {
             return this.__config__.multiline || true;
         },
         "set multiline": function (value) {
+            if (nativeVersion.inIOS()) {
+                console.warn("ios下TextInput目前不支持multiline");
+                return;
+            }
             this.__update("multiline", validator.boolean(value));
         },
         "set type": function (value) {
