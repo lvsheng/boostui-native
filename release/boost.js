@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atMon Mar 07 2016 16:23:51 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed Mar 09 2016 11:59:26 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1110,15 +1110,15 @@ define("boost/BoostPage",function(require, exports, module) {
         },
         loadUrl: function (url) {
             if (nativeVersion.inIOS()) {
-                //ios中不能存在特殊字符，见URLWithString方法：
+                //ios中不能存在特殊字符，见URLWithString方法接口：https://developer.apple.com/library/prerelease/ios/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/index.html#//apple_ref/occ/clm/NSURL/URLWithString:
                 //  故需前端encodeUri，并需与浏览器行为保持一致：浏览器会逐字符按需进行转义。
                 //  如`location.href = "http://baidu.com?a=中%E4%B8%AD"`，执行后浏览器在发送请求前会将中字同样转义而已转义内容不重复进行转义
-                var replacerOfPercent = "__aslfdko23r128__"; //随机输入，作为%的替代，防止encodeURI时重复转义
-                url = url.replace(/%([A-Z0-9]{2})/g, function (all, code) {
+                var replacerOfPercent = "__aslfdko23r128__"; //随机输入
+                url = url.replace(/%([A-Z0-9]{2})/g, function (all, code) { //替换掉已转义的部分以防止重复转义
                     return replacerOfPercent + code;
                 });
                 url = encodeURI(url);
-                url = url.replace(new RegExp(replacerOfPercent, "g"), "%");
+                url = url.replace(new RegExp(replacerOfPercent, "g"), "%"); //将之前的替换恢复
             }
             this.nativeObject.__callNative("loadUrl", [url]);
         },
@@ -1739,6 +1739,7 @@ define("boost/Dialog",function(require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
+    var lightApi = require("boost/nativeObject/lightApi");
 
     var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
@@ -1753,6 +1754,10 @@ define("boost/Dialog",function(require, exports, module) {
     }, {
         show: function () {
             this.nativeObject.__callNative("show", []);
+
+            if (nativeVersion.inIOS()) {
+                lightApi.hideInputMethod();
+            }
 
             if (nativeVersion.shouldUseWeb()) {
                 this._webDialogLayer = boost.addLayer(10);
@@ -5863,7 +5868,7 @@ define("boost/nativeVersion",function(require, exports, module) {
     };
 
     exports.inBox = function () {
-        return this.get() == 2.3; //TODO: 暂时用此来判断2.3
+        return navigator.userAgent.indexOf("BoxBaiduRuntimeO2OZone") > -1;
     };
 });
 define("boost/registerTag",function(require, exports, module) {
@@ -7180,6 +7185,8 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
+    "boost/PropAnimation",
+    "boost/AnimationSet",
     "boost/registerTag"
 ], function (
     assert, type, derive, each, copyProperties,
@@ -7198,6 +7205,8 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
+    PropAnimation,
+    AnimationSet,
     registerTag
 ) {
     console.log("boost/main.js module start");
@@ -7210,6 +7219,8 @@ require([
         each: each,
         type: type,
         copyProperties: copyProperties,
+        PropAnimation: PropAnimation,
+        AnimationSet: AnimationSet,
 
         $: $,
         Linkage: Linkage,
@@ -7269,6 +7280,8 @@ require([
     exportsMethod("inBox", nativeVersion);
     exportsMethod("inWeb", nativeVersion, "shouldUseWeb");
     exportsMethod("inAndroid", nativeVersion);
+    exportsMethod("inIOS", nativeVersion);
+    exportsMethod("getVersion", nativeVersion, "get");
 
     window.boost = exportBoost;
 

@@ -28,6 +28,6 @@ define(function (require, exports, module) {
     };
 
     exports.inBox = function () {
-        return this.get() == 2.3; //TODO: 暂时用此来判断2.3
+        return navigator.userAgent.indexOf("BoxBaiduRuntimeO2OZone") > -1;
     };
 });

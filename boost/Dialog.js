@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var NativeElement = require("boost/NativeElement");
     var TYPE_ID = require("boost/TYPE_ID");
     var nativeVersion = require("boost/nativeVersion");
+    var lightApi = require("boost/nativeObject/lightApi");
 
     var Dialog = derive(NativeElement, function (conf) {
         conf = conf || {};
@@ -20,6 +21,10 @@ define(function (require, exports, module) {
     }, {
         show: function () {
             this.nativeObject.__callNative("show", []);
+
+            if (nativeVersion.inIOS()) { //ios下展现弹窗时不会自动收起键盘，由web兼容
+                lightApi.hideInputMethod();
+            }
 
             if (nativeVersion.shouldUseWeb()) {
                 this._webDialogLayer = boost.addLayer(10);

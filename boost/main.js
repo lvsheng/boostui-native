@@ -124,6 +124,8 @@ require([
     exportsMethod("inBox", nativeVersion);
     exportsMethod("inWeb", nativeVersion, "shouldUseWeb");
     exportsMethod("inAndroid", nativeVersion);
+    exportsMethod("inIOS", nativeVersion);
+    exportsMethod("getVersion", nativeVersion, "get");
 
     window.boost = exportBoost;
 
