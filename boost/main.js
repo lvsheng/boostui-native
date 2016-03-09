@@ -29,6 +29,8 @@ require([
     "boost/ViewPager",
     "boost/Toolbar",
     "boost/Dialog",
+    "boost/PropAnimation",
+    "boost/AnimationSet",
     "boost/registerTag"
 ], function (
     assert, type, derive, each, copyProperties,
@@ -47,6 +49,8 @@ require([
     ViewPager,
     Toolbar,
     Dialog,
+    PropAnimation,
+    AnimationSet,
     registerTag
 ) {
     console.log("boost/main.js module start");
@@ -59,6 +63,8 @@ require([
         each: each,
         type: type,
         copyProperties: copyProperties,
+        PropAnimation: PropAnimation,
+        AnimationSet: AnimationSet,
 
         $: $,
         Linkage: Linkage,
