@@ -22,12 +22,17 @@ define(function (require, exports, module) {
         if (!inIOS) {
             isReady = true;
         } else {
-            window.addEventListener("load", function () {
-                setTimeout(function () {
-                    isReady = true;
-                    send();
-                }, 1);
-            });
+            var readyRE = /complete|loaded|interactive/;
+            if (readyRE.test(document.readyState)) {
+                isReady = true;
+            } else {
+                window.addEventListener("load", function () {
+                    setTimeout(function () {
+                        isReady = true;
+                        send();
+                    }, 1);
+                });
+            }
         }
 
         function send (cmds) {
