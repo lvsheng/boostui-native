@@ -57,13 +57,13 @@ define(function (require, exports, module) {
         "flex": [number, 0],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],
         "position": [_enum("absolute", "relative"), "relative"],
-        "translationX": [px, 0],
+        "translationX": [px, 0], //FIXME:ios下的translation在改变frame（如设置宽高）后则失效
         "translationY": [px, 0],
 
         //"display": [_enum("block", "none"), "block"],
 
         //TODO: 改为transform
-        "scaleX": [number, 1],
+        "scaleX": [number, 1], //FIXME:ios下的scale在改变frame（如设置宽高）后则失效
         "scaleY": [number, 1],
 
         "tapHighlightColor": [color, 0x00000000|0]
