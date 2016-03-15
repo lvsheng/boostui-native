@@ -36,6 +36,7 @@ define(function (require, exports, module) {
             }
         }
 
+        var iframe;
         function send (cmds) {
             if (cmds) {
                 queue = queue.concat(cmds);
@@ -48,7 +49,10 @@ define(function (require, exports, module) {
                 queue = [];
             } else {
                 //未ready之时(认为一定在ios下)用网络请求来发
-                location.href = "o2o://sendIOSData" + encodeURIComponent(JSON.stringify(queue));
+                iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+                iframe.src = "o2o://sendIOSData" + encodeURIComponent(JSON.stringify(queue));
                 queue = [];
             }
         }
