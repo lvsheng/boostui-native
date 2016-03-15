@@ -45,6 +45,10 @@ define(function (require, exports, module) {
                 window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
                 window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
                 queue = [];
+            } else {
+                //未ready之时(认为一定在ios下)用网络请求来发
+                location.href = "o2o://sendIOSData" + encodeURIComponent(JSON.stringify(queue));
+                queue = [];
             }
         }
 
