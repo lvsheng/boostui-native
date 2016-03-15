@@ -29,6 +29,7 @@ define(function (require, exports, module) {
                 window.addEventListener("load", function () {
                     setTimeout(function () {
                         isReady = true;
+                        //isReady = false; //ios下调试时用，强制使用网络
                         send();
                     }, 1);
                 });
@@ -43,7 +44,7 @@ define(function (require, exports, module) {
             if (isReady) {
                 console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
                 window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
-                window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
+                window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(JSON.parse(JSON.stringify(queue))); //for ios8+ 为使postMessage顺利传递，此处深度复制一份
                 queue = [];
             } else {
                 //未ready之时(认为一定在ios下)用网络请求来发

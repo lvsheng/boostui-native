@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed Mar 09 2016 11:59:26 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Mar 15 2016 13:38:01 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -1755,7 +1755,7 @@ define("boost/Dialog",function(require, exports, module) {
         show: function () {
             this.nativeObject.__callNative("show", []);
 
-            if (nativeVersion.inIOS()) {
+            if (nativeVersion.inIOS()) { //ios下展现弹窗时不会自动收起键盘，由web兼容
                 lightApi.hideInputMethod();
             }
 
@@ -2844,13 +2844,13 @@ define("boost/LayoutPropTypes",function(require, exports, module) {
         "flex": [number, 0],
         "flexWrap": [_enum("wrap", "nowrap"), "nowrap"],
         "position": [_enum("absolute", "relative"), "relative"],
-        "translationX": [px, 0],
+        "translationX": [px, 0], //FIXME:ios下的translation在改变frame（如设置宽高）后则失效
         "translationY": [px, 0],
 
         //"display": [_enum("block", "none"), "block"],
 
         //TODO: 改为transform
-        "scaleX": [number, 1],
+        "scaleX": [number, 1], //FIXME:ios下的scale在改变frame（如设置宽高）后则失效
         "scaleY": [number, 1],
 
         "tapHighlightColor": [color, 0x00000000|0]
@@ -4498,12 +4498,18 @@ define("boost/bridge",function(require, exports, module) {
         if (!inIOS) {
             isReady = true;
         } else {
-            window.addEventListener("load", function () {
-                setTimeout(function () {
-                    isReady = true;
-                    send();
-                }, 1);
-            });
+            var readyRE = /complete|loaded|interactive/;
+            if (readyRE.test(document.readyState)) {
+                isReady = true;
+            } else {
+                window.addEventListener("load", function () {
+                    setTimeout(function () {
+                        isReady = true;
+                        //isReady = false; //FIXME: just for ios debug
+                        send();
+                    }, 1);
+                });
+            }
         }
 
         function send (cmds) {
@@ -4514,7 +4520,11 @@ define("boost/bridge",function(require, exports, module) {
             if (isReady) {
                 console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
                 window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
-                window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(queue); //for ios8+
+                window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(JSON.parse(JSON.stringify(queue))); //for ios8+ 为使postMessage顺利传递，此处深度复制一份
+                queue = [];
+            } else {
+                //未ready之时(认为一定在ios下)用网络请求来发
+                location.href = "o2o://sendIOSData" + encodeURIComponent(JSON.stringify(queue));
                 queue = [];
             }
         }
