@@ -188,7 +188,10 @@ define(function (require, exports, module) {
         unregisterUnicast: 116,
         unsubscribe: 19,
         update: 7,
-        updateMenu: 132
+        updateMenu: 132,
+
+        canGoBack: 2000, //ios only, in current
+        canGoForward: 2001 //ios only, in current
     };
 
     if (inDebug) {
