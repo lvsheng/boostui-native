@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Mar 15 2016 14:38:05 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Mar 15 2016 14:53:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -4505,7 +4505,7 @@ define("boost/bridge",function(require, exports, module) {
                 window.addEventListener("load", function () {
                     setTimeout(function () {
                         isReady = true;
-                        isReady = false; //FIXME: ios下调试时用，强制使用网络
+                        //isReady = false; //ios下调试时用，强制使用网络
                         send();
                     }, 1);
                 });
@@ -4519,7 +4519,6 @@ define("boost/bridge",function(require, exports, module) {
             }
 
             if (isReady) {
-                //alert("use log" + JSON.stringify(cmds));
                 console.log(INJECT_PREFIX + JSON.stringify(queue)); //for android
                 window.sendIOSData && window.sendIOSData(JSON.stringify(queue)); //for ios
                 window.webkit && window.webkit.messageHandlers.sendIOSData.postMessage(JSON.parse(JSON.stringify(queue))); //for ios8+ 为使postMessage顺利传递，此处深度复制一份
