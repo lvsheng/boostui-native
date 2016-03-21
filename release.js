@@ -24,10 +24,13 @@ function defineTimeLogger (exports) {
         return;
     }
     var preFix = "performance: ";
-    var pageStartTime = performance.timing.fetchStart;
+    var pageStartTime = window.performance && performance.timing.fetchStart;
     var lastTime = pageStartTime;
     var results = [];
     exports.timeLogger = function (key) {
+        if (!window.performance) {
+            return;
+        }
         var curTime = +new Date;
         var timing = curTime - pageStartTime;
         var duration = curTime - lastTime;
@@ -41,6 +44,9 @@ function defineTimeLogger (exports) {
         lastTime = curTime;
     };
     exports.timeLoggerOverView = function () {
+        if (!window.performance) {
+            return;
+        }
         results.sort(function (a, b) {
             return b.duration - a.duration;
         });
