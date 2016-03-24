@@ -1,12 +1,15 @@
-(function () {console.log("performance: ", "update atTue Mar 15 2016 14:53:00 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atMon Mar 21 2016 16:20:46 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
     var preFix = "performance: ";
-    var pageStartTime = performance.timing.fetchStart;
+    var pageStartTime = window.performance && performance.timing.fetchStart;
     var lastTime = pageStartTime;
     var results = [];
     exports.timeLogger = function (key) {
+        if (!window.performance) {
+            return;
+        }
         var curTime = +new Date;
         var timing = curTime - pageStartTime;
         var duration = curTime - lastTime;
@@ -20,6 +23,9 @@
         lastTime = curTime;
     };
     exports.timeLoggerOverView = function () {
+        if (!window.performance) {
+            return;
+        }
         results.sort(function (a, b) {
             return b.duration - a.duration;
         });
@@ -5001,7 +5007,7 @@ define("boost/mainModule",function(require, exports, module) {
     tagMap.set(-2, mainFrontPage); //目前BoostPage的onResume中向主页面发送事件使用 FIXME: -2 与mainFrontPage中重复
 });
 define("boost/methodMap",function(require, exports, module) {
-    var inDebug = true;
+    var inDebug = false;
 
     var map = {
         add: 20,
@@ -5190,7 +5196,10 @@ define("boost/methodMap",function(require, exports, module) {
         unregisterUnicast: 116,
         unsubscribe: 19,
         update: 7,
-        updateMenu: 132
+        updateMenu: 132,
+
+        canGoBack: 2000, //ios only, in current
+        canGoForward: 2001 //ios only, in current
     };
 
     if (inDebug) {
