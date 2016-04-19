@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atMon Mar 21 2016 16:20:46 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atTue Apr 19 2016 15:33:38 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -682,6 +682,15 @@ define("boost/$",function(require, exports, module) {
             }
             return result;
         },
+        closest: function(selector, context){
+            var node = this[0], collection = false;
+            if (typeof selector == 'object') collection = $(selector);
+            while (node && !(collection ? collection.indexOf(node) >= 0 : $.matches(node, selector))) {
+                node = node !== context && node.parentNode;
+            }
+            return $(node);
+        },
+
         empty: function () {
             return this.each(function () {
                 var node = null;
@@ -751,9 +760,24 @@ define("boost/$",function(require, exports, module) {
             return has;
         },
 
-        on: function (type, callback) {
+        on: function (event, selector, callback) {
+            var handler;
+            if (type(selector) === "function") {
+                callback = selector;
+                selector = undefined;
+            }
             return this.each(function (idx, element) {
-                element.addEventListener(type, callback, false);
+                if (selector) {
+                    handler = function(e){
+                        var match = $(e.target).closest(selector, element).get(0);
+                        if (match && match !== element) {
+                            return callback.apply(match, [e].concat(slice.call(arguments, 1)));
+                        }
+                    }
+                } else {
+                    handler = callback;
+                }
+                element.addEventListener(event, handler, false);
             });
         },
 
@@ -871,6 +895,12 @@ define("boost/$",function(require, exports, module) {
         };
     };
 
+    /**
+     * FIXME: 应直接调用Element上而不是依赖styleRender
+     */
+    $.matches = function (node, selector) {
+        return styleRender._satisfySelector(node, selector);
+    };
 
     $.Widget = function (options, element) {
         this.element = element;
@@ -1197,6 +1227,14 @@ define("boost/BoostPage",function(require, exports, module) {
         //展示关闭按钮
         showExitButton: function (show) {
             this.nativeObject.__callNative("showExitButton", [show]);
+        },
+
+        //订单按钮
+        showOrderButton: function (imgUrl) {
+            this.nativeObject.__callNative("showOrderButton", [imgUrl]);
+        },
+        hideOrderButton: function () {
+            this.nativeObject.__callNative("hideOrderButton", []);
         },
 
         onResume: function () {
@@ -5687,6 +5725,9 @@ define("boost/nativeObject/backgroundPage",function(require, exports, module) {
                 case "closepage":
                     this.dispatchEvent(new Event(this, "closepage"));
                     break;
+                case "ordercenter":
+                    this.dispatchEvent(new Event(this, "ordercenter"));
+                    break;
                 case "resume":
                     this.dispatchEvent(new Event(this, "resume"));
                     break;
@@ -7283,6 +7324,24 @@ require([
         hideLoading: function () {
             bridge.hideLoading();
             bridge.cancelHandleLoading(); //为保证安全，每次hide都交还控制权
+        },
+
+        //自定义订单按钮与右上角菜单增加项
+        customTopBar: function (config) {
+            var wholeUrlReg = /^https?:\/\//;
+            assert(type(config) === "object", "config应为对象");
+            assert(!config.orderPageLink || type(config.orderPageLink) === "string");
+            assert(!config.orderIcon || wholeUrlReg.test(config.orderIcon), "config.orderIcon应为icon完整url");
+            assert(!config.menu || type(config.menu) === "array");
+
+            var iconList = ["home", "list", "gift"];
+            each(config.menu, function (menuItem) {
+                assert(isInArray(iconList, menuItem.icon) || wholeUrlReg.test(menuItem.icon), 'menuItem.icon应为"home"|"list"|"gift"或完整url');
+                assert(type(menuItem.text) === "string");
+                assert(type(menuItem.url) === "string");
+            });
+
+            backgroundPage.postMessage("customTopBar", config);
         }
     });
     var exportBoost = new Boost();
@@ -7313,6 +7372,10 @@ require([
             fromMethodName = methodName;
         }
         exportBoost[methodName] = $.proxy(obj[fromMethodName], obj);
+    }
+
+    function isInArray (array, item) {
+        return array.indexOf(item) > -1;
     }
 
     if (nativeVersion.shouldUseWeb()) {

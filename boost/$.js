@@ -132,6 +132,15 @@ define(function (require, exports, module) {
             }
             return result;
         },
+        closest: function(selector, context){
+            var node = this[0], collection = false;
+            if (typeof selector == 'object') collection = $(selector);
+            while (node && !(collection ? collection.indexOf(node) >= 0 : $.matches(node, selector))) {
+                node = node !== context && node.parentNode;
+            }
+            return $(node);
+        },
+
         empty: function () {
             return this.each(function () {
                 var node = null;
@@ -201,9 +210,24 @@ define(function (require, exports, module) {
             return has;
         },
 
-        on: function (type, callback) {
+        on: function (event, selector, callback) {
+            var handler;
+            if (type(selector) === "function") {
+                callback = selector;
+                selector = undefined;
+            }
             return this.each(function (idx, element) {
-                element.addEventListener(type, callback, false);
+                if (selector) {
+                    handler = function(e){
+                        var match = $(e.target).closest(selector, element).get(0);
+                        if (match && match !== element) {
+                            return callback.apply(match, [e].concat(slice.call(arguments, 1)));
+                        }
+                    }
+                } else {
+                    handler = callback;
+                }
+                element.addEventListener(event, handler, false);
             });
         },
 
@@ -321,6 +345,12 @@ define(function (require, exports, module) {
         };
     };
 
+    /**
+     * FIXME: 应直接调用Element上而不是依赖styleRender
+     */
+    $.matches = function (node, selector) {
+        return styleRender._satisfySelector(node, selector);
+    };
 
     $.Widget = function (options, element) {
         this.element = element;
