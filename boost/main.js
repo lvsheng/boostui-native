@@ -104,6 +104,24 @@ require([
         hideLoading: function () {
             bridge.hideLoading();
             bridge.cancelHandleLoading(); //为保证安全，每次hide都交还控制权
+        },
+
+        //自定义订单按钮与右上角菜单增加项
+        customTopBar: function (config) {
+            var wholeUrlReg = /^https?:\/\//;
+            assert(type(config) === "object", "config应为对象");
+            assert(!config.orderPageLink || type(config.orderPageLink) === "string");
+            assert(!config.orderIcon || wholeUrlReg.test(config.orderIcon), "config.orderIcon应为icon完整url");
+            assert(!config.menu || type(config.menu) === "array");
+
+            var iconList = ["home", "list", "gift"];
+            each(config.menu, function (menuItem) {
+                assert(isInArray(iconList, menuItem.icon) || wholeUrlReg.test(menuItem.icon), 'menuItem.icon应为"home"|"list"|"gift"或完整url');
+                assert(type(menuItem.text) === "string");
+                assert(type(menuItem.url) === "string");
+            });
+
+            backgroundPage.postMessage("customTopBar", config);
         }
     });
     var exportBoost = new Boost();
@@ -134,6 +152,10 @@ require([
             fromMethodName = methodName;
         }
         exportBoost[methodName] = $.proxy(obj[fromMethodName], obj);
+    }
+
+    function isInArray (array, item) {
+        return array.indexOf(item) > -1;
     }
 
     if (nativeVersion.shouldUseWeb()) {
