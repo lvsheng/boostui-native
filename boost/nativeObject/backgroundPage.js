@@ -25,6 +25,9 @@ define(function (require, exports, module) {
                 case "closepage":
                     this.dispatchEvent(new Event(this, "closepage"));
                     break;
+                case "ordercenter":
+                    this.dispatchEvent(new Event(this, "ordercenter"));
+                    break;
                 case "resume":
                     this.dispatchEvent(new Event(this, "resume"));
                     break;

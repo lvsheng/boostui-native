@@ -123,6 +123,14 @@ define(function (require, exports, module) {
             this.nativeObject.__callNative("showExitButton", [show]);
         },
 
+        //订单按钮
+        showOrderButton: function (imgUrl) {
+            this.nativeObject.__callNative("showOrderButton", [imgUrl]);
+        },
+        hideOrderButton: function () {
+            this.nativeObject.__callNative("hideOrderButton", []);
+        },
+
         onResume: function () {
             //1. 通知native
             this.nativeObject.__callNative("onResume", []);
