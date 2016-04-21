@@ -23,6 +23,8 @@ define(function (require, exports, module) {
                 url = null;
             } else if (/^https?:\/\//.test(value)) {
                 url = value;
+            } else if (/^assets\!/.test(value)) {
+                url = value;
             } else {
                 var host = location.protocol + "//" + location.hostname;
                 if (value[0] === '/') {
