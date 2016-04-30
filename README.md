@@ -45,3 +45,8 @@
 ## 开始使用！
 * [3分钟搞定hello, world](http://gitlab.baidu.com/zhida/boost-native/wikis/hello-world)
 * [接口文档](http://gitlab.baidu.com/zhida/boost-native/wikis/api)
+
+## 注：
+shadow-dom以15.9.4版本w3c制定中规范为准实现：http://w3c.github.io/webcomponents/spec/shadow/
+
+相应ci：https://github.com/w3c/webcomponents/tree/e75852363472c5d14cf1ba6087f42e570d66bb51
