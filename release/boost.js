@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atWed May 04 2016 09:16:56 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed May 04 2016 11:06:59 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -280,7 +280,8 @@ define("base/derive",function(require, exports, module) {
                     property[modifier] = value;
                     properties[key] = property;
 
-                    //FIXME: 为了方便，这里除了生成原有设值取值方法，还生成一份中划线命名法的方法供标签属性上直接使用。具体原因如下：
+                    //FIXME: 不应在此处处理，而应在xml解析时处理
+                    // 为了方便，这里除了生成原有设值取值方法，还生成一份中划线命名法的方法供标签属性上直接使用。具体原因如下：
                     // 从webView的template标签中取innerHTML再传入boost时，元素属性的驼峰消失、故需支持各属性中划线设置。
                     // 但有些属性如data-xx需要保留中划线，故不能在xml解析时转换。
                     // 而在每个"set xx"定义的地方写两份，又较啰嗦，故在此处处理
@@ -303,13 +304,7 @@ define("base/derive",function(require, exports, module) {
         //});
 
         subClass.prototype = subClassPrototype;
-        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故暂时去除
-        Object.defineProperty(subClassPrototype, "constructor", {
-            value: subClass,
-            configurable: false,
-            enumerable: false,
-            writable: false
-        });
+        subClassPrototype.constructor = subClass;
         return subClass;
     }
 
@@ -1058,7 +1053,7 @@ define("boost/AnimationCancelEvent",function(require, exports, module) {
     var assert = require("base/assert");
     var AnimationEvent = require("boost/AnimationEvent");
 
-    var AnimationCancelEvent = derive(Event, function (target, nowValue) {
+    var AnimationCancelEvent = derive(AnimationEvent, function (target, nowValue) {
         AnimationEvent.call(this, target, "cancel");
         this._nowValue = nowValue;
     }, {

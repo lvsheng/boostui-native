@@ -5,7 +5,7 @@ define(function (require, exports, module) {
     var assert = require("base/assert");
     var AnimationEvent = require("boost/AnimationEvent");
 
-    var AnimationCancelEvent = derive(Event, function (target, nowValue) {
+    var AnimationCancelEvent = derive(AnimationEvent, function (target, nowValue) {
         AnimationEvent.call(this, target, "cancel");
         this._nowValue = nowValue;
     }, {
