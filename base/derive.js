@@ -117,7 +117,8 @@ define(function (require, exports, module) {
                     property[modifier] = value;
                     properties[key] = property;
 
-                    //FIXME: 为了方便，这里除了生成原有设值取值方法，还生成一份中划线命名法的方法供标签属性上直接使用。具体原因如下：
+                    //FIXME: 不应在此处处理，而应在xml解析时处理
+                    // 为了方便，这里除了生成原有设值取值方法，还生成一份中划线命名法的方法供标签属性上直接使用。具体原因如下：
                     // 从webView的template标签中取innerHTML再传入boost时，元素属性的驼峰消失、故需支持各属性中划线设置。
                     // 但有些属性如data-xx需要保留中划线，故不能在xml解析时转换。
                     // 而在每个"set xx"定义的地方写两份，又较啰嗦，故在此处处理
