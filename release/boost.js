@@ -1,4 +1,4 @@
-(function () {console.log("performance: ", "update atTue Apr 19 2016 15:33:38 GMT+0800 (CST)");(function defineTimeLogger(exports) {
+(function () {console.log("performance: ", "update atWed May 04 2016 09:16:56 GMT+0800 (CST)");(function defineTimeLogger(exports) {
     if (exports.timeLogger) {
         return;
     }
@@ -303,7 +303,13 @@ define("base/derive",function(require, exports, module) {
         //});
 
         subClass.prototype = subClassPrototype;
-        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故去除
+        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故暂时去除
+        Object.defineProperty(subClassPrototype, "constructor", {
+            value: subClass,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        });
         return subClass;
     }
 
@@ -2805,6 +2811,8 @@ define("boost/Image",function(require, exports, module) {
             if (!value) {
                 url = null;
             } else if (/^https?:\/\//.test(value)) {
+                url = value;
+            } else if (/^assets\!/.test(value)) {
                 url = value;
             } else {
                 var host = location.protocol + "//" + location.hostname;

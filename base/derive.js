@@ -140,7 +140,13 @@ define(function (require, exports, module) {
         //});
 
         subClass.prototype = subClassPrototype;
-        //subClassPrototype.constructor = subClass; //safari不允许赋值constructor，故去除
+        //safari的Event.prototype.constructor为不可写，故此处重新defineProperty
+        Object.defineProperty(subClassPrototype, "constructor", {
+            value: subClass,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        });
         return subClass;
     }
 
